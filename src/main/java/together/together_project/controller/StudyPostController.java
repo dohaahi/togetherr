@@ -1,0 +1,10 @@
+package together.together_project.controller;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequiredArgsConstructor
+public class StudyPostController {
+
+}
