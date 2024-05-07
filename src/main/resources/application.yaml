@@ -1,0 +1,22 @@
+spring:
+  messages:
+    encoding: utf-8
+    basename: messages
+
+  datasource:
+    url: jdbc:mysql://localhost:6000/root
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+
+    hibernate:
+      ddl-auto: create

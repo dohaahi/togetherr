@@ -20,8 +20,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class User extends BaseTimeEntity {
 
-    // TODO: 양방향보다 단방향으로 설계하는 이유 조사
-
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private Long id;

@@ -13,8 +13,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseTimeEntity {
-    // TODO: BaseTimeEntity에 생성, 수정, 삭제 필드 넣기 -> 추상 클래스로 변환 (이유도 찾기)
-
+    
     @CreatedDate
     @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;

@@ -37,4 +37,6 @@ public class StudyPostComment extends BaseTimeEntity {
     private String content;
 
     private int totalLikeCount;
+
+    private Long parentCommentId;
 }

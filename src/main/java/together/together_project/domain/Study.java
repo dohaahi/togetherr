@@ -25,7 +25,6 @@ public class Study extends BaseTimeEntity {
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
-    // TODO: user랑 study가 FK로 연결이 되지 않아도 되는지
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "user_id")
     private User leader;
