@@ -1,6 +1,5 @@
 package together.together_project.controller;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +22,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<ResponseBody> signup(@Valid @RequestBody SignupRequestDto request) {
+    public ResponseEntity<ResponseBody> signup(@RequestBody SignupRequestDto request) {
         SignupResponseDto response = userService.signup(request);
 
         ResponseBody body = new ResponseBody(response, null, 201);

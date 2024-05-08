@@ -33,10 +33,10 @@ public class UserService {
         verifyPasswordRegex(request);
 
         String encodedPassword = bcryptService.encodeBcrypt(request.getPassword());
-        User newUser = request.toUser(encodedPassword);
-        userRepository.save(newUser);
+        User hashedUser = request.toUser(encodedPassword);
+        userRepository.save(hashedUser);
 
-        return SignupResponseDto.from(newUser);
+        return SignupResponseDto.from(hashedUser);
     }
 
     private void verifyEmailRegex(SignupRequestDto request) {
