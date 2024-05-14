@@ -22,4 +22,8 @@ public class UserRepositoryImpl {
     public Optional<User> findByNickname(String nickname) {
         return userRepository.findByNickname(nickname);
     }
+
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
 }

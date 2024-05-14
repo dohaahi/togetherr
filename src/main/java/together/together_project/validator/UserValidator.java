@@ -11,18 +11,27 @@ import together.together_project.exception.ErrorCode;
 
 public class UserValidator {
 
-    public static void verifySignup(
-            Optional<User> userByEmail,
-            Optional<User> userByNickname,
-            String email,
-            String nickname,
-            String password
-    ) {
+    // TODO: @Valid 사용하기
+
+    public static void verifySignup(Optional<User> userByEmail, Optional<User> userByNickname, String email,
+                                    String nickname, String password) {
         verifyEmailRegex(email);
         verifyEmailDuplicate(userByEmail);
         verifyNicknameLength(nickname);
         verifyNicknameDuplicate(userByNickname);
         verifyPasswordRegex(password);
+    }
+
+    public static void verifyLogin(Optional<User> user) {
+        if (user.isEmpty()) {
+            throw new CustomException(ErrorCode.AUTHENTICATION_FAILED);
+        }
+    }
+
+    public static void verifyWithdraw(Optional<User> user) {
+        if (user.isEmpty()) {
+            throw new CustomException(ErrorCode.TOKEN_VALIDATE);
+        }
     }
 
     private static void verifyEmailRegex(String email) {
