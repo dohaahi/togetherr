@@ -1,19 +1,21 @@
 package together.together_project.service;
 
 
-import static together.together_project.exception.ErrorCode.EMAIL_REGEX;
-import static together.together_project.exception.ErrorCode.PASSWORD_REGEX;
+import static together.together_project.validator.UserValidator.verifyLogin;
+import static together.together_project.validator.UserValidator.verifySignup;
+import static together.together_project.validator.UserValidator.verifyWithdraw;
 
 import jakarta.transaction.Transactional;
 import java.util.Optional;
-import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import together.together_project.domain.User;
 import together.together_project.exception.CustomException;
 import together.together_project.exception.ErrorCode;
 import together.together_project.repository.UserRepositoryImpl;
+import together.together_project.service.dto.request.LoginRequestDto;
 import together.together_project.service.dto.request.SignupRequestDto;
+import together.together_project.service.dto.request.WithdrawRequestDto;
 import together.together_project.service.dto.response.SignupResponseDto;
 
 @Service
@@ -26,11 +28,10 @@ public class UserService {
 
     public SignupResponseDto signup(SignupRequestDto request) {
 
-        verifyEmailRegex(request);
-        verifyEmailDuplicate(request);
-        verifyNicknameLength(request);
-        verifyNicknameDuplicate(request);
-        verifyPasswordRegex(request);
+        Optional<User> userByEmail = userRepository.findByEmail(request.getEmail());
+        Optional<User> userByNickname = userRepository.findByNickname(request.getNickname());
+
+        verifySignup(userByEmail, userByNickname, request.getEmail(), request.getNickname(), request.getPassword());
 
         String encodedPassword = bcryptService.encodeBcrypt(request.getPassword());
         User hashedUser = request.toUser(encodedPassword);
@@ -39,37 +40,32 @@ public class UserService {
         return SignupResponseDto.from(hashedUser);
     }
 
-    private void verifyEmailRegex(SignupRequestDto request) {
-        if (!Pattern.matches(EMAIL_REGEX, request.getEmail())) {
-            throw new CustomException(ErrorCode.EMAIL_FORMAT_INVALID);
-        }
-    }
 
-    private void verifyEmailDuplicate(SignupRequestDto request) {
+    public void login(LoginRequestDto request) {
+
         Optional<User> user = userRepository.findByEmail(request.getEmail());
+        verifyLogin(user);
 
-        if (user.isPresent()) {
-            throw new CustomException(ErrorCode.EMAIL_DUPLICATE);
+        boolean matchedBcrypt = bcryptService.matchBcrypt(request.getPassword(), user.get().getPassword());
+        if (!matchedBcrypt) {
+            throw new CustomException(ErrorCode.AUTHENTICATION_FAILED);
         }
     }
 
-    private void verifyNicknameLength(SignupRequestDto request) {
-        if (request.getNickname().isEmpty()) {
-            throw new CustomException(ErrorCode.NICKNAME_LENGTH);
-        }
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
-    private void verifyNicknameDuplicate(SignupRequestDto request) {
-        Optional<User> user = userRepository.findByNickname(request.getNickname());
+    public void withdraw(WithdrawRequestDto request, Long userId) {
+        Optional<User> user = userRepository.findById(userId);
+        verifyWithdraw(user);
 
-        if (user.isPresent()) {
-            throw new CustomException(ErrorCode.NICKNAME_DUPLICATE);
+        boolean matchedBcrypt = bcryptService.matchBcrypt(request.password(), user.get().getPassword());
+        if (!matchedBcrypt) {
+            throw new CustomException(ErrorCode.PASSWORD_NOT_MATCH);
         }
-    }
 
-    private void verifyPasswordRegex(SignupRequestDto request) {
-        if (!Pattern.matches(PASSWORD_REGEX, request.getPassword())) {
-            throw new CustomException(ErrorCode.PASSWORD_FORMAT_VALIDATE);
-        }
+        user.get().softDelete();
     }
 }

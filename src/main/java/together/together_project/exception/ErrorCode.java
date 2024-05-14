@@ -10,7 +10,11 @@ public enum ErrorCode {
     EMAIL_FORMAT_INVALID("잘못된 이메일 양식입니다.", 400),
     NICKNAME_DUPLICATE("이미 존재하는 닉네임입니다.", 409),
     NICKNAME_LENGTH("닉네임은 1글자 이상으로 작성해주세요.", 400),
-    PASSWORD_FORMAT_VALIDATE("영문, 숫자, 특수문자 포함한 8자리 이상으로 작성해주세요.", 400);
+    PASSWORD_FORMAT_VALIDATE("영문, 숫자, 특수문자 포함한 8자리 이상으로 작성해주세요.", 400),
+    PASSWORD_NOT_MATCH("비밀번호가 일치하지 않습니다.", 401),
+    AUTHENTICATION_FAILED("존재하지 않는 회원이거나 비밀번호가 일치하지 않습니다.", 401),
+    USER_NOT_FOUND("존재하지 않는 회원입니다,", 401),
+    TOKEN_VALIDATE("유효하지 않은 토큰입니다.", 403);
 
     private final String description;
     private final int statusCode;
