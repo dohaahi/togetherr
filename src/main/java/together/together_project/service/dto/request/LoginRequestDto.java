@@ -1,5 +1,6 @@
 package together.together_project.service.dto.request;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -7,9 +8,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class LoginRequestDto {
 
-    // @NotNull
+    @NotNull
     private final String email;
 
-    // @NotNull
+    @NotNull
     private final String password;
 }

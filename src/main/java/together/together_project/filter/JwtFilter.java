@@ -12,6 +12,8 @@ import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import together.together_project.exception.CustomException;
+import together.together_project.exception.ErrorCode;
 import together.together_project.security.JwtProvider;
 
 @Component
@@ -53,6 +55,6 @@ public class JwtFilter extends OncePerRequestFilter {
                 .filter(cookie -> cookie.getName().equals("accessToken"))
                 .map(Cookie::getValue)
                 .findFirst()
-                .orElseThrow(RuntimeException::new);
+                .orElseThrow(() -> new CustomException(ErrorCode.TOKEN_VALIDATE));
     }
 }

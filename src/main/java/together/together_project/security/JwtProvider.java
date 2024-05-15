@@ -59,7 +59,7 @@ public class JwtProvider {
             Date expiration = claims.getExpiration();
 
             if (expiration.before(new Date())) {
-                throw new ExpiredJwtException(null, null, "Expired Token");
+                throw new CustomException(ErrorCode.TOKEN_VALIDATE);
             }
 
             Long userId = Long.valueOf(claims.get(USER_ID_KEY).toString());

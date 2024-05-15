@@ -1,21 +1,27 @@
 package together.together_project.exception;
 
-import java.util.Objects;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import together.together_project.service.dto.response.ResponseBody;
 
 @RestControllerAdvice
 public class ExceptionHandlerAdvice {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+    public ErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
 
-        ResponseBody body = ResponseBody.of(Objects.requireNonNull(e.getFieldError()));
+        System.out.println("ExceptionHandlerAdvice.handleMethodArgumentNotValidException");
 
-        return ResponseEntity.badRequest()
-                .body(body);
+        String message = exception.getBindingResult()
+                .getFieldErrors()
+                .get(0)
+                .getDefaultMessage();
+
+        return ErrorResponse.builder()
+                .data(null)
+                .error(message)
+                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .build();
     }
 }

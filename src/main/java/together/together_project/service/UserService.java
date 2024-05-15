@@ -31,7 +31,7 @@ public class UserService {
         Optional<User> userByEmail = userRepository.findByEmail(request.getEmail());
         Optional<User> userByNickname = userRepository.findByNickname(request.getNickname());
 
-        verifySignup(userByEmail, userByNickname, request.getEmail(), request.getNickname(), request.getPassword());
+        verifySignup(userByEmail, userByNickname);
 
         String encodedPassword = bcryptService.encodeBcrypt(request.getPassword());
         User hashedUser = request.toUser(encodedPassword);
