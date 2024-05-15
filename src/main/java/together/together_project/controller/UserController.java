@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,12 +21,13 @@ import together.together_project.service.dto.TokenDto;
 import together.together_project.service.dto.request.LoginRequestDto;
 import together.together_project.service.dto.request.SignupRequestDto;
 import together.together_project.service.dto.request.WithdrawRequestDto;
+import together.together_project.service.dto.response.MyPageResponseDto;
 import together.together_project.service.dto.response.ResponseBody;
 import together.together_project.service.dto.response.SignupResponseDto;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/auth")
+@RequestMapping("/api")
 @Validated
 public class UserController {
 
@@ -35,7 +37,7 @@ public class UserController {
     private final UserService userService;
     private final JwtProvider jwtProvider;
 
-    @PostMapping("/signup")
+    @PostMapping("/auth/signup")
     public ResponseEntity<ResponseBody> signup(@Valid @RequestBody SignupRequestDto request) {
         SignupResponseDto response = userService.signup(request);
 
@@ -45,7 +47,7 @@ public class UserController {
                 .body(body);
     }
 
-    @PostMapping("/login")
+    @PostMapping("/auth/login")
     public ResponseEntity<ResponseBody> login(@Valid @RequestBody LoginRequestDto request) {
         userService.login(request);
 
@@ -62,10 +64,10 @@ public class UserController {
                 .body(body);
     }
 
-    @DeleteMapping("/withdraw")
+    @DeleteMapping("/auth/withdraw")
     public ResponseEntity<ResponseBody> withdraw(
             @RequestBody WithdrawRequestDto request,
-            @CookieValue(name = "accessToken") Cookie cookie
+            @CookieValue(name = ACCESS_TOKEN) Cookie cookie
     ) {
 
         Long userId = jwtProvider.verifyAuthTokenOrThrow(cookie.getValue());
@@ -75,6 +77,20 @@ public class UserController {
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
         // TODO: 코드는 NO_CONTENT 인데 데이터를 넘겨도 되는지
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    @GetMapping("/users/mypage")
+    public ResponseEntity<ResponseBody> getMyPage(@CookieValue(name = ACCESS_TOKEN) Cookie cookie) {
+        Long userId = jwtProvider.verifyAuthTokenOrThrow(cookie.getValue());
+
+        User user = userService.getUserById(userId);
+
+        MyPageResponseDto response = MyPageResponseDto.from(user);
+
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
     }
