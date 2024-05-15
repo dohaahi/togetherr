@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import together.together_project.service.dto.request.MyPageRequestDto;
 
 @Entity
 @Table(name = "`user`")
@@ -33,4 +34,28 @@ public class User extends BaseTimeEntity {
     private String bio;
 
     private String profileUrl;
+
+    public User update(MyPageRequestDto request) {
+
+        if (request.email() != null) {
+            this.email = request.email();
+        }
+
+        if (request.nickname() != null) {
+            this.nickname = request.nickname();
+        }
+
+        if (request.bio() != null) {
+            this.bio = request.bio();
+        }
+
+        if (request.profileUrl() != null) {
+            this.profileUrl = request.profileUrl();
+        }
+
+        // 수정 시간 변경
+        this.updateTime();
+
+        return this;
+    }
 }

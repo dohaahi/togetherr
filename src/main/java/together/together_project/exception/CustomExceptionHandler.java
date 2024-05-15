@@ -1,18 +1,15 @@
 package together.together_project.exception;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @RestControllerAdvice
-public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
+public class CustomExceptionHandler {
 
-    @ExceptionHandler({CustomException.class, RuntimeException.class})
+    @ExceptionHandler(CustomException.class)
     public ErrorResponse handleException(
-            CustomException exception,
-            HttpServletRequest request
-    ) {
+            CustomException exception) {
+
         return ErrorResponse.builder()
                 .data(null)
                 .error(exception.getErrorCode().getDescription())

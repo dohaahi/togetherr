@@ -14,6 +14,7 @@ import together.together_project.exception.CustomException;
 import together.together_project.exception.ErrorCode;
 import together.together_project.repository.UserRepositoryImpl;
 import together.together_project.service.dto.request.LoginRequestDto;
+import together.together_project.service.dto.request.MyPageRequestDto;
 import together.together_project.service.dto.request.SignupRequestDto;
 import together.together_project.service.dto.request.WithdrawRequestDto;
 import together.together_project.service.dto.response.SignupResponseDto;
@@ -31,7 +32,7 @@ public class UserService {
         Optional<User> userByEmail = userRepository.findByEmail(request.getEmail());
         Optional<User> userByNickname = userRepository.findByNickname(request.getNickname());
 
-        verifySignup(userByEmail, userByNickname, request.getEmail(), request.getNickname(), request.getPassword());
+        verifySignup(userByEmail, userByNickname);
 
         String encodedPassword = bcryptService.encodeBcrypt(request.getPassword());
         User hashedUser = request.toUser(encodedPassword);
@@ -72,5 +73,22 @@ public class UserService {
     public User getUserById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    public User updateMyPage(MyPageRequestDto request, Long userId) {
+
+        userRepository.findByEmail(request.email())
+                .ifPresent(user -> {
+                    throw new CustomException(ErrorCode.EMAIL_DUPLICATE);
+                });
+
+        userRepository.findByNickname(request.nickname())
+                .ifPresent(user -> {
+                    throw new CustomException(ErrorCode.NICKNAME_DUPLICATE);
+                });
+
+        User user = getUserById(userId);
+
+        return user.update(request);
     }
 }

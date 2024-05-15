@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +20,7 @@ import together.together_project.security.JwtProvider;
 import together.together_project.service.UserService;
 import together.together_project.service.dto.TokenDto;
 import together.together_project.service.dto.request.LoginRequestDto;
+import together.together_project.service.dto.request.MyPageRequestDto;
 import together.together_project.service.dto.request.SignupRequestDto;
 import together.together_project.service.dto.request.WithdrawRequestDto;
 import together.together_project.service.dto.response.MyPageResponseDto;
@@ -93,6 +95,19 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
+    }
+
+    @PutMapping("/users/mypage")
+    public ResponseEntity<ResponseBody> updateMyPage(@Valid @RequestBody MyPageRequestDto request,
+                                                     @CookieValue(name = ACCESS_TOKEN) Cookie cookie) {
+
+        Long userId = jwtProvider.verifyAuthTokenOrThrow(cookie.getValue());
+        User user = userService.updateMyPage(request, userId);
+
+        MyPageResponseDto response = MyPageResponseDto.from(user);
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
     private ResponseCookie createCookieFromToken(String tokenName, String tokenValue) {
