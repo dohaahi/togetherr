@@ -13,7 +13,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseTimeEntity {
-    
+
     @CreatedDate
     @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;
@@ -26,6 +26,10 @@ public abstract class BaseTimeEntity {
 
     public void softDelete() {
         deletedAt = LocalDateTime.now();
+    }
+
+    public void updateTime() {
+        updatedAt = LocalDateTime.now();
     }
 
     public boolean isDeleted() {
