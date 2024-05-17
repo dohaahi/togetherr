@@ -1,19 +1,16 @@
 package together.together_project.controller;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import together.together_project.domain.User;
 import together.together_project.security.JwtProvider;
@@ -29,12 +26,11 @@ import together.together_project.service.dto.response.SignupResponseDto;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
 @Validated
 public class UserController {
 
     private static final String SET_COOKIE = "set-Cookie";
-    private static final String ACCESS_TOKEN = "accessToken";
+    public static final String ACCESS_TOKEN = "accessToken";
 
     private final UserService userService;
     private final JwtProvider jwtProvider;
@@ -59,7 +55,7 @@ public class UserController {
 
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
-        ResponseCookie accessToken = createCookieFromToken(ACCESS_TOKEN, tokenDto.accessToken());
+        ResponseCookie accessToken = createCookieFromToken(tokenDto.accessToken());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header(SET_COOKIE, accessToken.toString())
@@ -69,12 +65,9 @@ public class UserController {
     @DeleteMapping("/auth/withdraw")
     public ResponseEntity<ResponseBody> withdraw(
             @RequestBody WithdrawRequestDto request,
-            @CookieValue(name = ACCESS_TOKEN) Cookie cookie
+            @AuthUser User currentUser
     ) {
-
-        Long userId = jwtProvider.verifyAuthTokenOrThrow(cookie.getValue());
-
-        userService.withdraw(request, userId);
+        userService.withdraw(request, currentUser.getId());
 
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
@@ -84,10 +77,10 @@ public class UserController {
     }
 
     @GetMapping("/users/mypage")
-    public ResponseEntity<ResponseBody> getMyPage(@CookieValue(name = ACCESS_TOKEN) Cookie cookie) {
-        Long userId = jwtProvider.verifyAuthTokenOrThrow(cookie.getValue());
-
-        User user = userService.getUserById(userId);
+    public ResponseEntity<ResponseBody> getMyPage(
+            @AuthUser User currentUser
+    ) {
+        User user = userService.getUserById(currentUser.getId());
 
         MyPageResponseDto response = MyPageResponseDto.from(user);
 
@@ -98,11 +91,11 @@ public class UserController {
     }
 
     @PutMapping("/users/mypage")
-    public ResponseEntity<ResponseBody> updateMyPage(@Valid @RequestBody MyPageRequestDto request,
-                                                     @CookieValue(name = ACCESS_TOKEN) Cookie cookie) {
+    public ResponseEntity<ResponseBody> updateMyPage(
+            @Valid @RequestBody MyPageRequestDto request,
+            @AuthUser User currentUser) {
 
-        Long userId = jwtProvider.verifyAuthTokenOrThrow(cookie.getValue());
-        User user = userService.updateMyPage(request, userId);
+        User user = userService.updateMyPage(request, currentUser.getId());
 
         MyPageResponseDto response = MyPageResponseDto.from(user);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
@@ -110,8 +103,8 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
-    private ResponseCookie createCookieFromToken(String tokenName, String tokenValue) {
-        return ResponseCookie.from(tokenName, tokenValue)
+    private ResponseCookie createCookieFromToken(String tokenValue) {
+        return ResponseCookie.from(UserController.ACCESS_TOKEN, tokenValue)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
