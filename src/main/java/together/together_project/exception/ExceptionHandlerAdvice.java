@@ -11,8 +11,6 @@ public class ExceptionHandlerAdvice {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
 
-        System.out.println("ExceptionHandlerAdvice.handleMethodArgumentNotValidException");
-
         String message = exception.getBindingResult()
                 .getFieldErrors()
                 .get(0)
