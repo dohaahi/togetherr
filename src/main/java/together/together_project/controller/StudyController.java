@@ -31,6 +31,7 @@ public class StudyController {
         StudiesResponseDto response = StudiesResponseDto.from(study);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.CREATED.value());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(body);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(body);
     }
 }
