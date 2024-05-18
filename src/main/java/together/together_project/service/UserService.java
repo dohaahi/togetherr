@@ -29,12 +29,12 @@ public class UserService {
 
     public SignupResponseDto signup(SignupRequestDto request) {
 
-        Optional<User> userByEmail = userRepository.findByEmail(request.getEmail());
-        Optional<User> userByNickname = userRepository.findByNickname(request.getNickname());
+        Optional<User> userByEmail = userRepository.findByEmail(request.email());
+        Optional<User> userByNickname = userRepository.findByNickname(request.nickname());
 
         verifySignup(userByEmail, userByNickname);
 
-        String encodedPassword = bcryptService.encodeBcrypt(request.getPassword());
+        String encodedPassword = bcryptService.encodeBcrypt(request.password());
         User hashedUser = request.toUser(encodedPassword);
         userRepository.save(hashedUser);
 
@@ -44,10 +44,10 @@ public class UserService {
 
     public void login(LoginRequestDto request) {
 
-        Optional<User> user = userRepository.findByEmail(request.getEmail());
+        Optional<User> user = userRepository.findByEmail(request.email());
         verifyLogin(user);
 
-        boolean matchedBcrypt = bcryptService.matchBcrypt(request.getPassword(), user.get().getPassword());
+        boolean matchedBcrypt = bcryptService.matchBcrypt(request.password(), user.get().getPassword());
         if (!matchedBcrypt) {
             throw new CustomException(ErrorCode.AUTHENTICATION_FAILED);
         }
