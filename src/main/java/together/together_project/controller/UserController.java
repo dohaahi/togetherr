@@ -1,5 +1,9 @@
 package together.together_project.controller;
 
+import static together.together_project.constant.UserConstant.ACCESS_TOKEN;
+import static together.together_project.constant.UserConstant.ROOT_PATH;
+import static together.together_project.constant.UserConstant.SET_COOKIE;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,17 +33,13 @@ import together.together_project.service.dto.response.SignupResponseDto;
 @Validated
 public class UserController {
 
-    private static final String SET_COOKIE = "set-Cookie";
-    public static final String ACCESS_TOKEN = "accessToken";
-
     private final UserService userService;
     private final JwtProvider jwtProvider;
 
     @PostMapping("/auth/signup")
     public ResponseEntity<ResponseBody> signup(@Valid @RequestBody SignupRequestDto request) {
         SignupResponseDto response = userService.signup(request);
-
-        ResponseBody body = new ResponseBody(response, null, 201);
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.CREATED.value());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(body);
@@ -50,11 +50,8 @@ public class UserController {
         userService.login(request);
 
         User user = userService.getUserByEmail(request.getEmail());
-
         TokenDto tokenDto = new TokenDto(jwtProvider.createAccessToken(user.getId()));
-
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
-
         ResponseCookie accessToken = createCookieFromToken(tokenDto.accessToken());
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -68,7 +65,6 @@ public class UserController {
             @AuthUser User currentUser
     ) {
         userService.withdraw(request, currentUser.getId());
-
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
         // TODO: 코드는 NO_CONTENT 인데 데이터를 넘겨도 되는지
@@ -81,9 +77,7 @@ public class UserController {
             @AuthUser User currentUser
     ) {
         User user = userService.getUserById(currentUser.getId());
-
         MyPageResponseDto response = MyPageResponseDto.from(user);
-
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -93,21 +87,21 @@ public class UserController {
     @PutMapping("/users/mypage")
     public ResponseEntity<ResponseBody> updateMyPage(
             @Valid @RequestBody MyPageRequestDto request,
-            @AuthUser User currentUser) {
-
+            @AuthUser User currentUser
+    ) {
         User user = userService.updateMyPage(request, currentUser.getId());
-
         MyPageResponseDto response = MyPageResponseDto.from(user);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 
-        return ResponseEntity.status(HttpStatus.OK).body(body);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
     }
 
     private ResponseCookie createCookieFromToken(String tokenValue) {
-        return ResponseCookie.from(UserController.ACCESS_TOKEN, tokenValue)
+        return ResponseCookie.from(ACCESS_TOKEN, tokenValue)
                 .httpOnly(true)
                 .secure(true)
-                .path("/")
+                .path(ROOT_PATH)
                 .build();
     }
 }
