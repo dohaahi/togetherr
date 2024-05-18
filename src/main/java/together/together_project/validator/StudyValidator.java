@@ -6,12 +6,11 @@ import together.together_project.service.dto.request.StudiesRequestDto;
 
 public class StudyValidator {
 
-    private static final int MIN_PEOPLE = 2;
+    public static final int MIN_PEOPLE = 2;
 
     public static void verifyCreateStudyPost(StudiesRequestDto request) {
         if (request.maxPeople() < MIN_PEOPLE) {
             throw new CustomException(ErrorCode.MAX_PEOPLE_UNDER_LIMIT);
         }
-
     }
 }
