@@ -1,6 +1,6 @@
 package together.together_project.resolver;
 
-import static together.together_project.controller.UserController.ACCESS_TOKEN;
+import static together.together_project.constant.UserConstant.ACCESS_TOKEN;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
