@@ -14,7 +14,9 @@ public enum ErrorCode {
     PASSWORD_NOT_MATCH("비밀번호가 일치하지 않습니다.", 401),
     AUTHENTICATION_FAILED("존재하지 않는 회원이거나 비밀번호가 일치하지 않습니다.", 401),
     USER_NOT_FOUND("존재하지 않는 회원입니다,", 401),
-    TOKEN_VALIDATE("유효하지 않은 토큰입니다.", 403);
+    TOKEN_VALIDATE("유효하지 않은 토큰입니다.", 403),
+    MAX_PEOPLE_UNDER_LIMIT("최대 인원은 2명 이상이여야 합니다.", 422);
+
 
     private final String description;
     private final int statusCode;

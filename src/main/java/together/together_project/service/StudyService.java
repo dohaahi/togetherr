@@ -1,5 +1,7 @@
 package together.together_project.service;
 
+import static together.together_project.validator.StudyValidator.verifyCreateStudyPost;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import together.together_project.domain.Study;
@@ -17,6 +19,7 @@ public class StudyService {
     private final StudyPostRepositoryImpl studyPostRepository;
 
     public Study createStudyPost(StudiesRequestDto request, User user) {
+        verifyCreateStudyPost(request);
         StudyPost studyPost = request.toStudyPost();
         Study study = request.toStudy(user, studyPost);
 

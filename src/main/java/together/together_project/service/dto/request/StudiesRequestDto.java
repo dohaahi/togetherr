@@ -3,11 +3,14 @@ package together.together_project.service.dto.request;
 import static together.together_project.constant.ServiceConstant.INIT_PARTICIPANT_COUNT;
 import static together.together_project.constant.ServiceConstant.INIT_TOTAL_LIKE_COUNT;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.validation.constraints.NotNull;
 import together.together_project.domain.Study;
 import together.together_project.domain.StudyPost;
 import together.together_project.domain.User;
 
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record StudiesRequestDto(
 
         @NotNull(message = "제목을 입력하지 않았습니다.")
@@ -20,7 +23,6 @@ public record StudiesRequestDto(
         String location,
 
         @NotNull(message = "최대 인원을 입력하지 않았습니다.")
-        // TODO: 2명 이하일 경우 예외 처리
         Integer maxPeople
 
 ) {
