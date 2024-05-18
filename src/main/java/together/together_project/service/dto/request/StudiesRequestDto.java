@@ -1,7 +1,7 @@
 package together.together_project.service.dto.request;
 
-import static together.together_project.constant.ServiceConstant.INIT_PARTICIPANT_COUNT;
-import static together.together_project.constant.ServiceConstant.INIT_TOTAL_LIKE_COUNT;
+import static together.together_project.constant.StudyConstant.INIT_PARTICIPANT_COUNT;
+import static together.together_project.constant.StudyConstant.INIT_TOTAL_LIKE_COUNT;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
