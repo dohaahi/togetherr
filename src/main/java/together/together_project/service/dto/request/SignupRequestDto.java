@@ -3,12 +3,15 @@ package together.together_project.service.dto.request;
 import static together.together_project.exception.ErrorCode.EMAIL_REGEX;
 import static together.together_project.exception.ErrorCode.PASSWORD_REGEX;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import org.hibernate.validator.constraints.Length;
 import together.together_project.domain.User;
 
 @Getter
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class SignupRequestDto {
 
 

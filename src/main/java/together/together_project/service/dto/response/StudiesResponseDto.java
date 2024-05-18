@@ -1,9 +1,12 @@
 package together.together_project.service.dto.response;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.time.LocalDateTime;
 import together.together_project.domain.Study;
 import together.together_project.domain.StudyPost;
 
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record StudiesResponseDto(
         Long id,
         Long leader,
