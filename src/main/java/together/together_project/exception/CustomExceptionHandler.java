@@ -8,8 +8,8 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
     public ErrorResponse handleException(
-            CustomException exception) {
-
+            CustomException exception
+    ) {
         return ErrorResponse.builder()
                 .data(null)
                 .error(exception.getErrorCode().getDescription())

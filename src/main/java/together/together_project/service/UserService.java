@@ -29,12 +29,12 @@ public class UserService {
 
     public SignupResponseDto signup(SignupRequestDto request) {
 
-        Optional<User> userByEmail = userRepository.findByEmail(request.getEmail());
-        Optional<User> userByNickname = userRepository.findByNickname(request.getNickname());
+        Optional<User> userByEmail = userRepository.findByEmail(request.email());
+        Optional<User> userByNickname = userRepository.findByNickname(request.nickname());
 
         verifySignup(userByEmail, userByNickname);
 
-        String encodedPassword = bcryptService.encodeBcrypt(request.getPassword());
+        String encodedPassword = bcryptService.encodeBcrypt(request.password());
         User hashedUser = request.toUser(encodedPassword);
         userRepository.save(hashedUser);
 
@@ -44,10 +44,16 @@ public class UserService {
 
     public void login(LoginRequestDto request) {
 
-        Optional<User> user = userRepository.findByEmail(request.getEmail());
+        Optional<User> user = userRepository.findByEmail(request.email());
+
+        // NOTE: 메서드 이름 verifyLogin OR checkEmptyUser
         verifyLogin(user);
 
-        boolean matchedBcrypt = bcryptService.matchBcrypt(request.getPassword(), user.get().getPassword());
+        if (user.get().isDeleted()) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        boolean matchedBcrypt = bcryptService.matchBcrypt(request.password(), user.get().getPassword());
         if (!matchedBcrypt) {
             throw new CustomException(ErrorCode.AUTHENTICATION_FAILED);
         }
@@ -61,6 +67,10 @@ public class UserService {
     public void withdraw(WithdrawRequestDto request, Long userId) {
         Optional<User> user = userRepository.findById(userId);
         verifyWithdraw(user);
+
+        if (user.get().isDeleted()) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
 
         boolean matchedBcrypt = bcryptService.matchBcrypt(request.password(), user.get().getPassword());
         if (!matchedBcrypt) {
@@ -76,18 +86,21 @@ public class UserService {
     }
 
     public User updateMyPage(MyPageRequestDto request, Long userId) {
+        User user = getUserById(userId);
+
+        if (user.isDeleted()) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
 
         userRepository.findByEmail(request.email())
-                .ifPresent(user -> {
+                .ifPresent(u -> {
                     throw new CustomException(ErrorCode.EMAIL_DUPLICATE);
                 });
 
         userRepository.findByNickname(request.nickname())
-                .ifPresent(user -> {
+                .ifPresent(u -> {
                     throw new CustomException(ErrorCode.NICKNAME_DUPLICATE);
                 });
-
-        User user = getUserById(userId);
 
         return user.update(request);
     }

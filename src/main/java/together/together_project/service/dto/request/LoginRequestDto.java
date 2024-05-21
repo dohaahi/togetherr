@@ -1,16 +1,17 @@
 package together.together_project.service.dto.request;
 
-import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import jakarta.validation.constraints.NotBlank;
 
-@Getter
-@RequiredArgsConstructor
-public class LoginRequestDto {
 
-    @NotNull
-    private final String email;
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+public record LoginRequestDto(
 
-    @NotNull
-    private final String password;
+        @NotBlank(message = "이메일을 입력하지 않았습니다.")
+        String email,
+
+        @NotBlank(message = "비밀번호를 입력하지 않았습니다.")
+        String password
+) {
 }
