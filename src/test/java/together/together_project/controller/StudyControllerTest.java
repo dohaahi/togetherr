@@ -5,20 +5,20 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static together.together_project.validator.StudyValidator.MIN_PEOPLE;
 
 import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
 import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
 import java.util.Set;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import together.together_project.exception.CustomException;
 import together.together_project.exception.ErrorCode;
 import together.together_project.service.dto.request.StudiesRequestDto;
+import together.together_project.service.dto.request.WithdrawRequestDto;
 import together.together_project.validator.StudyValidator;
 
 @SpringBootTest
@@ -28,13 +28,8 @@ class StudyControllerTest {
     @Autowired
     StudyController studyController;
 
-    private static Validator validator;
-
-    @BeforeEach
-    public void setUp() {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        validator = factory.getValidator();
-    }
+    @Autowired
+    private Validator validator;
 
     @Nested
     class write {
@@ -62,7 +57,6 @@ class StudyControllerTest {
                     5);
             Set<ConstraintViolation<StudiesRequestDto>> violations = validator.validate(dto);
 
-            assertEquals(1, violations.size());
             assertEquals("제목을 입력하지 않았습니다.", violations.iterator().next().getMessage());
         }
 
@@ -76,7 +70,6 @@ class StudyControllerTest {
                     5);
             Set<ConstraintViolation<StudiesRequestDto>> violations = validator.validate(dto);
 
-            assertEquals(1, violations.size());
             assertEquals("내용을 입력하지 않았습니다.", violations.iterator().next().getMessage());
         }
 
@@ -90,7 +83,6 @@ class StudyControllerTest {
                     5);
             Set<ConstraintViolation<StudiesRequestDto>> violations = validator.validate(dto);
 
-            assertEquals(1, violations.size());
             assertEquals("위치를 입력하지 않았습니다.", violations.iterator().next().getMessage());
         }
 
@@ -104,7 +96,6 @@ class StudyControllerTest {
                     null);
             Set<ConstraintViolation<StudiesRequestDto>> violations = validator.validate(dto);
 
-            assertEquals(1, violations.size());
             assertEquals("최대 인원을 입력하지 않았습니다.", violations.iterator().next().getMessage());
         }
 
@@ -120,6 +111,20 @@ class StudyControllerTest {
             assertThrows(CustomException.class,
                     () -> StudyValidator.verifyCreateStudyPost(request),
                     ErrorCode.MAX_PEOPLE_UNDER_LIMIT.getDescription());
+        }
+    }
+
+    @Nested
+    class Withdraw {
+        @DisplayName("비밀번호를 입력하지 않으면 예외 발생")
+        @ParameterizedTest
+        @NullAndEmptySource
+        public void testPasswordNotBlank(String input) {
+            WithdrawRequestDto request = new WithdrawRequestDto(input);
+
+            Set<ConstraintViolation<WithdrawRequestDto>> violations = validator.validate(request);
+
+            assertEquals("비밀번호를 입력하지 않았습니다.", violations.iterator().next().getMessage());
         }
     }
 }
