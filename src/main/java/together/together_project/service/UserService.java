@@ -45,7 +45,13 @@ public class UserService {
     public void login(LoginRequestDto request) {
 
         Optional<User> user = userRepository.findByEmail(request.email());
+
+        // NOTE: 메서드 이름 verifyLogin OR checkEmptyUser
         verifyLogin(user);
+
+        if (user.get().isDeleted()) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
 
         boolean matchedBcrypt = bcryptService.matchBcrypt(request.password(), user.get().getPassword());
         if (!matchedBcrypt) {
@@ -62,6 +68,10 @@ public class UserService {
         Optional<User> user = userRepository.findById(userId);
         verifyWithdraw(user);
 
+        if (user.get().isDeleted()) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+
         boolean matchedBcrypt = bcryptService.matchBcrypt(request.password(), user.get().getPassword());
         if (!matchedBcrypt) {
             throw new CustomException(ErrorCode.PASSWORD_NOT_MATCH);
@@ -76,18 +86,21 @@ public class UserService {
     }
 
     public User updateMyPage(MyPageRequestDto request, Long userId) {
+        User user = getUserById(userId);
+
+        if (user.isDeleted()) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
 
         userRepository.findByEmail(request.email())
-                .ifPresent(user -> {
+                .ifPresent(u -> {
                     throw new CustomException(ErrorCode.EMAIL_DUPLICATE);
                 });
 
         userRepository.findByNickname(request.nickname())
-                .ifPresent(user -> {
+                .ifPresent(u -> {
                     throw new CustomException(ErrorCode.NICKNAME_DUPLICATE);
                 });
-
-        User user = getUserById(userId);
 
         return user.update(request);
     }
