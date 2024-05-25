@@ -65,9 +65,7 @@ public class UserController {
     ) {
         userService.withdraw(request, currentUser.getId());
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
-
-        // TODO: 코드는 NO_CONTENT 인데 데이터를 넘겨도 되는지
-        // -> 콜백으로 처리하기
+        
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
     }
