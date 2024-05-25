@@ -31,13 +31,13 @@ public class JwtFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         // 회원가입, 로그인의 경우 필터 실행 X
-        if (request.getRequestURI().startsWith(AUTH_URI + "/signup") ||
-                request.getRequestURI().startsWith(AUTH_URI + "/login")) {
+        if (request.getRequestURI().startsWith(AUTH_URI)) {
             filterChain.doFilter(request, response);
             return;
         }
 
         // request에서 토큰 꺼내기
+        // TODO: try-catch 로 해결하기
         String accessToken = resolveTokenFromRequest(request);
 
         jwtProvider.verifyAuthTokenOrThrow(accessToken);
