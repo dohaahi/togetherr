@@ -13,7 +13,7 @@ public enum ErrorCode {
     PASSWORD_FORMAT_VALIDATE("영문, 숫자, 특수문자 포함한 8자리 이상으로 작성해주세요.", 400),
     PASSWORD_NOT_MATCH("비밀번호가 일치하지 않습니다.", 401),
     AUTHENTICATION_FAILED("존재하지 않는 회원이거나 비밀번호가 일치하지 않습니다.", 401),
-    USER_NOT_FOUND("존재하지 않는 회원입니다,", 401),
+    USER_NOT_FOUND("존재하지 않는 회원입니다.", 401),
     TOKEN_VALIDATE("유효하지 않은 토큰입니다.", 403),
     MAX_PEOPLE_UNDER_LIMIT("최대 인원은 2명 이상이여야 합니다.", 422);
 

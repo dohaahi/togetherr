@@ -1,12 +1,7 @@
 package together.together_project.service;
 
 
-import static together.together_project.validator.UserValidator.verifyLogin;
-import static together.together_project.validator.UserValidator.verifySignup;
-import static together.together_project.validator.UserValidator.verifyWithdraw;
-
 import jakarta.transaction.Transactional;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import together.together_project.domain.User;
@@ -28,11 +23,15 @@ public class UserService {
     private final BcryptService bcryptService;
 
     public SignupResponseDto signup(SignupRequestDto request) {
+        userRepository.findByEmail(request.email())
+                .ifPresent(user -> {
+                    throw new CustomException(ErrorCode.EMAIL_DUPLICATE);
+                });
 
-        Optional<User> userByEmail = userRepository.findByEmail(request.email());
-        Optional<User> userByNickname = userRepository.findByNickname(request.nickname());
-
-        verifySignup(userByEmail, userByNickname);
+        userRepository.findByNickname(request.nickname())
+                .ifPresent(user -> {
+                    throw new CustomException(ErrorCode.NICKNAME_DUPLICATE);
+                });
 
         String encodedPassword = bcryptService.encodeBcrypt(request.password());
         User hashedUser = request.toUser(encodedPassword);
@@ -42,42 +41,38 @@ public class UserService {
     }
 
 
-    public void login(LoginRequestDto request) {
+    public Long login(LoginRequestDto request) {
+        User user = userRepository.findByEmail(request.email())
+                .orElseThrow(() -> new CustomException(ErrorCode.AUTHENTICATION_FAILED));
 
-        Optional<User> user = userRepository.findByEmail(request.email());
-
-        // NOTE: 메서드 이름 verifyLogin OR checkEmptyUser
-        verifyLogin(user);
-
-        if (user.get().isDeleted()) {
+        if (user.isDeleted()) {
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }
 
-        boolean matchedBcrypt = bcryptService.matchBcrypt(request.password(), user.get().getPassword());
-        if (!matchedBcrypt) {
-            throw new CustomException(ErrorCode.AUTHENTICATION_FAILED);
-        }
-    }
+        verifyUserPassword(
+                request.password(),
+                user.getPassword(),
+                ErrorCode.AUTHENTICATION_FAILED
+        );
 
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        return user.getId();
     }
 
     public void withdraw(WithdrawRequestDto request, Long userId) {
-        Optional<User> user = userRepository.findById(userId);
-        verifyWithdraw(user);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.TOKEN_VALIDATE));
 
-        if (user.get().isDeleted()) {
+        if (user.isDeleted()) {
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }
 
-        boolean matchedBcrypt = bcryptService.matchBcrypt(request.password(), user.get().getPassword());
-        if (!matchedBcrypt) {
-            throw new CustomException(ErrorCode.PASSWORD_NOT_MATCH);
-        }
+        verifyUserPassword(
+                request.password(),
+                user.getPassword(),
+                ErrorCode.PASSWORD_NOT_MATCH
+        );
 
-        user.get().softDelete();
+        user.softDelete();
     }
 
     public User getUserById(Long userId) {
@@ -103,5 +98,16 @@ public class UserService {
                 });
 
         return user.update(request);
+    }
+
+    private void verifyUserPassword(
+            String plainPassword,
+            String hashPassword,
+            ErrorCode errorCode
+    ) {
+        boolean matchedBcrypt = bcryptService.matchBcrypt(plainPassword, hashPassword);
+        if (!matchedBcrypt) {
+            throw new CustomException(errorCode);
+        }
     }
 }

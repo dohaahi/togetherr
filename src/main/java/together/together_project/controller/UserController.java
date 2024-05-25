@@ -47,11 +47,10 @@ public class UserController {
 
     @PostMapping("/auth/login")
     public ResponseEntity<ResponseBody> login(@Valid @RequestBody LoginRequestDto request) {
-        userService.login(request);
+        Long loggedInUserId = userService.login(request);
 
-        User user = userService.getUserByEmail(request.email());
-        TokenDto tokenDto = new TokenDto(jwtProvider.createAccessToken(user.getId()));
-        ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
+        TokenDto tokenDto = new TokenDto(jwtProvider.createAccessToken(loggedInUserId));
+        ResponseBody body = new ResponseBody(tokenDto, null, HttpStatus.OK.value());
         ResponseCookie accessToken = createCookieFromToken(tokenDto.accessToken());
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -59,7 +58,7 @@ public class UserController {
                 .body(body);
     }
 
-    @DeleteMapping("/auth/withdraw")
+    @DeleteMapping("/users/withdraw")
     public ResponseEntity<ResponseBody> withdraw(
             @RequestBody WithdrawRequestDto request,
             @AuthUser User currentUser
@@ -68,6 +67,7 @@ public class UserController {
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
         // TODO: 코드는 NO_CONTENT 인데 데이터를 넘겨도 되는지
+        // -> 콜백으로 처리하기
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
     }
