@@ -47,10 +47,9 @@ public class UserController {
 
     @PostMapping("/auth/login")
     public ResponseEntity<ResponseBody> login(@Valid @RequestBody LoginRequestDto request) {
-        userService.login(request);
+        Long loggedInUserId = userService.login(request);
 
-        User user = userService.getUserByEmail(request.email());
-        TokenDto tokenDto = new TokenDto(jwtProvider.createAccessToken(user.getId()));
+        TokenDto tokenDto = new TokenDto(jwtProvider.createAccessToken(loggedInUserId));
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
         ResponseCookie accessToken = createCookieFromToken(tokenDto.accessToken());
 

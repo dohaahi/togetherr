@@ -42,8 +42,7 @@ public class UserService {
     }
 
 
-    public void login(LoginRequestDto request) {
-
+    public Long login(LoginRequestDto request) {
         Optional<User> user = userRepository.findByEmail(request.email());
 
         // NOTE: 메서드 이름 verifyLogin OR checkEmptyUser
@@ -57,6 +56,8 @@ public class UserService {
         if (!matchedBcrypt) {
             throw new CustomException(ErrorCode.AUTHENTICATION_FAILED);
         }
+
+        return user.get().getId();
     }
 
     public User getUserByEmail(String email) {
