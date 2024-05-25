@@ -50,7 +50,7 @@ public class UserController {
         Long loggedInUserId = userService.login(request);
 
         TokenDto tokenDto = new TokenDto(jwtProvider.createAccessToken(loggedInUserId));
-        ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
+        ResponseBody body = new ResponseBody(tokenDto, null, HttpStatus.OK.value());
         ResponseCookie accessToken = createCookieFromToken(tokenDto.accessToken());
 
         return ResponseEntity.status(HttpStatus.OK)
