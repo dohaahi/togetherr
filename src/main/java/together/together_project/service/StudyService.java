@@ -1,6 +1,6 @@
 package together.together_project.service;
 
-import static together.together_project.validator.StudyValidator.verifyCreateStudyPost;
+import static together.together_project.validator.StudyValidator.checkMaxPeopleMoreThanMinimum;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class StudyService {
     private final StudyPostRepositoryImpl studyPostRepository;
 
     public Study createStudyPost(StudiesRequestDto request, User user) {
-        verifyCreateStudyPost(request);
+        checkMaxPeopleMoreThanMinimum(request);
         StudyPost studyPost = request.toStudyPost();
         Study study = request.toStudy(user, studyPost);
 

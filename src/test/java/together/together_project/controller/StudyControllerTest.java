@@ -109,7 +109,7 @@ class StudyControllerTest {
                     0);
 
             assertThrows(CustomException.class,
-                    () -> StudyValidator.verifyCreateStudyPost(request),
+                    () -> StudyValidator.checkMaxPeopleMoreThanMinimum(request),
                     ErrorCode.MAX_PEOPLE_UNDER_LIMIT.getDescription());
         }
     }
