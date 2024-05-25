@@ -1,5 +1,6 @@
 package together.together_project.repository;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import together.together_project.domain.Study;
@@ -10,7 +11,14 @@ public class StudyRepositoryImpl {
 
     private final StudyJpaRepository studyRepository;
 
-    public void save(Study study) {
-        studyRepository.save(study);
+    public Study save(Study study) {
+        return studyRepository.save(study);
+    }
+
+    public List<Study> paginateStudy(Long after, Long count) {
+        if (after == null) {
+            after = 0L;
+        }
+        return studyRepository.paginateStudy(after, count + 1);
     }
 }

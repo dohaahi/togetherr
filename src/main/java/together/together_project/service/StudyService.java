@@ -26,8 +26,6 @@ public class StudyService {
         Study study = request.toStudy(user, studyPost);
 
         studyPostRepository.save(studyPost);
-        studyRepository.save(study);
-
-        return study;
+        return studyRepository.save(study);
     }
 }
