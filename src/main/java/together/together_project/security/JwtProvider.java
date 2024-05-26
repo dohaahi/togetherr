@@ -2,6 +2,7 @@ package together.together_project.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
@@ -9,7 +10,6 @@ import java.security.Key;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import together.together_project.exception.CustomException;
 import together.together_project.exception.ErrorCode;
 
 @Component
@@ -56,28 +56,27 @@ public class JwtProvider {
     public Long verifyAuthTokenOrThrow(final String token) {
         try {
             final Claims claims = parseToClaimsJws(token);
-            Date expiration = claims.getExpiration();
-
-            if (expiration.before(new Date())) {
-                throw new CustomException(ErrorCode.TOKEN_VALIDATE);
-            }
 
             Long userId = Long.valueOf(claims.get(USER_ID_KEY).toString());
             return userId;
 
             // expired token..
         } catch (final ExpiredJwtException expiredJwtException) {
-            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+            throw new ExpiredJwtException(null, null, ErrorCode.TOKEN_EXPIRED.getDescription());
 
             // user made invalid token
-        } catch (final RuntimeException runtimeException) {
-            throw new CustomException(ErrorCode.TOKEN_VALIDATE);
+        } catch (final JwtException jwtException) {
+            throw new JwtException(ErrorCode.TOKEN_VALIDATE.getDescription());
         }
     }
 
     public Claims parseToClaimsJws(final String token) {
         final Key key = createSigningKey();
 
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

@@ -46,7 +46,7 @@ public class AuthUserResolver implements HandlerMethodArgumentResolver {
         Cookie accessToken = Arrays.stream(request.getCookies())
                 .filter(cookie -> cookie.getName().equals(ACCESS_TOKEN))
                 .findFirst()
-                .orElseThrow(() -> new CustomException(ErrorCode.TOKEN_VALIDATE));
+                .orElseThrow(() -> new CustomException(ErrorCode.TOKEN_NOT_FOUND));
 
         return userRepository.findById(jwtProvider.verifyAuthTokenOrThrow(accessToken.getValue()))
                 .orElseThrow(() -> new CustomException(ErrorCode.TOKEN_VALIDATE));

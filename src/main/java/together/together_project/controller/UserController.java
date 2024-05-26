@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,7 +29,6 @@ import together.together_project.service.dto.response.SignupResponseDto;
 
 @RestController
 @RequiredArgsConstructor
-@Validated
 public class UserController {
 
     private final UserService userService;
@@ -66,8 +64,6 @@ public class UserController {
         userService.withdraw(request, currentUser.getId());
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
-        // TODO: 코드는 NO_CONTENT 인데 데이터를 넘겨도 되는지
-        // -> 콜백으로 처리하기
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
     }

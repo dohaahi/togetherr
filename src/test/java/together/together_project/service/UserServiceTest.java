@@ -28,8 +28,6 @@ import together.together_project.service.dto.request.WithdrawRequestDto;
 @Transactional
 class UserServiceTest {
 
-    // TODO: mocking test 작성하기
-
     @Autowired
     private UserService userService;
 
