@@ -23,8 +23,11 @@ import together.together_project.security.JwtProvider;
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
-    private final JwtProvider jwtProvider;
     private static final String AUTH_URI = "/api/auth";
+    private static final String STUDIES_URI = "/api/studies";
+    private static final String GET_METHOD = "GET";
+
+    private final JwtProvider jwtProvider;
 
     @Override
     protected void doFilterInternal(
@@ -33,19 +36,21 @@ public class JwtFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        // TODO: 게시물 조회 path 처리
-
         // 회원가입, 로그인의 경우 필터 실행 X
         if (request.getRequestURI().startsWith(AUTH_URI)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // request에서 토큰 꺼내기
-        String accessToken = null;
+        // 게시물 조회의 경우 필터 실행 X
+        if (request.getRequestURI().startsWith(STUDIES_URI) && request.getMethod().equals(GET_METHOD)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         try {
-            accessToken = resolveTokenFromRequest(response, request);
+            // request에서 토큰 꺼내기
+            String accessToken = resolveTokenFromRequest(response, request);
             jwtProvider.verifyAuthTokenOrThrow(accessToken);
         } catch (JwtException exception) {
             jwtExceptionHandler(response, exception.getMessage());
