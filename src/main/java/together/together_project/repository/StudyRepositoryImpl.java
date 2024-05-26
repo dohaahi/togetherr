@@ -1,6 +1,7 @@
 package together.together_project.repository;
 
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import together.together_project.domain.Study;
@@ -20,5 +21,9 @@ public class StudyRepositoryImpl {
             after = 0L;
         }
         return studyRepository.paginateStudy(after, count + 1);
+    }
+
+    public Optional<Study> findById(Long id) {
+        return studyRepository.findById(id);
     }
 }
