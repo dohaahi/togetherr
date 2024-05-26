@@ -7,7 +7,7 @@ import org.springframework.validation.FieldError;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record ResponseBody(Object data, String error, int statusCode) {
 
-    public static ResponseBody of(FieldError fieldError) {
+    public static ResponseBody from(FieldError fieldError) {
 
         return new ResponseBody(
                 null,

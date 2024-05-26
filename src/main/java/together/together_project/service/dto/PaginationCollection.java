@@ -7,7 +7,7 @@ public record PaginationCollection<T>(
         List<T> elementsWithNextCursor,
         long totalElementsCount
 ) {
-    public static <T> PaginationCollection<T> of(List<T> elementsWithNextCursor) {
+    public static <T> PaginationCollection<T> from(List<T> elementsWithNextCursor) {
         return new PaginationCollection<>(elementsWithNextCursor, elementsWithNextCursor.size());
     }
 
