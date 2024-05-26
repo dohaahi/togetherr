@@ -38,4 +38,8 @@ public class Study extends BaseTimeEntity {
     private int participantCount;
 
     private int maxPeople;
+
+    public boolean isFulled() {
+        return maxPeople <= participantCount;
+    }
 }
