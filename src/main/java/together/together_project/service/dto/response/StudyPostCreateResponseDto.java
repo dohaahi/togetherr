@@ -7,7 +7,7 @@ import together.together_project.domain.Study;
 import together.together_project.domain.StudyPost;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public record StudiesResponseDto(
+public record StudyPostCreateResponseDto(
         Long id,
         Long leader,
         String title,
@@ -21,10 +21,10 @@ public record StudiesResponseDto(
         LocalDateTime deletedAt
 ) {
 
-    public static StudiesResponseDto from(Study study) {
+    public static StudyPostCreateResponseDto from(Study study) {
         StudyPost studyPost = study.getStudyPost();
 
-        return new StudiesResponseDto(
+        return new StudyPostCreateResponseDto(
                 study.getId(),
                 study.getLeader().getId(),
                 studyPost.getTitle(),

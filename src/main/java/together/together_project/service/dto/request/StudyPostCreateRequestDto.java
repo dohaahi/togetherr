@@ -11,7 +11,7 @@ import together.together_project.domain.StudyPost;
 import together.together_project.domain.User;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public record StudiesRequestDto(
+public record StudyPostCreateRequestDto(
 
         @NotNull(message = "제목을 입력하지 않았습니다.")
         String title,

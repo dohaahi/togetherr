@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import together.together_project.domain.Study;
 import together.together_project.domain.StudyPost;
 
-public record StudyResponseDto(
+public record StudyPostResponseDto(
         Long id,
         Long leader,
         String title,
@@ -20,10 +20,10 @@ public record StudyResponseDto(
         LocalDateTime deletedAt
 ) {
 
-    public static StudyResponseDto from(Study study) {
+    public static StudyPostResponseDto from(Study study) {
         StudyPost studyPost = study.getStudyPost();
 
-        return new StudyResponseDto(
+        return new StudyPostResponseDto(
                 studyPost.getId(),
                 study.getLeader().getId(),
                 studyPost.getTitle(),

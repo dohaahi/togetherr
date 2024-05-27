@@ -17,11 +17,11 @@ import together.together_project.service.StudyService;
 import together.together_project.service.dto.PaginationCollection;
 import together.together_project.service.dto.PaginationRequestDto;
 import together.together_project.service.dto.PaginationResponseDto;
-import together.together_project.service.dto.request.StudiesRequestDto;
+import together.together_project.service.dto.request.StudyPostCreateRequestDto;
 import together.together_project.service.dto.response.ResponseBody;
-import together.together_project.service.dto.response.StudiesResponseDto;
+import together.together_project.service.dto.response.StudyPostCreateResponseDto;
+import together.together_project.service.dto.response.StudyPostResponseDto;
 import together.together_project.service.dto.response.StudyPostsResponseDto;
-import together.together_project.service.dto.response.StudyResponseDto;
 
 @RestController
 @RequestMapping("/studies")
@@ -32,11 +32,11 @@ public class StudyController {
 
     @PostMapping()
     public ResponseEntity<ResponseBody> write(
-            @Valid @RequestBody StudiesRequestDto request,
+            @Valid @RequestBody StudyPostCreateRequestDto request,
             @AuthUser User user
     ) {
         Study study = studyService.createStudyPost(request, user);
-        StudiesResponseDto response = StudiesResponseDto.from(study);
+        StudyPostCreateResponseDto response = StudyPostCreateResponseDto.from(study);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.CREATED.value());
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -67,11 +67,10 @@ public class StudyController {
     @GetMapping("/{study-post-id}")
     public ResponseEntity<ResponseBody> getById(@PathVariable("study-post-id") Long id) {
         Study study = studyService.getById(id);
-        StudyResponseDto response = StudyResponseDto.from(study);
+        StudyPostResponseDto response = StudyPostResponseDto.from(study);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
     }
-
 }

@@ -14,7 +14,7 @@ import together.together_project.exception.ErrorCode;
 import together.together_project.repository.StudyPostRepositoryImpl;
 import together.together_project.repository.StudyRepositoryImpl;
 import together.together_project.service.dto.PaginationRequestDto;
-import together.together_project.service.dto.request.StudiesRequestDto;
+import together.together_project.service.dto.request.StudyPostCreateRequestDto;
 
 @Service
 @Transactional
@@ -24,7 +24,7 @@ public class StudyService {
     private final StudyRepositoryImpl studyRepository;
     private final StudyPostRepositoryImpl studyPostRepository;
 
-    public Study createStudyPost(StudiesRequestDto request, User user) {
+    public Study createStudyPost(StudyPostCreateRequestDto request, User user) {
         checkMaxPeopleMoreThanMinimum(request);
         StudyPost studyPost = request.toStudyPost();
         Study study = request.toStudy(user, studyPost);
