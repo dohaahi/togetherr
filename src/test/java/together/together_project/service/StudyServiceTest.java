@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import together.together_project.domain.Study;
 import together.together_project.domain.User;
 import together.together_project.service.dto.request.SignupRequestDto;
-import together.together_project.service.dto.request.StudiesRequestDto;
+import together.together_project.service.dto.request.StudyPostCreateRequestDto;
 
 @SpringBootTest
 @Transactional
@@ -36,7 +36,7 @@ class StudyServiceTest {
 
     @Test
     public void testCreateStudyPost() {
-        StudiesRequestDto request = new StudiesRequestDto(
+        StudyPostCreateRequestDto request = new StudyPostCreateRequestDto(
                 "test title",
                 "test content",
                 "test location",

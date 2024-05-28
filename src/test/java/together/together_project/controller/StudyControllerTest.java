@@ -17,7 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import together.together_project.exception.CustomException;
 import together.together_project.exception.ErrorCode;
-import together.together_project.service.dto.request.StudiesRequestDto;
+import together.together_project.service.dto.request.StudyPostCreateRequestDto;
 import together.together_project.service.dto.request.WithdrawRequestDto;
 import together.together_project.validator.StudyValidator;
 
@@ -37,12 +37,12 @@ class StudyControllerTest {
         @DisplayName("모든 데이터가 잘 들어온 경우 통과")
         @Test
         public void testValidStudiesRequestDto() {
-            StudiesRequestDto dto = new StudiesRequestDto(
+            StudyPostCreateRequestDto dto = new StudyPostCreateRequestDto(
                     "Valid Title",
                     "Valid Content",
                     "Valid Location",
                     5);
-            Set<ConstraintViolation<StudiesRequestDto>> violations = validator.validate(dto);
+            Set<ConstraintViolation<StudyPostCreateRequestDto>> violations = validator.validate(dto);
 
             assertEquals(0, violations.size());
         }
@@ -50,12 +50,12 @@ class StudyControllerTest {
         @DisplayName("title이 null인 경우 예외 발생")
         @Test
         public void testTitleNotNull() {
-            StudiesRequestDto dto = new StudiesRequestDto(
+            StudyPostCreateRequestDto dto = new StudyPostCreateRequestDto(
                     null,
                     "Valid Content",
                     "Valid Location",
                     5);
-            Set<ConstraintViolation<StudiesRequestDto>> violations = validator.validate(dto);
+            Set<ConstraintViolation<StudyPostCreateRequestDto>> violations = validator.validate(dto);
 
             assertEquals("제목을 입력하지 않았습니다.", violations.iterator().next().getMessage());
         }
@@ -63,12 +63,12 @@ class StudyControllerTest {
         @DisplayName("content가 null인 경우 예외 발생")
         @Test
         public void testContentNotNull() {
-            StudiesRequestDto dto = new StudiesRequestDto(
+            StudyPostCreateRequestDto dto = new StudyPostCreateRequestDto(
                     "Valid Title",
                     null,
                     "Valid Location",
                     5);
-            Set<ConstraintViolation<StudiesRequestDto>> violations = validator.validate(dto);
+            Set<ConstraintViolation<StudyPostCreateRequestDto>> violations = validator.validate(dto);
 
             assertEquals("내용을 입력하지 않았습니다.", violations.iterator().next().getMessage());
         }
@@ -76,12 +76,12 @@ class StudyControllerTest {
         @DisplayName("location이 null인 경우 예외 발생")
         @Test
         public void testLocationNotNull() {
-            StudiesRequestDto dto = new StudiesRequestDto(
+            StudyPostCreateRequestDto dto = new StudyPostCreateRequestDto(
                     "Valid Title",
                     "Valid Content",
                     null,
                     5);
-            Set<ConstraintViolation<StudiesRequestDto>> violations = validator.validate(dto);
+            Set<ConstraintViolation<StudyPostCreateRequestDto>> violations = validator.validate(dto);
 
             assertEquals("위치를 입력하지 않았습니다.", violations.iterator().next().getMessage());
         }
@@ -89,12 +89,12 @@ class StudyControllerTest {
         @DisplayName("maxPeople이 null인 경우 예외 발생")
         @Test
         public void testMaxPeopleNotNull() {
-            StudiesRequestDto dto = new StudiesRequestDto(
+            StudyPostCreateRequestDto dto = new StudyPostCreateRequestDto(
                     "Valid Title",
                     "Valid Content",
                     "Valid Location",
                     null);
-            Set<ConstraintViolation<StudiesRequestDto>> violations = validator.validate(dto);
+            Set<ConstraintViolation<StudyPostCreateRequestDto>> violations = validator.validate(dto);
 
             assertEquals("최대 인원을 입력하지 않았습니다.", violations.iterator().next().getMessage());
         }
@@ -102,14 +102,14 @@ class StudyControllerTest {
         @DisplayName("maxPeople이 " + MIN_PEOPLE + "미만인 경우 예외 발생")
         @Test
         public void testMaxPeopleMinValue() {
-            StudiesRequestDto request = new StudiesRequestDto(
+            StudyPostCreateRequestDto request = new StudyPostCreateRequestDto(
                     "Valid Title",
                     "Valid Content",
                     "Valid Location",
                     0);
 
             assertThrows(CustomException.class,
-                    () -> StudyValidator.checkMaxPeopleMoreThanMinimum(request),
+                    () -> StudyValidator.checkMaxPeopleMoreThanMinimum(request.maxPeople()),
                     ErrorCode.MAX_PEOPLE_UNDER_LIMIT.getDescription());
         }
     }
