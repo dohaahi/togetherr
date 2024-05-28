@@ -11,6 +11,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import together.together_project.exception.CustomException;
+import together.together_project.exception.ErrorCode;
+import together.together_project.service.dto.request.StudyPostBumpRequestDto;
 
 @Entity
 @Getter
@@ -18,6 +21,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class StudyPost extends BaseTimeEntity {
+
+    public final static int REFRESHED_AT_PERIOD = 2;
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -37,5 +42,18 @@ public class StudyPost extends BaseTimeEntity {
 
     public void updateContent(String content) {
         this.content = content;
+    }
+
+    public void bumpStudyPost(StudyPostBumpRequestDto request) {
+        if (refreshedAt != null) {
+            if (request.refreshedAt().isBefore(refreshedAt) ||
+                    refreshedAt.plusDays(REFRESHED_AT_PERIOD).isAfter(request.refreshedAt()) ||
+                    refreshedAt.isEqual(request.refreshedAt())
+            ) {
+                throw new CustomException(ErrorCode.POST_BUMP_PERIOD_EXCEPTION);
+            }
+        }
+
+        refreshedAt = request.refreshedAt();
     }
 }
