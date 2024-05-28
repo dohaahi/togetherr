@@ -1,5 +1,7 @@
 package together.together_project.exception;
 
+import static together.together_project.domain.StudyPost.REFRESHED_AT_PERIOD;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +24,8 @@ public enum ErrorCode {
     MAX_PEOPLE_UNDER_LIMIT("최대 인원은 2명 이상이여야 합니다.", 422),
     STUDY_POST_NOT_FOUND("게시글을 찾을 수 없습니다.", 404),
     UNAUTHORIZED_POST_EDIT("게시글 수정 권한이 없습니다.", 403),
+    POST_BUMP_PERIOD_EXCEPTION("끌어올리기는 마지막 끌어올리기로부터 " + REFRESHED_AT_PERIOD + "일이 지나야 가능합니다.", 409),
+
 
     UNKNOWN_ERROR("알 수 없는 에러가 발생했습니다.", 500);
 

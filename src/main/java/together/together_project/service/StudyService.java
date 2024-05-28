@@ -14,6 +14,7 @@ import together.together_project.exception.ErrorCode;
 import together.together_project.repository.StudyPostRepositoryImpl;
 import together.together_project.repository.StudyRepositoryImpl;
 import together.together_project.service.dto.PaginationRequestDto;
+import together.together_project.service.dto.request.StudyPostBumpRequestDto;
 import together.together_project.service.dto.request.StudyPostCreateRequestDto;
 import together.together_project.service.dto.request.StudyPostUpdateRequestDto;
 
@@ -48,5 +49,14 @@ public class StudyService {
                 .orElseThrow(() -> new CustomException(ErrorCode.STUDY_POST_NOT_FOUND));
 
         return study.update(request);
+    }
+
+    public Study bumpStudyPost(Long id, StudyPostBumpRequestDto request) {
+        Study study = studyRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_POST_NOT_FOUND));
+
+        study.getStudyPost().bumpStudyPost(request);
+
+        return study;
     }
 }

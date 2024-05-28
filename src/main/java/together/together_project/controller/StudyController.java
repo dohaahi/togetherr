@@ -20,9 +20,11 @@ import together.together_project.service.StudyService;
 import together.together_project.service.dto.PaginationCollection;
 import together.together_project.service.dto.PaginationRequestDto;
 import together.together_project.service.dto.PaginationResponseDto;
+import together.together_project.service.dto.request.StudyPostBumpRequestDto;
 import together.together_project.service.dto.request.StudyPostCreateRequestDto;
 import together.together_project.service.dto.request.StudyPostUpdateRequestDto;
 import together.together_project.service.dto.response.ResponseBody;
+import together.together_project.service.dto.response.StudyPostBumpResponseDto;
 import together.together_project.service.dto.response.StudyPostCreateResponseDto;
 import together.together_project.service.dto.response.StudyPostResponseDto;
 import together.together_project.service.dto.response.StudyPostsResponseDto;
@@ -90,6 +92,24 @@ public class StudyController {
 
         Study study = studyService.updateStudyPost(id, request);
         StudyPostUpdateResponseDto response = StudyPostUpdateResponseDto.from(study);
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    @PutMapping("/{study-post-id}/bump")
+    public ResponseEntity<ResponseBody> bumpStudyPost(
+            @PathVariable("study-post-id") Long id,
+            @Valid @RequestBody StudyPostBumpRequestDto request,
+            @AuthUser User currnetUser
+    ) {
+        if (!currnetUser.getId().equals(studyService.getById(id).getLeader().getId())) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_POST_EDIT);
+        }
+
+        Study study = studyService.bumpStudyPost(id, request);
+        StudyPostBumpResponseDto response = StudyPostBumpResponseDto.from(study);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK)
