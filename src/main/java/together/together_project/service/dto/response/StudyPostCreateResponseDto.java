@@ -9,7 +9,7 @@ import together.together_project.domain.StudyPost;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record StudyPostCreateResponseDto(
         Long id,
-        Long leader,
+        Long leaderId,
         String title,
         String content,
         int totalLikeCount,
@@ -33,9 +33,9 @@ public record StudyPostCreateResponseDto(
                 study.getLocation(),
                 study.getParticipantCount(),
                 study.getMaxPeople(),
-                studyPost.getCreatedAt(),
-                studyPost.getUpdatedAt(),
-                studyPost.getDeletedAt()
+                study.getCreatedAt(),
+                study.getUpdatedAt(),
+                study.getDeletedAt()
         );
     }
 }
