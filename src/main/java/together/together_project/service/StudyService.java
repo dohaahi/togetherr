@@ -15,6 +15,7 @@ import together.together_project.repository.StudyPostRepositoryImpl;
 import together.together_project.repository.StudyRepositoryImpl;
 import together.together_project.service.dto.PaginationRequestDto;
 import together.together_project.service.dto.request.StudyPostCreateRequestDto;
+import together.together_project.service.dto.request.StudyPostUpdateRequestDto;
 
 @Service
 @Transactional
@@ -25,7 +26,7 @@ public class StudyService {
     private final StudyPostRepositoryImpl studyPostRepository;
 
     public Study createStudyPost(StudyPostCreateRequestDto request, User user) {
-        checkMaxPeopleMoreThanMinimum(request);
+        checkMaxPeopleMoreThanMinimum(request.maxPeople());
         StudyPost studyPost = request.toStudyPost();
         Study study = request.toStudy(user, studyPost);
 
@@ -40,5 +41,12 @@ public class StudyService {
     public Study getById(Long id) {
         return studyRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.STUDY_POST_NOT_FOUND));
+    }
+
+    public Study updateStudyPost(Long id, StudyPostUpdateRequestDto request) {
+        Study study = studyRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_POST_NOT_FOUND));
+
+        return study.update(request);
     }
 }

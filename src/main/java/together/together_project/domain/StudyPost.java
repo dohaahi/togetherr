@@ -30,4 +30,12 @@ public class StudyPost extends BaseTimeEntity {
     private int totalLikeCount;
 
     private LocalDateTime refreshedAt;
+
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
 }
