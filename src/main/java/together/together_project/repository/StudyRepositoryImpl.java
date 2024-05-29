@@ -20,6 +20,7 @@ public class StudyRepositoryImpl {
         if (after == null) {
             after = 0L;
         }
+        
         return studyRepository.paginateStudy(after, count + 1);
     }
 
