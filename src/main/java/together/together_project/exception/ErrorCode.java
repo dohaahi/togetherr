@@ -21,8 +21,10 @@ public enum ErrorCode {
 
     MAX_PEOPLE_UNDER_LIMIT("최대 인원은 2명 이상이여야 합니다.", 422),
     STUDY_POST_NOT_FOUND("게시글을 찾을 수 없습니다.", 404),
-    UNAUTHORIZED_POST_EDIT("게시글 수정 권한이 없습니다.", 403),
+    STUDY_POST_NOT_FOUND_FOR_DELETE("삭제할 게시글이 존재하지 않습니다.", 404),
     POST_BUMP_PERIOD_EXCEPTION("끌어올리기는 이틀이 지나야 가능합니다.", 409),
+    UNAUTHORIZED_POST_EDIT("게시글 수정 권한이 없습니다.", 403),
+    UNAUTHORIZED_POST_DELETE("게시글을 삭제할 수 없는 사용자입니다.", 401),
 
     UNKNOWN_ERROR("알 수 없는 에러가 발생했습니다.", 500);
 

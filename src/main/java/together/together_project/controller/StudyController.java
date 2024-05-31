@@ -6,6 +6,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -111,15 +112,31 @@ public class StudyController {
     public ResponseEntity<ResponseBody> bumpStudyPost(
             @PathVariable("study-post-id") Long id,
             @Valid @RequestBody StudyPostBumpRequestDto request,
-            @AuthUser User currnetUser
+            @AuthUser User currentUser
     ) {
-        if (!currnetUser.getId().equals(studyService.getById(id).getLeader().getId())) {
+        if (!currentUser.getId().equals(studyService.getById(id).getLeader().getId())) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_POST_EDIT);
         }
 
         Study study = studyService.bumpStudyPost(id, request);
         StudyPostBumpResponseDto response = StudyPostBumpResponseDto.from(study);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    @DeleteMapping("/{study-post-id}")
+    public ResponseEntity<ResponseBody> deletePost(
+            @PathVariable("study-post-id") Long id,
+            @AuthUser User currentUser
+    ) {
+        if (!currentUser.getId().equals(studyService.getById(id).getLeader().getId())) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_POST_DELETE);
+        }
+
+        studyService.deleteStudy(id);
+        ResponseBody body = new ResponseBody(null, null, HttpStatus.NO_CONTENT.value());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);

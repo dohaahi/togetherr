@@ -59,4 +59,12 @@ public class StudyService {
 
         return study;
     }
+
+    public void deleteStudy(Long id) {
+        Study study = studyRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_POST_NOT_FOUND_FOR_DELETE));
+
+        study.softDelete();
+        study.getStudyPost().softDelete();
+    }
 }
