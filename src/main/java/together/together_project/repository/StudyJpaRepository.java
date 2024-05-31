@@ -10,9 +10,12 @@ import together.together_project.domain.Study;
 public interface StudyJpaRepository extends JpaRepository<Study, Long> {
 
     @EntityGraph(attributePaths = "studyPost")
-    @Query("select s from Study s where s.id > :after order by s.id desc limit :count")
+    @Query("select s from Study s where s.id < :after order by s.id desc limit :count")
     List<Study> paginateStudy(
             @Param("after") Long after,
             @Param("count") Long count
     );
+
+    @Query("select s.id from Study s order by s.id desc limit 1")
+    public Long findFirstByOrderByIdDesc();
 }

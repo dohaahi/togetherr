@@ -1,33 +1,38 @@
 package together.together_project.service.dto;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 
 public record PaginationCollection<T>(
-        List<T> elementsWithNextCursor,
-        long totalElementsCount
+        Meta meta,
+        List<T> elementsWithNextCursor
 ) {
-    public static <T> PaginationCollection<T> from(List<T> elementsWithNextCursor) {
-        return new PaginationCollection<>(elementsWithNextCursor, elementsWithNextCursor.size());
+    public static <T> PaginationCollection<T> of(boolean hasMore, Long lastId, List<T> elementsWithNextCursor) {
+        return new PaginationCollection<>(
+                new Meta(elementsWithNextCursor.size(), hasMore, lastId),
+                elementsWithNextCursor
+        );
     }
 
     public List<T> getCurrentData() {
-        if (isEndCursor()) {
-            return elementsWithNextCursor;
-        }
-
-        return elementsWithNextCursor.subList(0, (int) totalElementsCount);
+        return elementsWithNextCursor.subList(0, meta.count);
     }
 
-    public long getNextCursor() {
-        if (isEndCursor()) {
-            return -1;
-        }
-
-        return (long) elementsWithNextCursor.get((int) (totalElementsCount - 1));
+    public Long getNextCursor() {
+        return meta.lastId;
     }
 
-    private boolean isEndCursor() {
-        return elementsWithNextCursor.size() <= totalElementsCount;
+    public boolean hasMore() {
+        return meta.hasMore;
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    static class Meta {
+        private final int count;
+        private final boolean hasMore;
+        private final Long lastId;
     }
 }

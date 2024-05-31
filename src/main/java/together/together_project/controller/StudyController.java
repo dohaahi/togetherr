@@ -1,5 +1,6 @@
 package together.together_project.controller;
 
+
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -50,18 +51,26 @@ public class StudyController {
     }
 
     @GetMapping()
-    public ResponseEntity<ResponseBody> getAllStudyPost(PaginationRequestDto request) {
+    public ResponseEntity<ResponseBody> getAllStudyPost(@RequestBody PaginationRequestDto request) {
         List<StudyPostsResponseDto> studies = studyService.getAllStudy(request)
                 .stream()
                 .map(StudyPostsResponseDto::from)
                 .toList();
 
-        PaginationCollection<StudyPostsResponseDto> data = PaginationCollection.from(studies);
+        boolean hasMore = studies.size() == request.getCount() + 1;
+
+        Long lastId = -1L;
+        if (hasMore) {
+            studies = studies.subList(0, studies.size() - 1);
+            lastId = studies.get(studies.size() - 1).id();
+        }
+
+        PaginationCollection<StudyPostsResponseDto> data = PaginationCollection.of(hasMore, lastId, studies);
 
         PaginationResponseDto<StudyPostsResponseDto> response = new PaginationResponseDto<>(
-                data.getCurrentData(),
-                data.totalElementsCount(),
-                data.getNextCursor()
+                data.hasMore(),
+                data.getNextCursor(),
+                data.getCurrentData()
         );
 
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());

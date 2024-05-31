@@ -17,10 +17,12 @@ public class StudyRepositoryImpl {
     }
 
     public List<Study> paginateStudy(Long after, Long count) {
-        if (after == null) {
+        if (studyRepository.findAll().isEmpty()) {
             after = 0L;
+        } else {
+            after = after == null ? studyRepository.findFirstByOrderByIdDesc() + 1 : after;
         }
-        
+
         return studyRepository.paginateStudy(after, count + 1);
     }
 
