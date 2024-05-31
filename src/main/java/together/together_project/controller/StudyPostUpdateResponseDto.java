@@ -23,7 +23,7 @@ StudyPostUpdateResponseDto(
         StudyPost studyPost = study.getStudyPost();
 
         return new StudyPostUpdateResponseDto(
-                studyPost.getId(),
+                studyPost.getStudyPostId(),
                 study.getLeader().getId(),
                 studyPost.getTitle(),
                 studyPost.getContent(),
