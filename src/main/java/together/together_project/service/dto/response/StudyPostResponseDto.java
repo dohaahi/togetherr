@@ -34,9 +34,9 @@ public record StudyPostResponseDto(
                 study.getMaxPeople(),
                 study.isFulled(),
                 studyPost.getRefreshedAt(),
-                studyPost.getCreatedAt(),
-                studyPost.getUpdatedAt(),
-                studyPost.getDeletedAt()
+                study.getCreatedAt(),
+                study.getUpdatedAt(),
+                study.getDeletedAt()
         );
     }
 }
