@@ -26,7 +26,7 @@ public class StudyPost extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    private Long id;
+    private Long studyPostId;
 
     private String title;
 

@@ -6,8 +6,8 @@ import java.util.List;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record PaginationResponseDto<T>(
-        List<T> elements,
-        long totalElementsCount,
-        long nextCursor
+        boolean hasMore,
+        long nextCursor,
+        List<T> elements
 ) {
 }

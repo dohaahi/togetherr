@@ -48,7 +48,13 @@ public class AuthUserResolver implements HandlerMethodArgumentResolver {
                 .findFirst()
                 .orElseThrow(() -> new CustomException(ErrorCode.TOKEN_NOT_FOUND));
 
-        return userRepository.findById(jwtProvider.verifyAuthTokenOrThrow(accessToken.getValue()))
+        User user = userRepository.findById(jwtProvider.verifyAuthTokenOrThrow(accessToken.getValue()))
                 .orElseThrow(() -> new CustomException(ErrorCode.TOKEN_VALIDATE));
+
+        if (user.isDeleted()) {
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        return user;
     }
 }

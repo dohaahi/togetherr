@@ -25,7 +25,7 @@ public class Study extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    private Long id;
+    private Long studyId;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "user_id")

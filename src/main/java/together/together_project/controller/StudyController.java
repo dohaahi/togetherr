@@ -1,10 +1,12 @@
 package together.together_project.controller;
 
+
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,18 +52,26 @@ public class StudyController {
     }
 
     @GetMapping()
-    public ResponseEntity<ResponseBody> getAllStudyPost(PaginationRequestDto request) {
+    public ResponseEntity<ResponseBody> getAllStudyPost(@RequestBody PaginationRequestDto request) {
         List<StudyPostsResponseDto> studies = studyService.getAllStudy(request)
                 .stream()
                 .map(StudyPostsResponseDto::from)
                 .toList();
 
-        PaginationCollection<StudyPostsResponseDto> data = PaginationCollection.from(studies);
+        boolean hasMore = studies.size() == request.getCount() + 1;
+
+        Long lastId = -1L;
+        if (hasMore) {
+            studies = studies.subList(0, studies.size() - 1);
+            lastId = studies.get(studies.size() - 1).id();
+        }
+
+        PaginationCollection<StudyPostsResponseDto> data = PaginationCollection.of(hasMore, lastId, studies);
 
         PaginationResponseDto<StudyPostsResponseDto> response = new PaginationResponseDto<>(
-                data.getCurrentData(),
-                data.totalElementsCount(),
-                data.getNextCursor()
+                data.hasMore(),
+                data.getNextCursor(),
+                data.getCurrentData()
         );
 
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
@@ -102,15 +112,31 @@ public class StudyController {
     public ResponseEntity<ResponseBody> bumpStudyPost(
             @PathVariable("study-post-id") Long id,
             @Valid @RequestBody StudyPostBumpRequestDto request,
-            @AuthUser User currnetUser
+            @AuthUser User currentUser
     ) {
-        if (!currnetUser.getId().equals(studyService.getById(id).getLeader().getId())) {
+        if (!currentUser.getId().equals(studyService.getById(id).getLeader().getId())) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_POST_EDIT);
         }
 
         Study study = studyService.bumpStudyPost(id, request);
         StudyPostBumpResponseDto response = StudyPostBumpResponseDto.from(study);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    @DeleteMapping("/{study-post-id}")
+    public ResponseEntity<ResponseBody> deletePost(
+            @PathVariable("study-post-id") Long id,
+            @AuthUser User currentUser
+    ) {
+        if (!currentUser.getId().equals(studyService.getById(id).getLeader().getId())) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_POST_DELETE);
+        }
+
+        studyService.deleteStudy(id);
+        ResponseBody body = new ResponseBody(null, null, HttpStatus.NO_CONTENT.value());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);

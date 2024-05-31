@@ -25,7 +25,7 @@ public record StudyPostCreateResponseDto(
         StudyPost studyPost = study.getStudyPost();
 
         return new StudyPostCreateResponseDto(
-                study.getId(),
+                study.getStudyId(),
                 study.getLeader().getId(),
                 studyPost.getTitle(),
                 studyPost.getContent(),

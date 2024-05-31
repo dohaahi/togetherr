@@ -24,7 +24,7 @@ public record StudyPostResponseDto(
         StudyPost studyPost = study.getStudyPost();
 
         return new StudyPostResponseDto(
-                studyPost.getId(),
+                studyPost.getStudyPostId(),
                 study.getLeader().getId(),
                 studyPost.getTitle(),
                 studyPost.getContent(),
@@ -34,9 +34,9 @@ public record StudyPostResponseDto(
                 study.getMaxPeople(),
                 study.isFulled(),
                 studyPost.getRefreshedAt(),
-                studyPost.getCreatedAt(),
-                studyPost.getUpdatedAt(),
-                studyPost.getDeletedAt()
+                study.getCreatedAt(),
+                study.getUpdatedAt(),
+                study.getDeletedAt()
         );
     }
 }

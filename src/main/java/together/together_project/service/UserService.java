@@ -45,10 +45,6 @@ public class UserService {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new CustomException(ErrorCode.AUTHENTICATION_FAILED));
 
-        if (user.isDeleted()) {
-            throw new CustomException(ErrorCode.USER_NOT_FOUND);
-        }
-
         verifyUserPassword(
                 request.password(),
                 user.getPassword(),
@@ -61,10 +57,6 @@ public class UserService {
     public void withdraw(WithdrawRequestDto request, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TOKEN_VALIDATE));
-
-        if (user.isDeleted()) {
-            throw new CustomException(ErrorCode.USER_NOT_FOUND);
-        }
 
         verifyUserPassword(
                 request.password(),
@@ -82,10 +74,6 @@ public class UserService {
 
     public User updateMyPage(MyPageRequestDto request, Long userId) {
         User user = getUserById(userId);
-
-        if (user.isDeleted()) {
-            throw new CustomException(ErrorCode.USER_NOT_FOUND);
-        }
 
         userRepository.findByEmail(request.email())
                 .ifPresent(u -> {
