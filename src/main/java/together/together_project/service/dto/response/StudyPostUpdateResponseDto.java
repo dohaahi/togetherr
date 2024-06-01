@@ -1,4 +1,4 @@
-package together.together_project.controller;
+package together.together_project.service.dto.response;
 
 import java.time.LocalDateTime;
 import together.together_project.domain.Study;
