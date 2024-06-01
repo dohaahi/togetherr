@@ -16,9 +16,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import together.together_project.domain.Study;
 import together.together_project.domain.User;
+import together.together_project.domain.UserStudyJoinStatus;
 import together.together_project.exception.CustomException;
 import together.together_project.exception.ErrorCode;
 import together.together_project.service.StudyService;
+import together.together_project.service.UserStudyLinkService;
 import together.together_project.service.dto.PaginationCollection;
 import together.together_project.service.dto.PaginationRequestDto;
 import together.together_project.service.dto.PaginationResponseDto;
@@ -29,6 +31,7 @@ import together.together_project.service.dto.response.ResponseBody;
 import together.together_project.service.dto.response.StudyPostBumpResponseDto;
 import together.together_project.service.dto.response.StudyPostCreateResponseDto;
 import together.together_project.service.dto.response.StudyPostResponseDto;
+import together.together_project.service.dto.response.StudyPostUpdateResponseDto;
 import together.together_project.service.dto.response.StudyPostsResponseDto;
 
 @RestController
@@ -37,6 +40,7 @@ import together.together_project.service.dto.response.StudyPostsResponseDto;
 public class StudyController {
 
     private final StudyService studyService;
+    private final UserStudyLinkService userStudyLinkService;
 
     @PostMapping()
     public ResponseEntity<ResponseBody> write(
@@ -96,9 +100,7 @@ public class StudyController {
             @RequestBody StudyPostUpdateRequestDto request,
             @AuthUser User currentUser
     ) {
-        if (!currentUser.getId().equals(studyService.getById(id).getLeader().getId())) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_POST_EDIT);
-        }
+        verifyUserIsStudyLeader(currentUser, id, ErrorCode.UNAUTHORIZED_POST_EDIT);
 
         Study study = studyService.updateStudyPost(id, request);
         StudyPostUpdateResponseDto response = StudyPostUpdateResponseDto.from(study);
@@ -114,9 +116,7 @@ public class StudyController {
             @Valid @RequestBody StudyPostBumpRequestDto request,
             @AuthUser User currentUser
     ) {
-        if (!currentUser.getId().equals(studyService.getById(id).getLeader().getId())) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_POST_EDIT);
-        }
+        verifyUserIsStudyLeader(currentUser, id, ErrorCode.UNAUTHORIZED_POST_EDIT);
 
         Study study = studyService.bumpStudyPost(id, request);
         StudyPostBumpResponseDto response = StudyPostBumpResponseDto.from(study);
@@ -131,14 +131,37 @@ public class StudyController {
             @PathVariable("study-post-id") Long id,
             @AuthUser User currentUser
     ) {
-        if (!currentUser.getId().equals(studyService.getById(id).getLeader().getId())) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_POST_DELETE);
-        }
+        verifyUserIsStudyLeader(currentUser, id, ErrorCode.UNAUTHORIZED_POST_DELETE);
 
         studyService.deleteStudy(id);
         ResponseBody body = new ResponseBody(null, null, HttpStatus.NO_CONTENT.value());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
+    }
+
+    @PostMapping("/{study-post-id}/request")
+    public ResponseEntity<ResponseBody> requestToJoinStudy(
+            @PathVariable("study-post-id") Long studyId,
+            @AuthUser User currentUser
+    ) {
+        userStudyLinkService.join(studyId, currentUser);
+        // StudyJoinResponseDto response = StudyJoinResponseDto.from(UserStudyJoinStatus.COMPLETED);
+        ResponseBody body = new ResponseBody(
+                UserStudyJoinStatus.COMPLETED.getDescription(),
+                null,
+                HttpStatus.NO_CONTENT.value());
+
+        // Note - 이렇게 응답을 보낸 뒤 db에 저장하게 되면 바로 신청완료가 되는게 아닌가?
+        // -> 중간에 보류 중인 유저들을 저장하는 장치가 필요할 것 같음
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    private void verifyUserIsStudyLeader(User currentUser, Long id, ErrorCode unauthorizedPostDelete) {
+        if (!currentUser.getId().equals(studyService.getById(id).getLeader().getId())) {
+            throw new CustomException(unauthorizedPostDelete);
+        }
     }
 }

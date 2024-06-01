@@ -5,6 +5,8 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -32,4 +34,23 @@ public class UserStudyLink extends BaseTimeEntity {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "user_id")
     private User participant;
+
+    @Enumerated(EnumType.STRING)
+    private UserStudyJoinStatus status = UserStudyJoinStatus.COMPLETED;
+
+    public static UserStudyLink toUserStudyLink(Study study, User user) {
+        return UserStudyLink.builder()
+                .study(study)
+                .participant(user)
+                .build();
+    }
+
+    public void approve() {
+        study.increaseParticipantCount();
+        status = UserStudyJoinStatus.APPROVED;
+    }
+
+    public void reject() {
+        status = UserStudyJoinStatus.REJECTED;
+    }
 }

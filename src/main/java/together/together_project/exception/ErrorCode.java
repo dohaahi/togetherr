@@ -25,6 +25,8 @@ public enum ErrorCode {
     POST_BUMP_PERIOD_EXCEPTION("끌어올리기는 이틀이 지나야 가능합니다.", 409),
     UNAUTHORIZED_POST_EDIT("게시글 수정 권한이 없습니다.", 403),
     UNAUTHORIZED_POST_DELETE("게시글을 삭제할 수 없는 사용자입니다.", 401),
+    STUDY_IS_FULLED("이미 모집이 완료된 스터디입니다.", 400),
+    STUDY_ALREADY_JOINED("이미 참여 신청한 스터디입니다.", 400),
 
     UNKNOWN_ERROR("알 수 없는 에러가 발생했습니다.", 500);
 
