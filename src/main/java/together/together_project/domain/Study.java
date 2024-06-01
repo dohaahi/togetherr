@@ -13,6 +13,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import together.together_project.exception.CustomException;
+import together.together_project.exception.ErrorCode;
 import together.together_project.service.dto.request.StudyPostUpdateRequestDto;
 import together.together_project.validator.StudyValidator;
 
@@ -41,10 +43,6 @@ public class Study extends BaseTimeEntity {
 
     private int maxPeople;
 
-    public boolean isFulled() {
-        return maxPeople <= participantCount;
-    }
-
     // NOTE: post를 수정하고 싶은데 study를 통해서 수정이 가능 -> 어떻게 해결...?
     // 1. 지금같은 방법
     // 2. request를 study, studyPost 두 번 전달
@@ -69,5 +67,17 @@ public class Study extends BaseTimeEntity {
         this.updateTime();
 
         return this;
+    }
+
+    public boolean isFulled() {
+        return maxPeople <= participantCount;
+    }
+
+    public void increaseParticipantCount() {
+        if (isFulled()) {
+            throw new CustomException(ErrorCode.STUDY_IS_FULLED);
+        }
+
+        participantCount++;
     }
 }
