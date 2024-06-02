@@ -15,7 +15,7 @@ public class UserStudyLinkRepositoryImpl {
         userStudyLinkRepository.save(userStudyLink);
     }
 
-    public Optional<UserStudyLink> findByStudyId(Long studyId) {
-        return userStudyLinkRepository.findById(studyId);
+    public Optional<UserStudyLink> findByStudyIdAndUserId(Long studyId, Long userId) {
+        return userStudyLinkRepository.findByStudyIdAndUserId(studyId, userId);
     }
 }

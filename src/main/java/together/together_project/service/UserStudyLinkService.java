@@ -26,7 +26,8 @@ public class UserStudyLinkService {
         Study study = studyService.getById(studyId);
 
         // 이미 참여 신청한 유저인지 확인
-        Optional<UserStudyLink> studyLink = userStudyLinkRepository.findByStudyId(study.getStudyId());
+        Optional<UserStudyLink> studyLink = userStudyLinkRepository.findByStudyIdAndUserId(study.getStudyId(),
+                user.getId());
         if (studyLink.isPresent() && studyLink.get().getParticipant() == user) {
             throw new CustomException(ErrorCode.STUDY_ALREADY_JOINED);
         }
