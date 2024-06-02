@@ -34,6 +34,6 @@ public class UserStudyLinkService {
         UserStudyLink userStudyLink = UserStudyLink.toUserStudyLink(study, user);
 
         userStudyLinkRepository.save(userStudyLink);
-        userStudyLink.approve();
+        userStudyLink.pending();
     }
 }

@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum UserStudyJoinStatus {
     COMPLETED("신청 완료"),
+    PENDING("대기 중"),
     APPROVED("승인"),
     REJECTED("거절");
 

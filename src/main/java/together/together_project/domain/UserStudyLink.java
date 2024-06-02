@@ -45,6 +45,10 @@ public class UserStudyLink extends BaseTimeEntity {
                 .build();
     }
 
+    public void pending() {
+        status = UserStudyJoinStatus.PENDING;
+    }
+
     public void approve() {
         study.increaseParticipantCount();
         status = UserStudyJoinStatus.APPROVED;
