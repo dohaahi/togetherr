@@ -1,16 +1,17 @@
 package together.together_project.service;
 
-import jakarta.persistence.EntityManager;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import together.together_project.domain.Study;
 import together.together_project.domain.User;
+import together.together_project.domain.UserStudyJoinStatus;
 import together.together_project.domain.UserStudyLink;
 import together.together_project.exception.CustomException;
 import together.together_project.exception.ErrorCode;
 import together.together_project.repository.UserStudyLinkRepositoryImpl;
+import together.together_project.service.dto.request.StudyJoinRequestDto;
 
 @Service
 @Transactional
@@ -20,13 +21,12 @@ public class UserStudyLinkService {
     private final StudyService studyService;
     private final UserStudyLinkRepositoryImpl userStudyLinkRepository;
 
-    private final EntityManager em;
-
     public void join(Long studyId, User user) {
         Study study = studyService.getById(studyId);
 
         // 이미 참여 신청한 유저인지 확인
-        Optional<UserStudyLink> studyLink = userStudyLinkRepository.findByStudyId(study.getStudyId());
+        Optional<UserStudyLink> studyLink = userStudyLinkRepository.findByStudyIdAndUserId(study.getStudyId(),
+                user.getId());
         if (studyLink.isPresent() && studyLink.get().getParticipant() == user) {
             throw new CustomException(ErrorCode.STUDY_ALREADY_JOINED);
         }
@@ -34,6 +34,20 @@ public class UserStudyLinkService {
         UserStudyLink userStudyLink = UserStudyLink.toUserStudyLink(study, user);
 
         userStudyLinkRepository.save(userStudyLink);
-        userStudyLink.approve();
+        userStudyLink.pending();
+    }
+
+
+    public String respondToJoinRequest(StudyJoinRequestDto request, Long studyId) {
+        UserStudyLink userStudyLink = userStudyLinkRepository.findByStudyIdAndUserId(studyId, request.userId())
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_REQUEST));
+
+        if (request.response()) {
+            userStudyLink.approve();
+            return UserStudyJoinStatus.APPROVED.getDescription();
+        }
+
+        userStudyLink.reject();
+        return UserStudyJoinStatus.REJECTED.getDescription();
     }
 }

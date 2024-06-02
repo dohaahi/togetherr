@@ -24,6 +24,7 @@ import together.together_project.service.UserStudyLinkService;
 import together.together_project.service.dto.PaginationCollection;
 import together.together_project.service.dto.PaginationRequestDto;
 import together.together_project.service.dto.PaginationResponseDto;
+import together.together_project.service.dto.request.StudyJoinRequestDto;
 import together.together_project.service.dto.request.StudyPostBumpRequestDto;
 import together.together_project.service.dto.request.StudyPostCreateRequestDto;
 import together.together_project.service.dto.request.StudyPostUpdateRequestDto;
@@ -159,8 +160,23 @@ public class StudyController {
                 .body(body);
     }
 
-    private void verifyUserIsStudyLeader(User currentUser, Long id, ErrorCode unauthorizedPostDelete) {
-        if (!currentUser.getId().equals(studyService.getById(id).getLeader().getId())) {
+    @PostMapping("/{study-post-id}/response-request")
+    public ResponseEntity<ResponseBody> respondToJoinRequest(
+            @PathVariable("study-post-id") Long studyId,
+            @Valid @RequestBody StudyJoinRequestDto request,
+            @AuthUser User currentUser
+    ) {
+        verifyUserIsStudyLeader(currentUser, studyId, ErrorCode.UNAUTHORIZED_ACCESS);
+
+        String response = userStudyLinkService.respondToJoinRequest(request, studyId);
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    private void verifyUserIsStudyLeader(User currentUser, Long studyId, ErrorCode unauthorizedPostDelete) {
+        if (!currentUser.getId().equals(studyService.getById(studyId).getLeader().getId())) {
             throw new CustomException(unauthorizedPostDelete);
         }
     }

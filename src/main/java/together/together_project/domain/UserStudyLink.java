@@ -15,6 +15,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import together.together_project.exception.CustomException;
+import together.together_project.exception.ErrorCode;
 
 @Entity
 @Getter
@@ -36,7 +38,7 @@ public class UserStudyLink extends BaseTimeEntity {
     private User participant;
 
     @Enumerated(EnumType.STRING)
-    private UserStudyJoinStatus status = UserStudyJoinStatus.COMPLETED;
+    private UserStudyJoinStatus status;
 
     public static UserStudyLink toUserStudyLink(Study study, User user) {
         return UserStudyLink.builder()
@@ -45,7 +47,15 @@ public class UserStudyLink extends BaseTimeEntity {
                 .build();
     }
 
+    public void pending() {
+        status = UserStudyJoinStatus.PENDING;
+    }
+
     public void approve() {
+        if (status == UserStudyJoinStatus.APPROVED) {
+            throw new CustomException(ErrorCode.USER_ALREADY_APPROVED);
+        }
+
         study.increaseParticipantCount();
         status = UserStudyJoinStatus.APPROVED;
     }

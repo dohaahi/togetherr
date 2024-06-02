@@ -27,7 +27,11 @@ public enum ErrorCode {
     UNAUTHORIZED_POST_DELETE("게시글을 삭제할 수 없는 사용자입니다.", 401),
     STUDY_IS_FULLED("이미 모집이 완료된 스터디입니다.", 400),
     STUDY_ALREADY_JOINED("이미 참여 신청한 스터디입니다.", 400),
+    USER_ALREADY_APPROVED("이미 참여 승인한 사용자입니다.", 400),
 
+    UNAUTHORIZED_ACCESS("접근 권한이 없는 사용자입니다.", 403),
+
+    INVALID_REQUEST("잘못된 요청건입니다.", 400),
     UNKNOWN_ERROR("알 수 없는 에러가 발생했습니다.", 500);
 
 
