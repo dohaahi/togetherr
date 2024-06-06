@@ -53,7 +53,7 @@ public class UserStudyLink extends BaseTimeEntity {
 
     public void approve() {
         if (status == UserStudyJoinStatus.APPROVED) {
-            throw new CustomException(ErrorCode.USER_ALREADY_APPROVED);
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
         }
 
         // NOTE - DB에서 승인된 유저만 찾아서 count 변경하는게 되는지

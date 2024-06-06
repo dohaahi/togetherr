@@ -40,6 +40,7 @@ public class UserStudyLinkService {
 
 
     public UserStudyJoinStatus respondToJoinRequest(RespondToJoinRequestDto request, Long studyId) {
+        studyService.getById(studyId);
         UserStudyLink userStudyLink = userStudyLinkRepository.findByStudyIdAndUserId(studyId, request.userId())
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_REQUEST));
 
@@ -47,8 +48,8 @@ public class UserStudyLinkService {
             userStudyLink.approve();
             return UserStudyJoinStatus.APPROVED;
         }
-
         userStudyLink.reject();
+
         return UserStudyJoinStatus.REJECTED;
     }
 
