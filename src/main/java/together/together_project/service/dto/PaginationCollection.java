@@ -1,8 +1,6 @@
 package together.together_project.service.dto;
 
 import java.util.List;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 
 public record PaginationCollection<T>(
@@ -28,11 +26,10 @@ public record PaginationCollection<T>(
         return meta.hasMore;
     }
 
-    @Getter
-    @RequiredArgsConstructor
-    static class Meta {
-        private final int count;
-        private final boolean hasMore;
-        private final Long lastId;
+    record Meta(
+            int count,
+            boolean hasMore,
+            Long lastId
+    ) {
     }
 }

@@ -1,6 +1,8 @@
 package together.together_project.controller;
 
 
+import static together.together_project.constant.StudyConstant.PAGINATION_COUNT;
+
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -57,13 +59,15 @@ public class StudyController {
     }
 
     @GetMapping()
-    public ResponseEntity<ResponseBody> getAllStudyPost(@RequestBody PaginationRequestDto request) {
-        List<StudyPostsResponseDto> studies = studyService.getAllStudy(request)
+    public ResponseEntity<ResponseBody> getAllStudyPost(
+            @RequestParam(value = "cursor", required = false) Long cursor
+    ) {
+        List<StudyPostsResponseDto> studies = studyService.getAllStudy((Long) cursor)
                 .stream()
                 .map(StudyPostsResponseDto::from)
                 .toList();
 
-        boolean hasMore = studies.size() == request.getCount() + 1;
+        boolean hasMore = studies.size() == PAGINATION_COUNT + 1;
 
         Long lastId = -1L;
         if (hasMore) {

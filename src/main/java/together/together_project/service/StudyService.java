@@ -35,8 +35,8 @@ public class StudyService {
         return studyRepository.save(study);
     }
 
-    public List<Study> getAllStudy(PaginationRequestDto request) {
-        return studyRepository.paginateStudy(request.getAfter(), request.getCount());
+    public List<Study> getAllStudy(Long cursor) {
+        return studyRepository.paginateStudy(cursor);
     }
 
     public Study getById(Long id) {
