@@ -23,12 +23,9 @@ public enum ErrorCode {
     STUDY_POST_NOT_FOUND("존재하지 않는 게시글입니다.", 404),
     STUDY_POST_NOT_FOUND_FOR_DELETE("삭제할 게시글이 존재하지 않습니다.", 404),
     POST_BUMP_PERIOD_EXCEPTION("끌어올리기는 이틀이 지나야 가능합니다.", 409),
-    UNAUTHORIZED_POST_EDIT("게시글 수정 권한이 없습니다.", 403),
-    UNAUTHORIZED_POST_DELETE("게시글을 삭제할 수 없는 사용자입니다.", 401),
     STUDY_NOT_FOUND("존재하는 게시물이 없습니다.", 404),
     STUDY_IS_FULLED("이미 모집이 완료된 스터디입니다.", 400),
     STUDY_ALREADY_JOINED("이미 참여 신청한 스터디입니다.", 400),
-    USER_ALREADY_APPROVED("이미 참여 승인한 사용자입니다.", 400),
     PARTICIPANTS_NOT_FOUND("참여 신청한 인원이 없습니다.", 404),
 
     UNAUTHORIZED_ACCESS("접근 권한이 없는 사용자입니다.", 403),
