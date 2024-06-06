@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import together.together_project.service.dto.request.CommentUpdateRequestDto;
 
 @Entity
 @Getter
@@ -39,4 +40,9 @@ public class StudyPostComment extends BaseTimeEntity {
     private int totalLikeCount;
 
     private Long parentCommentId;
+
+    public void update(CommentUpdateRequestDto request) {
+        updateTime();
+        this.content = request.content();
+    }
 }

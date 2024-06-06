@@ -28,6 +28,8 @@ public enum ErrorCode {
     STUDY_ALREADY_JOINED("이미 참여 신청한 스터디입니다.", 400),
     PARTICIPANTS_NOT_FOUND("참여 신청한 인원이 없습니다.", 404),
 
+    COMMENT_NOT_FOUND("댓글이 존재하지 않습니다.", 404),
+
     UNAUTHORIZED_ACCESS("접근 권한이 없는 사용자입니다.", 403),
 
     INVALID_REQUEST("잘못된 요청건입니다.", 400),
