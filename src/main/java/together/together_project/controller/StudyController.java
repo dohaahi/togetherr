@@ -108,7 +108,7 @@ public class StudyController {
             @RequestBody StudyPostUpdateRequestDto request,
             @AuthUser User currentUser
     ) {
-        verifyUserIsStudyLeader(currentUser, id, ErrorCode.UNAUTHORIZED_POST_EDIT);
+        verifyUserIsStudyLeader(currentUser, id, ErrorCode.UNAUTHORIZED_ACCESS);
 
         Study study = studyService.updateStudyPost(id, request);
         StudyPostUpdateResponseDto response = StudyPostUpdateResponseDto.from(study);
@@ -124,7 +124,7 @@ public class StudyController {
             @Valid @RequestBody StudyPostBumpRequestDto request,
             @AuthUser User currentUser
     ) {
-        verifyUserIsStudyLeader(currentUser, id, ErrorCode.UNAUTHORIZED_POST_EDIT);
+        verifyUserIsStudyLeader(currentUser, id, ErrorCode.UNAUTHORIZED_ACCESS);
 
         Study study = studyService.bumpStudyPost(id, request);
         StudyPostBumpResponseDto response = StudyPostBumpResponseDto.from(study);
