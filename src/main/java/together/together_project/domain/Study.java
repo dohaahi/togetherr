@@ -43,9 +43,6 @@ public class Study extends BaseTimeEntity {
 
     private int maxPeople;
 
-    // NOTE: post를 수정하고 싶은데 study를 통해서 수정이 가능 -> 어떻게 해결...?
-    // 1. 지금같은 방법
-    // 2. request를 study, studyPost 두 번 전달
     public Study update(StudyPostUpdateRequestDto request) {
         if (request.title() != null) {
             studyPost.updateTitle(request.title());

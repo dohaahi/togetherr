@@ -160,9 +160,6 @@ public class StudyController {
                 null,
                 HttpStatus.NO_CONTENT.value());
 
-        // Note - 이렇게 응답을 보낸 뒤 db에 저장하게 되면 바로 신청완료가 되는게 아닌가?
-        // -> 중간에 보류 중인 유저들을 저장하는 장치가 필요할 것 같음
-
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
     }
