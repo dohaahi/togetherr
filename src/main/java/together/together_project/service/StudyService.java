@@ -13,7 +13,6 @@ import together.together_project.exception.CustomException;
 import together.together_project.exception.ErrorCode;
 import together.together_project.repository.StudyPostRepositoryImpl;
 import together.together_project.repository.StudyRepositoryImpl;
-import together.together_project.service.dto.PaginationRequestDto;
 import together.together_project.service.dto.request.StudyPostBumpRequestDto;
 import together.together_project.service.dto.request.StudyPostCreateRequestDto;
 import together.together_project.service.dto.request.StudyPostUpdateRequestDto;
@@ -30,13 +29,14 @@ public class StudyService {
         checkMaxPeopleMoreThanMinimum(request.maxPeople());
         StudyPost studyPost = request.toStudyPost();
         Study study = request.toStudy(user, studyPost);
+        study.increaseParticipantCount();
 
         studyPostRepository.save(studyPost);
         return studyRepository.save(study);
     }
 
-    public List<Study> getAllStudy(PaginationRequestDto request) {
-        return studyRepository.paginateStudy(request.getAfter(), request.getCount());
+    public List<Study> getAllStudy(Long cursor) {
+        return studyRepository.paginateStudy(cursor);
     }
 
     public Study getById(Long id) {

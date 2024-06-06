@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.validation.constraints.NotNull;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public record StudyJoinRequestDto(
+public record RespondToJoinRequestDto(
 
         @NotNull(message = "잘못된 요청건입니다.")
         Long userId,

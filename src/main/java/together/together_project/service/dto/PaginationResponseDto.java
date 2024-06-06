@@ -7,7 +7,7 @@ import java.util.List;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record PaginationResponseDto<T>(
         boolean hasMore,
-        long nextCursor,
+        long lastId,
         List<T> elements
 ) {
 }

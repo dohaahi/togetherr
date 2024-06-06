@@ -16,6 +16,7 @@ public record StudyPostCreateResponseDto(
         String location,
         int participantCount,
         int maxPeople,
+        boolean isFulled,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         LocalDateTime deletedAt
@@ -33,6 +34,7 @@ public record StudyPostCreateResponseDto(
                 study.getLocation(),
                 study.getParticipantCount(),
                 study.getMaxPeople(),
+                study.isFulled(),
                 study.getCreatedAt(),
                 study.getUpdatedAt(),
                 study.getDeletedAt()

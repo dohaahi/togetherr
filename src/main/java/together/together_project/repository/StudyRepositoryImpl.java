@@ -1,32 +1,48 @@
 package together.together_project.repository;
 
+import static together.together_project.constant.StudyConstant.PAGINATION_COUNT;
+import static together.together_project.domain.QStudy.study;
+
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import together.together_project.domain.Study;
+import together.together_project.exception.CustomException;
+import together.together_project.exception.ErrorCode;
 
 @Repository
 @RequiredArgsConstructor
 public class StudyRepositoryImpl {
 
+    private final JPAQueryFactory q;
     private final StudyJpaRepository studyRepository;
 
     public Study save(Study study) {
         return studyRepository.save(study);
     }
 
-    public List<Study> paginateStudy(Long after, Long count) {
-        if (studyRepository.findAll().isEmpty()) {
-            after = 0L;
-        } else {
-            after = after == null ? studyRepository.findFirstByOrderByIdDesc() + 1 : after;
-        }
-
-        return studyRepository.paginateStudy(after, count + 1);
-    }
-
     public Optional<Study> findById(Long id) {
         return studyRepository.findById(id);
+    }
+
+    public List<Study> paginateStudy(Long cursor) {
+        if (studyRepository.findAll().isEmpty()) {
+            throw new CustomException(ErrorCode.STUDY_NOT_FOUND);
+        } else if (null == cursor) {
+            cursor = q.select(study)
+                    .from(study)
+                    .orderBy(study.studyId.desc())
+                    .fetchOne()
+                    .getStudyId() + 1L;
+        }
+
+        return q.select(study)
+                .from(study)
+                .orderBy(study.studyId.desc())
+                .where(study.studyId.lt(cursor))
+                .limit(PAGINATION_COUNT + 1)
+                .fetch();
     }
 }
