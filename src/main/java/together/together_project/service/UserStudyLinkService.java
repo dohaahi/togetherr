@@ -12,7 +12,7 @@ import together.together_project.domain.UserStudyLink;
 import together.together_project.exception.CustomException;
 import together.together_project.exception.ErrorCode;
 import together.together_project.repository.UserStudyLinkRepositoryImpl;
-import together.together_project.service.dto.request.StudyJoinRequestDto;
+import together.together_project.service.dto.request.RespondToJoinRequestDto;
 
 @Service
 @Transactional
@@ -39,17 +39,17 @@ public class UserStudyLinkService {
     }
 
 
-    public String respondToJoinRequest(StudyJoinRequestDto request, Long studyId) {
+    public UserStudyJoinStatus respondToJoinRequest(RespondToJoinRequestDto request, Long studyId) {
         UserStudyLink userStudyLink = userStudyLinkRepository.findByStudyIdAndUserId(studyId, request.userId())
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_REQUEST));
 
         if (request.response()) {
             userStudyLink.approve();
-            return UserStudyJoinStatus.APPROVED.getDescription();
+            return UserStudyJoinStatus.APPROVED;
         }
 
         userStudyLink.reject();
-        return UserStudyJoinStatus.REJECTED.getDescription();
+        return UserStudyJoinStatus.REJECTED;
     }
 
     public List<UserStudyLink> getAllJoinRequest(Long cursor, Long studyId) {

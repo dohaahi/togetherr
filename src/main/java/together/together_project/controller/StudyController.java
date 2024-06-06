@@ -26,11 +26,12 @@ import together.together_project.service.StudyService;
 import together.together_project.service.UserStudyLinkService;
 import together.together_project.service.dto.PaginationCollection;
 import together.together_project.service.dto.PaginationResponseDto;
-import together.together_project.service.dto.request.StudyJoinRequestDto;
+import together.together_project.service.dto.request.RespondToJoinRequestDto;
 import together.together_project.service.dto.request.StudyPostBumpRequestDto;
 import together.together_project.service.dto.request.StudyPostCreateRequestDto;
 import together.together_project.service.dto.request.StudyPostUpdateRequestDto;
 import together.together_project.service.dto.response.JoinRequestsResponseDto;
+import together.together_project.service.dto.response.RespondToJoinResponseDto;
 import together.together_project.service.dto.response.ResponseBody;
 import together.together_project.service.dto.response.StudyJoinResponseDto;
 import together.together_project.service.dto.response.StudyPostBumpResponseDto;
@@ -153,9 +154,9 @@ public class StudyController {
             @AuthUser User currentUser
     ) {
         userStudyLinkService.join(studyId, currentUser);
-        // StudyJoinResponseDto response = StudyJoinResponseDto.from(UserStudyJoinStatus.COMPLETED);
+        StudyJoinResponseDto response = StudyJoinResponseDto.from(UserStudyJoinStatus.PENDING);
         ResponseBody body = new ResponseBody(
-                UserStudyJoinStatus.COMPLETED.getDescription(),
+                response,
                 null,
                 HttpStatus.NO_CONTENT.value());
 
@@ -169,22 +170,21 @@ public class StudyController {
     @PostMapping("/{study-id}/response-request")
     public ResponseEntity<ResponseBody> respondToJoinRequest(
             @PathVariable("study-id") Long studyId,
-            @Valid @RequestBody StudyJoinRequestDto request,
+            @Valid @RequestBody RespondToJoinRequestDto request,
             @AuthUser User currentUser
     ) {
         verifyUserIsStudyLeader(currentUser, studyId, ErrorCode.UNAUTHORIZED_ACCESS);
 
-        String response = userStudyLinkService.respondToJoinRequest(request, studyId);
-        ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+        UserStudyJoinStatus respondToJoinRequest = userStudyLinkService.respondToJoinRequest(request, studyId);
+        RespondToJoinResponseDto response = RespondToJoinResponseDto.from(respondToJoinRequest);
+        ResponseBody body = new ResponseBody(
+                response,
+                null,
+                HttpStatus.OK.value()
+        );
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
-    }
-
-    private void verifyUserIsStudyLeader(User currentUser, Long studyId, ErrorCode unauthorizedPostDelete) {
-        if (!currentUser.getId().equals(studyService.getById(studyId).getLeader().getId())) {
-            throw new CustomException(unauthorizedPostDelete);
-        }
     }
 
     @GetMapping("/{study-id}/requests")
@@ -220,5 +220,11 @@ public class StudyController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
+    }
+
+    private void verifyUserIsStudyLeader(User currentUser, Long studyId, ErrorCode unauthorizedPostDelete) {
+        if (!currentUser.getId().equals(studyService.getById(studyId).getLeader().getId())) {
+            throw new CustomException(unauthorizedPostDelete);
+        }
     }
 }
