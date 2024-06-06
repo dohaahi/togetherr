@@ -24,7 +24,11 @@ public class StudyRepositoryImpl {
     }
 
     public Optional<Study> findById(Long id) {
-        return studyRepository.findById(id);
+        return q.select(study)
+                .from(study)
+                .where(study.deletedAt.isNull())
+                .stream()
+                .findFirst();
     }
 
     public List<Study> paginateStudy(Long cursor) {

@@ -43,6 +43,11 @@ public class UserService {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new CustomException(ErrorCode.AUTHENTICATION_FAILED));
 
+        // 탈퇴한 회원인지 확인
+        if (user.isDeleted()) {
+            throw new CustomException(ErrorCode.AUTHENTICATION_FAILED);
+        }
+
         verifyUserPassword(request.password(), user.getPassword(), ErrorCode.AUTHENTICATION_FAILED);
 
         return user.getId();
