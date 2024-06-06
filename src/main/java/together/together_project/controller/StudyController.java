@@ -139,10 +139,10 @@ public class StudyController {
             @PathVariable("study-id") Long id,
             @AuthUser User currentUser
     ) {
-        verifyUserIsStudyLeader(currentUser, id, ErrorCode.UNAUTHORIZED_POST_DELETE);
+        verifyUserIsStudyLeader(currentUser, id, ErrorCode.UNAUTHORIZED_ACCESS);
 
         studyService.deleteStudy(id);
-        ResponseBody body = new ResponseBody(null, null, HttpStatus.NO_CONTENT.value());
+        ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
