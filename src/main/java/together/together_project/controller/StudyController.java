@@ -32,6 +32,7 @@ import together.together_project.service.dto.request.StudyPostCreateRequestDto;
 import together.together_project.service.dto.request.StudyPostUpdateRequestDto;
 import together.together_project.service.dto.response.JoinRequestsResponseDto;
 import together.together_project.service.dto.response.ResponseBody;
+import together.together_project.service.dto.response.StudyJoinResponseDto;
 import together.together_project.service.dto.response.StudyPostBumpResponseDto;
 import together.together_project.service.dto.response.StudyPostCreateResponseDto;
 import together.together_project.service.dto.response.StudyPostResponseDto;
@@ -90,8 +91,8 @@ public class StudyController {
                 .body(body);
     }
 
-    @GetMapping("/{study-post-id}")
-    public ResponseEntity<ResponseBody> getById(@PathVariable("study-post-id") Long id) {
+    @GetMapping("/{study-id}")
+    public ResponseEntity<ResponseBody> getById(@PathVariable("study-id") Long id) {
         Study study = studyService.getById(id);
         StudyPostResponseDto response = StudyPostResponseDto.from(study);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
@@ -100,9 +101,9 @@ public class StudyController {
                 .body(body);
     }
 
-    @PutMapping("/{study-post-id}")
+    @PutMapping("/{study-id}")
     public ResponseEntity<ResponseBody> updateStudyPost(
-            @PathVariable("study-post-id") Long id,
+            @PathVariable("study-id") Long id,
             @RequestBody StudyPostUpdateRequestDto request,
             @AuthUser User currentUser
     ) {
@@ -116,9 +117,9 @@ public class StudyController {
                 .body(body);
     }
 
-    @PutMapping("/{study-post-id}/bump")
+    @PutMapping("/{study-id}/bump")
     public ResponseEntity<ResponseBody> bumpStudyPost(
-            @PathVariable("study-post-id") Long id,
+            @PathVariable("study-id") Long id,
             @Valid @RequestBody StudyPostBumpRequestDto request,
             @AuthUser User currentUser
     ) {
@@ -132,9 +133,9 @@ public class StudyController {
                 .body(body);
     }
 
-    @DeleteMapping("/{study-post-id}")
+    @DeleteMapping("/{study-id}")
     public ResponseEntity<ResponseBody> deletePost(
-            @PathVariable("study-post-id") Long id,
+            @PathVariable("study-id") Long id,
             @AuthUser User currentUser
     ) {
         verifyUserIsStudyLeader(currentUser, id, ErrorCode.UNAUTHORIZED_POST_DELETE);
@@ -146,9 +147,9 @@ public class StudyController {
                 .body(body);
     }
 
-    @PostMapping("/{study-post-id}/request")
+    @PostMapping("/{study-id}/request")
     public ResponseEntity<ResponseBody> requestToJoinStudy(
-            @PathVariable("study-post-id") Long studyId,
+            @PathVariable("study-id") Long studyId,
             @AuthUser User currentUser
     ) {
         userStudyLinkService.join(studyId, currentUser);
@@ -165,9 +166,9 @@ public class StudyController {
                 .body(body);
     }
 
-    @PostMapping("/{study-post-id}/response-request")
+    @PostMapping("/{study-id}/response-request")
     public ResponseEntity<ResponseBody> respondToJoinRequest(
-            @PathVariable("study-post-id") Long studyId,
+            @PathVariable("study-id") Long studyId,
             @Valid @RequestBody StudyJoinRequestDto request,
             @AuthUser User currentUser
     ) {
@@ -186,9 +187,9 @@ public class StudyController {
         }
     }
 
-    @GetMapping("/{study-post-id}/requests")
+    @GetMapping("/{study-id}/requests")
     public ResponseEntity<ResponseBody> getAllJoinRequest(
-            @PathVariable("study-post-id") Long studyId,
+            @PathVariable("study-id") Long studyId,
             @RequestParam(value = "cursor", required = false) Long cursor,
             @AuthUser User currentUser
     ) {
