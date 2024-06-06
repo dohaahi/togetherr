@@ -23,15 +23,13 @@ public class UserService {
     private final BcryptService bcryptService;
 
     public SignupResponseDto signup(SignupRequestDto request) {
-        userRepository.findByEmail(request.email())
-                .ifPresent(user -> {
-                    throw new CustomException(ErrorCode.EMAIL_DUPLICATE);
-                });
+        userRepository.findByEmail(request.email()).ifPresent(user -> {
+            throw new CustomException(ErrorCode.EMAIL_DUPLICATE);
+        });
 
-        userRepository.findByNickname(request.nickname())
-                .ifPresent(user -> {
-                    throw new CustomException(ErrorCode.NICKNAME_DUPLICATE);
-                });
+        userRepository.findByNickname(request.nickname()).ifPresent(user -> {
+            throw new CustomException(ErrorCode.NICKNAME_DUPLICATE);
+        });
 
         String encodedPassword = bcryptService.encodeBcrypt(request.password());
         User hashedUser = request.toUser(encodedPassword);
@@ -45,54 +43,42 @@ public class UserService {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new CustomException(ErrorCode.AUTHENTICATION_FAILED));
 
-        verifyUserPassword(
-                request.password(),
-                user.getPassword(),
-                ErrorCode.AUTHENTICATION_FAILED
-        );
+        verifyUserPassword(request.password(), user.getPassword(), ErrorCode.AUTHENTICATION_FAILED);
 
         return user.getId();
     }
 
     public void withdraw(WithdrawRequestDto request, Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.TOKEN_VALIDATE));
+        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.TOKEN_VALIDATE));
 
-        verifyUserPassword(
-                request.password(),
-                user.getPassword(),
-                ErrorCode.PASSWORD_NOT_MATCH
-        );
+        verifyUserPassword(request.password(), user.getPassword(), ErrorCode.PASSWORD_NOT_MATCH);
 
         user.softDelete();
     }
 
     public User getUserById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        return userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
     public User updateMyPage(MyPageRequestDto request, Long userId) {
         User user = getUserById(userId);
 
-        userRepository.findByEmail(request.email())
-                .ifPresent(u -> {
-                    throw new CustomException(ErrorCode.EMAIL_DUPLICATE);
-                });
+        if (request.email() != null) {
+            userRepository.findByEmail(request.email()).ifPresent(u -> {
+                throw new CustomException(ErrorCode.EMAIL_DUPLICATE);
+            });
+        }
 
-        userRepository.findByNickname(request.nickname())
-                .ifPresent(u -> {
-                    throw new CustomException(ErrorCode.NICKNAME_DUPLICATE);
-                });
+        if (request.nickname() != null) {
+            userRepository.findByNickname(request.nickname()).ifPresent(u -> {
+                throw new CustomException(ErrorCode.NICKNAME_DUPLICATE);
+            });
+        }
 
         return user.update(request);
     }
 
-    private void verifyUserPassword(
-            String plainPassword,
-            String hashPassword,
-            ErrorCode errorCode
-    ) {
+    private void verifyUserPassword(String plainPassword, String hashPassword, ErrorCode errorCode) {
         boolean matchedBcrypt = bcryptService.matchBcrypt(plainPassword, hashPassword);
         if (!matchedBcrypt) {
             throw new CustomException(errorCode);
