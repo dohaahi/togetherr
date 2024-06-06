@@ -25,6 +25,11 @@ public class UserStudyLinkService {
     public void join(Long studyId, User user) {
         Study study = studyService.getById(studyId);
 
+        // 리더가 참여 신청한 경우
+        if (user.equals(study.getLeader())) {
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
+        }
+
         // 이미 참여 신청한 유저인지 확인
         Optional<UserStudyLink> studyLink = userStudyLinkRepository.findByStudyIdAndUserId(study.getStudyId(),
                 user.getId());

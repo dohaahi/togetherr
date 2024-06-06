@@ -29,6 +29,7 @@ public class StudyService {
         checkMaxPeopleMoreThanMinimum(request.maxPeople());
         StudyPost studyPost = request.toStudyPost();
         Study study = request.toStudy(user, studyPost);
+        study.increaseParticipantCount();
 
         studyPostRepository.save(studyPost);
         return studyRepository.save(study);
