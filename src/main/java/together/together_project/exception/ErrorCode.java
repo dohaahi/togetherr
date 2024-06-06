@@ -29,6 +29,7 @@ public enum ErrorCode {
     STUDY_IS_FULLED("이미 모집이 완료된 스터디입니다.", 400),
     STUDY_ALREADY_JOINED("이미 참여 신청한 스터디입니다.", 400),
     USER_ALREADY_APPROVED("이미 참여 승인한 사용자입니다.", 400),
+    PARTICIPANTS_NOT_FOUND("참여 신청한 인원이 없습니다.", 404),
 
     UNAUTHORIZED_ACCESS("접근 권한이 없는 사용자입니다.", 403),
 

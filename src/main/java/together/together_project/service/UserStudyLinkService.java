@@ -1,5 +1,6 @@
 package together.together_project.service;
 
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -49,5 +50,9 @@ public class UserStudyLinkService {
 
         userStudyLink.reject();
         return UserStudyJoinStatus.REJECTED.getDescription();
+    }
+
+    public List<UserStudyLink> getAllJoinRequest(Long cursor, Long studyId) {
+        return userStudyLinkRepository.paginateJoinRequest(cursor, studyId);
     }
 }

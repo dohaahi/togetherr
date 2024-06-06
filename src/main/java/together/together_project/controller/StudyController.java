@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import together.together_project.domain.Study;
 import together.together_project.domain.User;
@@ -24,12 +25,12 @@ import together.together_project.exception.ErrorCode;
 import together.together_project.service.StudyService;
 import together.together_project.service.UserStudyLinkService;
 import together.together_project.service.dto.PaginationCollection;
-import together.together_project.service.dto.PaginationRequestDto;
 import together.together_project.service.dto.PaginationResponseDto;
 import together.together_project.service.dto.request.StudyJoinRequestDto;
 import together.together_project.service.dto.request.StudyPostBumpRequestDto;
 import together.together_project.service.dto.request.StudyPostCreateRequestDto;
 import together.together_project.service.dto.request.StudyPostUpdateRequestDto;
+import together.together_project.service.dto.response.JoinRequestsResponseDto;
 import together.together_project.service.dto.response.ResponseBody;
 import together.together_project.service.dto.response.StudyPostBumpResponseDto;
 import together.together_project.service.dto.response.StudyPostCreateResponseDto;
@@ -183,5 +184,40 @@ public class StudyController {
         if (!currentUser.getId().equals(studyService.getById(studyId).getLeader().getId())) {
             throw new CustomException(unauthorizedPostDelete);
         }
+    }
+
+    @GetMapping("/{study-post-id}/requests")
+    public ResponseEntity<ResponseBody> getAllJoinRequest(
+            @PathVariable("study-post-id") Long studyId,
+            @RequestParam(value = "cursor", required = false) Long cursor,
+            @AuthUser User currentUser
+    ) {
+        verifyUserIsStudyLeader(currentUser, studyId, ErrorCode.UNAUTHORIZED_ACCESS);
+
+        List<JoinRequestsResponseDto> joinRequests = userStudyLinkService.getAllJoinRequest(cursor, studyId)
+                .stream()
+                .map(JoinRequestsResponseDto::from)
+                .toList();
+
+        boolean hasMore = joinRequests.size() == PAGINATION_COUNT + 1;
+
+        Long lastId = -1L;
+        if (hasMore) {
+            joinRequests.subList(0, joinRequests.size() - 1);
+            lastId = joinRequests.get(joinRequests.size() - 1).id();
+        }
+
+        PaginationCollection<JoinRequestsResponseDto> data = PaginationCollection.of(hasMore, lastId, joinRequests);
+
+        PaginationResponseDto<JoinRequestsResponseDto> response = new PaginationResponseDto<>(
+                data.hasMore(),
+                data.getNextCursor(),
+                data.getCurrentData()
+        );
+
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
     }
 }
