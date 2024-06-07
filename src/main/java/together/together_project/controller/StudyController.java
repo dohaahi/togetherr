@@ -252,6 +252,24 @@ public class StudyController {
                 .body(body);
     }
 
+    @DeleteMapping("/{study-id}/members")
+    public ResponseEntity<ResponseBody> withdrawParticipation(
+            @PathVariable("study-id") Long studyId,
+            @AuthUser User currentUser
+    ) {
+        Study study = studyService.getById(studyId);
+        if (study.getLeader().getId() == currentUser.getId()) {
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
+        }
+
+        userStudyLinkService.withdrawParticipation(studyId, currentUser);
+
+        ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
     @PostMapping("/{study-id}/response-request")
     public ResponseEntity<ResponseBody> respondToJoinRequest(
             @PathVariable("study-id") Long studyId,
