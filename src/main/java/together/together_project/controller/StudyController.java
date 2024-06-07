@@ -108,7 +108,7 @@ public class StudyController {
             @RequestBody StudyPostUpdateRequestDto request,
             @AuthUser User currentUser
     ) {
-        verifyUserIsStudyLeader(currentUser, id, ErrorCode.UNAUTHORIZED_ACCESS);
+        verifyUserIsStudyLeader(currentUser, id);
 
         Study study = studyService.updateStudyPost(id, request);
         StudyPostUpdateResponseDto response = StudyPostUpdateResponseDto.from(study);
@@ -124,7 +124,7 @@ public class StudyController {
             @Valid @RequestBody StudyPostBumpRequestDto request,
             @AuthUser User currentUser
     ) {
-        verifyUserIsStudyLeader(currentUser, id, ErrorCode.UNAUTHORIZED_ACCESS);
+        verifyUserIsStudyLeader(currentUser, id);
 
         Study study = studyService.bumpStudyPost(id, request);
         StudyPostBumpResponseDto response = StudyPostBumpResponseDto.from(study);
@@ -139,7 +139,7 @@ public class StudyController {
             @PathVariable("study-id") Long id,
             @AuthUser User currentUser
     ) {
-        verifyUserIsStudyLeader(currentUser, id, ErrorCode.UNAUTHORIZED_ACCESS);
+        verifyUserIsStudyLeader(currentUser, id);
 
         studyService.deleteStudy(id);
         userStudyLinkService.deleteByStudyId(id);
@@ -171,7 +171,7 @@ public class StudyController {
             @Valid @RequestBody RespondToJoinRequestDto request,
             @AuthUser User currentUser
     ) {
-        verifyUserIsStudyLeader(currentUser, studyId, ErrorCode.UNAUTHORIZED_ACCESS);
+        verifyUserIsStudyLeader(currentUser, studyId);
 
         UserStudyJoinStatus respondToJoinRequest = userStudyLinkService.respondToJoinRequest(request, studyId);
         RespondToJoinResponseDto response = RespondToJoinResponseDto.from(respondToJoinRequest);
@@ -191,7 +191,7 @@ public class StudyController {
             @RequestParam(value = "cursor", required = false) Long cursor,
             @AuthUser User currentUser
     ) {
-        verifyUserIsStudyLeader(currentUser, studyId, ErrorCode.UNAUTHORIZED_ACCESS);
+        verifyUserIsStudyLeader(currentUser, studyId);
 
         List<JoinRequestsResponseDto> joinRequests = userStudyLinkService.getAllJoinRequest(cursor, studyId)
                 .stream()
@@ -220,9 +220,9 @@ public class StudyController {
                 .body(body);
     }
 
-    private void verifyUserIsStudyLeader(User currentUser, Long studyId, ErrorCode message) {
+    private void verifyUserIsStudyLeader(User currentUser, Long studyId) {
         if (!currentUser.getId().equals(studyService.getById(studyId).getLeader().getId())) {
-            throw new CustomException(message);
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
         }
     }
 }
