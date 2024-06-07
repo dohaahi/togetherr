@@ -2,6 +2,7 @@ package together.together_project.repository;
 
 import static together.together_project.constant.StudyConstant.PAGINATION_COUNT;
 import static together.together_project.domain.QUserStudyLink.userStudyLink;
+import static together.together_project.domain.UserStudyJoinStatus.PENDING;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
@@ -39,6 +40,7 @@ public class UserStudyLinkRepositoryImpl {
             cursor = q.select(userStudyLink)
                     .from(userStudyLink)
                     .orderBy(userStudyLink.id.desc())
+                    .limit(1)
                     .fetchOne()
                     .getId() + 1;
         }
@@ -46,6 +48,7 @@ public class UserStudyLinkRepositoryImpl {
         return q.select(userStudyLink)
                 .from(userStudyLink)
                 .where(userStudyLink.study.studyId.eq(studyId))
+                .where(userStudyLink.status.eq(PENDING))
                 .where(userStudyLink.id.lt(cursor))
                 .limit(PAGINATION_COUNT + 1)
                 .fetch();
