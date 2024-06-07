@@ -65,4 +65,8 @@ public class UserStudyLinkService {
     public void deleteByStudyId(Long studyId) {
         userStudyLinkRepository.deleteByStudyId(studyId);
     }
+
+    public List<UserStudyLink> getAllParticipants(Long studyId, Long cursor) {
+        return userStudyLinkRepository.paginateParticipants(studyId, cursor);
+    }
 }

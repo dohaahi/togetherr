@@ -34,6 +34,7 @@ import together.together_project.service.dto.response.JoinRequestsResponseDto;
 import together.together_project.service.dto.response.RespondToJoinResponseDto;
 import together.together_project.service.dto.response.ResponseBody;
 import together.together_project.service.dto.response.StudyJoinResponseDto;
+import together.together_project.service.dto.response.StudyParticipantsResponseDto;
 import together.together_project.service.dto.response.StudyPostBumpResponseDto;
 import together.together_project.service.dto.response.StudyPostCreateResponseDto;
 import together.together_project.service.dto.response.StudyPostResponseDto;
@@ -65,7 +66,7 @@ public class StudyController {
     public ResponseEntity<ResponseBody> getAllStudyPost(
             @RequestParam(value = "cursor", required = false) Long cursor
     ) {
-        List<StudyPostsResponseDto> studies = studyService.getAllStudy((Long) cursor)
+        List<StudyPostsResponseDto> studies = studyService.getAllStudy(cursor)
                 .stream()
                 .map(StudyPostsResponseDto::from)
                 .toList();
@@ -209,6 +210,43 @@ public class StudyController {
         PaginationCollection<JoinRequestsResponseDto> data = PaginationCollection.of(hasMore, lastId, joinRequests);
 
         PaginationResponseDto<JoinRequestsResponseDto> response = new PaginationResponseDto<>(
+                data.hasMore(),
+                data.getNextCursor(),
+                data.getCurrentData()
+        );
+
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    @GetMapping("/{study-id}/members")
+    public ResponseEntity<ResponseBody> getAllParticipants(
+            @PathVariable("study-id") Long studyId,
+            @RequestParam(value = "cursor", required = false) Long cursor,
+            @AuthUser User currentUser
+    ) {
+        List<StudyParticipantsResponseDto> participants = userStudyLinkService.getAllParticipants(studyId, cursor)
+                .stream()
+                .map(StudyParticipantsResponseDto::from)
+                .toList();
+
+        boolean hasMore = participants.size() == PAGINATION_COUNT + 1;
+
+        long lastId = -1L;
+        if (hasMore) {
+            participants.subList(0, participants.size() - 1);
+            lastId = participants.get(participants.size() - 1).id();
+        }
+
+        PaginationCollection<StudyParticipantsResponseDto> data = PaginationCollection.of(
+                hasMore,
+                lastId,
+                participants
+        );
+
+        PaginationResponseDto<StudyParticipantsResponseDto> response = new PaginationResponseDto<StudyParticipantsResponseDto>(
                 data.hasMore(),
                 data.getNextCursor(),
                 data.getCurrentData()
