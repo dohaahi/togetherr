@@ -73,7 +73,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 .filter(cookie -> cookie.getName().equals("accessToken"))
                 .map(Cookie::getValue)
                 .findFirst()
-                .orElseThrow(() -> new JwtException(ErrorCode.TOKEN_NOT_FOUND.getDescription()));
+                .orElseThrow(() -> new JwtException(ErrorCode.AUTHENTICATION_REQUIRED.getDescription()));
     }
 
     private void jwtExceptionHandler(HttpServletResponse response, String error) {

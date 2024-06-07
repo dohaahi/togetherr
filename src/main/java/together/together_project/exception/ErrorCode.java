@@ -16,7 +16,7 @@ public enum ErrorCode {
     USER_NOT_FOUND("존재하지 않는 회원입니다.", 401),
 
     TOKEN_VALIDATE("유효하지 않은 토큰입니다.", 401),
-    TOKEN_NOT_FOUND("토큰이 존재하지 않습니다.", 401),
+    AUTHENTICATION_REQUIRED("로그인이 필요합니다.", 401),
     TOKEN_EXPIRED("유효기간이 만료된 토큰입니다.", 401),
 
     MAX_PEOPLE_UNDER_LIMIT("최대 인원은 2명 이상이여야 합니다.", 422),
