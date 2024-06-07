@@ -55,12 +55,6 @@ public class UserStudyLinkRepositoryImpl {
                 .fetch();
     }
 
-    public void deleteByStudyId(Long studyId) {
-        q.delete(userStudyLink)
-                .where(userStudyLink.study.studyId.eq(studyId))
-                .execute();
-    }
-
     public List<UserStudyLink> paginateParticipants(Long studyId, Long cursor) {
         JPAQuery<UserStudyLink> userStudyLinks = getUserStudyLinks(studyId, APPROVED);
 
@@ -88,14 +82,21 @@ public class UserStudyLinkRepositoryImpl {
                 .where(userStudyLink.status.eq(status));
     }
 
-    public void deleteByStudyId(Long studyId, Long userId) {
+    public void deleteByStudyId(Long studyId) {
+        q.delete(userStudyLink)
+                .where(userStudyLink.study.studyId.eq(studyId))
+                .execute();
+    }
+
+    public void deleteByStudyId(Long studyId, Long userId, UserStudyJoinStatus status) {
         long affectedRows = q.delete(userStudyLink)
                 .where(userStudyLink.study.studyId.eq(studyId))
                 .where(userStudyLink.participant.id.eq(userId))
-                .where(userStudyLink.status.eq(PENDING))
+                .where(userStudyLink.status.eq(status))
                 .execute();
 
         if (affectedRows == 0) {
+            // NOTE - 참여 신청하지 않은 유저가 철회하는 경우, 리더가 참여 신청 철회하는 경우 등에도 해당 메세지가 쓰임.. 메세지 변경 필요
             throw new CustomException(ErrorCode.ALREADY_WITHDRAW_JOIN_REQUEST);
         }
     }

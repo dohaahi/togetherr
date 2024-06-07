@@ -1,5 +1,8 @@
 package together.together_project.service;
 
+import static together.together_project.domain.UserStudyJoinStatus.APPROVED;
+import static together.together_project.domain.UserStudyJoinStatus.PENDING;
+
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -71,6 +74,10 @@ public class UserStudyLinkService {
     }
 
     public void withdrawJoinStudyRequest(Long studyId, User currentUser) {
-        userStudyLinkRepository.deleteByStudyId(studyId, currentUser.getId());
+        userStudyLinkRepository.deleteByStudyId(studyId, currentUser.getId(), PENDING);
+    }
+
+    public void withdrawParticipation(Long studyId, User currentUser) {
+        userStudyLinkRepository.deleteByStudyId(studyId, currentUser.getId(), APPROVED);
     }
 }
