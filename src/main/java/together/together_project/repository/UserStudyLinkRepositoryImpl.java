@@ -87,4 +87,16 @@ public class UserStudyLinkRepositoryImpl {
                 .where(userStudyLink.study.studyId.eq(studyId))
                 .where(userStudyLink.status.eq(status));
     }
+
+    public void deleteByStudyId(Long studyId, Long userId) {
+        long affectedRows = q.delete(userStudyLink)
+                .where(userStudyLink.study.studyId.eq(studyId))
+                .where(userStudyLink.participant.id.eq(userId))
+                .where(userStudyLink.status.eq(PENDING))
+                .execute();
+
+        if (affectedRows == 0) {
+            throw new CustomException(ErrorCode.ALREADY_WITHDRAW_JOIN_REQUEST);
+        }
+    }
 }

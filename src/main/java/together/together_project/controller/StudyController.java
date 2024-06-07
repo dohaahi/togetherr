@@ -150,42 +150,6 @@ public class StudyController {
                 .body(body);
     }
 
-    @PostMapping("/{study-id}/request")
-    public ResponseEntity<ResponseBody> requestToJoinStudy(
-            @PathVariable("study-id") Long studyId,
-            @AuthUser User currentUser
-    ) {
-        userStudyLinkService.join(studyId, currentUser);
-        StudyJoinResponseDto response = StudyJoinResponseDto.from(UserStudyJoinStatus.PENDING);
-        ResponseBody body = new ResponseBody(
-                response,
-                null,
-                HttpStatus.NO_CONTENT.value());
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(body);
-    }
-
-    @PostMapping("/{study-id}/response-request")
-    public ResponseEntity<ResponseBody> respondToJoinRequest(
-            @PathVariable("study-id") Long studyId,
-            @Valid @RequestBody RespondToJoinRequestDto request,
-            @AuthUser User currentUser
-    ) {
-        verifyUserIsStudyLeader(currentUser, studyId);
-
-        UserStudyJoinStatus respondToJoinRequest = userStudyLinkService.respondToJoinRequest(request, studyId);
-        RespondToJoinResponseDto response = RespondToJoinResponseDto.from(respondToJoinRequest);
-        ResponseBody body = new ResponseBody(
-                response,
-                null,
-                HttpStatus.OK.value()
-        );
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(body);
-    }
-
     @GetMapping("/{study-id}/requests")
     public ResponseEntity<ResponseBody> getAllJoinRequest(
             @PathVariable("study-id") Long studyId,
@@ -253,6 +217,56 @@ public class StudyController {
         );
 
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    @PostMapping("/{study-id}/request")
+    public ResponseEntity<ResponseBody> requestToJoinStudy(
+            @PathVariable("study-id") Long studyId,
+            @AuthUser User currentUser
+    ) {
+        userStudyLinkService.join(studyId, currentUser);
+        StudyJoinResponseDto response = StudyJoinResponseDto.from(UserStudyJoinStatus.PENDING);
+        ResponseBody body = new ResponseBody(
+                response,
+                null,
+                HttpStatus.NO_CONTENT.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    @DeleteMapping("/{study-id}/request")
+    public ResponseEntity<ResponseBody> withdrawJoinStudyRequest(
+            @PathVariable("study-id") Long studyId,
+            @AuthUser User currentUser
+    ) {
+        studyService.getById(studyId);
+        userStudyLinkService.withdrawJoinStudyRequest(studyId, currentUser);
+
+        ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    @PostMapping("/{study-id}/response-request")
+    public ResponseEntity<ResponseBody> respondToJoinRequest(
+            @PathVariable("study-id") Long studyId,
+            @Valid @RequestBody RespondToJoinRequestDto request,
+            @AuthUser User currentUser
+    ) {
+        verifyUserIsStudyLeader(currentUser, studyId);
+
+        UserStudyJoinStatus respondToJoinRequest = userStudyLinkService.respondToJoinRequest(request, studyId);
+        RespondToJoinResponseDto response = RespondToJoinResponseDto.from(respondToJoinRequest);
+        ResponseBody body = new ResponseBody(
+                response,
+                null,
+                HttpStatus.OK.value()
+        );
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);

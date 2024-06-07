@@ -28,6 +28,7 @@ public enum ErrorCode {
     POST_NOT_FOUND("존재하는 게시물이 없습니다.", 404),
     JOIN_REQUEST_NOT_FOUND("참여 신청한 인원이 없습니다.", 404),
     PARTICIPANTS_NOT_FOUND("참여중인 인원이 없습니다.", 404),
+    ALREADY_WITHDRAW_JOIN_REQUEST("이미 철회 신청한 스터디입니다.", 400),
 
     COMMENT_NOT_FOUND("댓글이 존재하지 않습니다.", 404),
 
