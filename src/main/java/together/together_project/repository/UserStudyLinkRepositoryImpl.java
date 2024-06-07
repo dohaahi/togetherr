@@ -50,4 +50,10 @@ public class UserStudyLinkRepositoryImpl {
                 .limit(PAGINATION_COUNT + 1)
                 .fetch();
     }
+
+    public void deleteByStudyId(Long studyId) {
+        q.delete(userStudyLink)
+                .where(userStudyLink.study.studyId.eq(studyId))
+                .execute();
+    }
 }

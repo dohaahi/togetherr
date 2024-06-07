@@ -61,4 +61,8 @@ public class UserStudyLinkService {
     public List<UserStudyLink> getAllJoinRequest(Long cursor, Long studyId) {
         return userStudyLinkRepository.paginateJoinRequest(cursor, studyId);
     }
+
+    public void deleteByStudyId(Long studyId) {
+        userStudyLinkRepository.deleteByStudyId(studyId);
+    }
 }

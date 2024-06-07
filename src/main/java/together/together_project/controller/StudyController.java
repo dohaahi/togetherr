@@ -142,6 +142,7 @@ public class StudyController {
         verifyUserIsStudyLeader(currentUser, id, ErrorCode.UNAUTHORIZED_ACCESS);
 
         studyService.deleteStudy(id);
+        userStudyLinkService.deleteByStudyId(id);
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -219,9 +220,9 @@ public class StudyController {
                 .body(body);
     }
 
-    private void verifyUserIsStudyLeader(User currentUser, Long studyId, ErrorCode unauthorizedPostDelete) {
+    private void verifyUserIsStudyLeader(User currentUser, Long studyId, ErrorCode message) {
         if (!currentUser.getId().equals(studyService.getById(studyId).getLeader().getId())) {
-            throw new CustomException(unauthorizedPostDelete);
+            throw new CustomException(message);
         }
     }
 }
