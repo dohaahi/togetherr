@@ -34,6 +34,7 @@ import together.together_project.service.dto.response.JoinRequestsResponseDto;
 import together.together_project.service.dto.response.RespondToJoinResponseDto;
 import together.together_project.service.dto.response.ResponseBody;
 import together.together_project.service.dto.response.StudyJoinResponseDto;
+import together.together_project.service.dto.response.StudyParticipantsResponseDto;
 import together.together_project.service.dto.response.StudyPostBumpResponseDto;
 import together.together_project.service.dto.response.StudyPostCreateResponseDto;
 import together.together_project.service.dto.response.StudyPostResponseDto;
@@ -65,7 +66,7 @@ public class StudyController {
     public ResponseEntity<ResponseBody> getAllStudyPost(
             @RequestParam(value = "cursor", required = false) Long cursor
     ) {
-        List<StudyPostsResponseDto> studies = studyService.getAllStudy((Long) cursor)
+        List<StudyPostsResponseDto> studies = studyService.getAllStudy(cursor)
                 .stream()
                 .map(StudyPostsResponseDto::from)
                 .toList();
@@ -108,7 +109,7 @@ public class StudyController {
             @RequestBody StudyPostUpdateRequestDto request,
             @AuthUser User currentUser
     ) {
-        verifyUserIsStudyLeader(currentUser, id, ErrorCode.UNAUTHORIZED_ACCESS);
+        verifyUserIsStudyLeader(currentUser, id);
 
         Study study = studyService.updateStudyPost(id, request);
         StudyPostUpdateResponseDto response = StudyPostUpdateResponseDto.from(study);
@@ -124,7 +125,7 @@ public class StudyController {
             @Valid @RequestBody StudyPostBumpRequestDto request,
             @AuthUser User currentUser
     ) {
-        verifyUserIsStudyLeader(currentUser, id, ErrorCode.UNAUTHORIZED_ACCESS);
+        verifyUserIsStudyLeader(currentUser, id);
 
         Study study = studyService.bumpStudyPost(id, request);
         StudyPostBumpResponseDto response = StudyPostBumpResponseDto.from(study);
@@ -139,9 +140,10 @@ public class StudyController {
             @PathVariable("study-id") Long id,
             @AuthUser User currentUser
     ) {
-        verifyUserIsStudyLeader(currentUser, id, ErrorCode.UNAUTHORIZED_ACCESS);
+        verifyUserIsStudyLeader(currentUser, id);
 
         studyService.deleteStudy(id);
+        userStudyLinkService.deleteByStudyId(id);
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -170,7 +172,7 @@ public class StudyController {
             @Valid @RequestBody RespondToJoinRequestDto request,
             @AuthUser User currentUser
     ) {
-        verifyUserIsStudyLeader(currentUser, studyId, ErrorCode.UNAUTHORIZED_ACCESS);
+        verifyUserIsStudyLeader(currentUser, studyId);
 
         UserStudyJoinStatus respondToJoinRequest = userStudyLinkService.respondToJoinRequest(request, studyId);
         RespondToJoinResponseDto response = RespondToJoinResponseDto.from(respondToJoinRequest);
@@ -190,7 +192,7 @@ public class StudyController {
             @RequestParam(value = "cursor", required = false) Long cursor,
             @AuthUser User currentUser
     ) {
-        verifyUserIsStudyLeader(currentUser, studyId, ErrorCode.UNAUTHORIZED_ACCESS);
+        verifyUserIsStudyLeader(currentUser, studyId);
 
         List<JoinRequestsResponseDto> joinRequests = userStudyLinkService.getAllJoinRequest(cursor, studyId)
                 .stream()
@@ -219,9 +221,46 @@ public class StudyController {
                 .body(body);
     }
 
-    private void verifyUserIsStudyLeader(User currentUser, Long studyId, ErrorCode unauthorizedPostDelete) {
+    @GetMapping("/{study-id}/members")
+    public ResponseEntity<ResponseBody> getAllParticipants(
+            @PathVariable("study-id") Long studyId,
+            @RequestParam(value = "cursor", required = false) Long cursor,
+            @AuthUser User currentUser
+    ) {
+        List<StudyParticipantsResponseDto> participants = userStudyLinkService.getAllParticipants(studyId, cursor)
+                .stream()
+                .map(StudyParticipantsResponseDto::from)
+                .toList();
+
+        boolean hasMore = participants.size() == PAGINATION_COUNT + 1;
+
+        long lastId = -1L;
+        if (hasMore) {
+            participants.subList(0, participants.size() - 1);
+            lastId = participants.get(participants.size() - 1).id();
+        }
+
+        PaginationCollection<StudyParticipantsResponseDto> data = PaginationCollection.of(
+                hasMore,
+                lastId,
+                participants
+        );
+
+        PaginationResponseDto<StudyParticipantsResponseDto> response = new PaginationResponseDto<StudyParticipantsResponseDto>(
+                data.hasMore(),
+                data.getNextCursor(),
+                data.getCurrentData()
+        );
+
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    private void verifyUserIsStudyLeader(User currentUser, Long studyId) {
         if (!currentUser.getId().equals(studyService.getById(studyId).getLeader().getId())) {
-            throw new CustomException(unauthorizedPostDelete);
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
         }
     }
 }

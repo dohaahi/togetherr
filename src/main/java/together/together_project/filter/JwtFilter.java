@@ -51,6 +51,10 @@ public class JwtFilter extends OncePerRequestFilter {
         try {
             // request에서 토큰 꺼내기
             String accessToken = resolveTokenFromRequest(response, request);
+            if (accessToken == null) {
+                throw new JwtException(ErrorCode.AUTHENTICATION_REQUIRED.getDescription());
+            }
+
             jwtProvider.verifyAuthTokenOrThrow(accessToken);
         } catch (JwtException exception) {
             jwtExceptionHandler(response, exception.getMessage());
@@ -73,7 +77,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 .filter(cookie -> cookie.getName().equals("accessToken"))
                 .map(Cookie::getValue)
                 .findFirst()
-                .orElseThrow(() -> new JwtException(ErrorCode.TOKEN_NOT_FOUND.getDescription()));
+                .orElseThrow(() -> new JwtException(ErrorCode.AUTHENTICATION_REQUIRED.getDescription()));
     }
 
     private void jwtExceptionHandler(HttpServletResponse response, String error) {

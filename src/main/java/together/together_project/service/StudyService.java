@@ -41,19 +41,19 @@ public class StudyService {
 
     public Study getById(Long id) {
         return studyRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_POST_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_NOT_FOUND));
     }
 
     public Study updateStudyPost(Long id, StudyPostUpdateRequestDto request) {
         Study study = studyRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_POST_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_NOT_FOUND));
 
         return study.update(request);
     }
 
     public Study bumpStudyPost(Long id, StudyPostBumpRequestDto request) {
         Study study = studyRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_POST_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_NOT_FOUND));
 
         study.getStudyPost().bumpStudyPost(request);
 
@@ -62,7 +62,7 @@ public class StudyService {
 
     public void deleteStudy(Long id) {
         Study study = studyRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_POST_NOT_FOUND_FOR_DELETE));
+                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_NOT_FOUND));
 
         study.softDelete();
         study.getStudyPost().softDelete();
