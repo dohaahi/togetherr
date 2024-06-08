@@ -32,6 +32,11 @@ public class StudyCommentService {
         return studyPostCommentRepository.save(comment);
     }
 
+    public StudyPostComment getCommentById(Long commentId) {
+        return studyPostCommentRepository.findCommentById(commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+    }
+
     public StudyPostComment updateComment(
             Long studyId,
             Long commentId,
@@ -39,10 +44,14 @@ public class StudyCommentService {
             User currentUser
     ) {
         Study study = studyService.getById(studyId);
-        StudyPostComment comment = studyPostCommentRepository.findCommentById(commentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+        StudyPostComment comment = getCommentById(commentId);
         comment.update(request);
 
         return comment;
+    }
+
+    public void withdrawComment(Long commentId) {
+        StudyPostComment comment = getCommentById(commentId);
+        comment.softDelete();
     }
 }
