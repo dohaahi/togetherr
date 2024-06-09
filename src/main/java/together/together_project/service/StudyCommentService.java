@@ -57,6 +57,8 @@ public class StudyCommentService {
 
     public StudyPostComment writeChild(Long studyId, Long commentId, CommentWriteRequestDto request, User currentUser) {
         Study study = studyService.getById(studyId);
+        checkParentCommentDeleted(commentId);
+
         StudyPostComment comment = StudyPostComment.builder()
                 .studyPost(study.getStudyPost())
                 .author(currentUser)
@@ -65,5 +67,10 @@ public class StudyCommentService {
                 .build();
 
         return studyPostCommentRepository.save(comment);
+    }
+
+    private void checkParentCommentDeleted(Long commentId) {
+        studyPostCommentRepository.findCommentById(commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_ALREADY_DELETED));
     }
 }

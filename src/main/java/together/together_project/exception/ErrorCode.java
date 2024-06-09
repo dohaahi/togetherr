@@ -31,6 +31,7 @@ public enum ErrorCode {
     ALREADY_WITHDRAW_JOIN_REQUEST("이미 철회 신청한 스터디입니다.", 400),
 
     COMMENT_NOT_FOUND("댓글이 존재하지 않습니다.", 404),
+    COMMENT_ALREADY_DELETED("이미 삭제된 댓글입니다.", 404),
 
     UNAUTHORIZED_ACCESS("접근 권한이 없는 사용자입니다.", 403),
     INVALID_REQUEST("잘못된 요청건입니다.", 400),
