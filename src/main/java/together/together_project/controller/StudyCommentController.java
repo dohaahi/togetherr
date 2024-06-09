@@ -76,6 +76,22 @@ public class StudyCommentController {
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
+    @PostMapping("/{study-post-comment-id}")
+    public ResponseEntity<ResponseBody> writeChildComment(
+            @PathVariable("study-post-id") Long studyId,
+            @PathVariable("study-post-comment-id") Long commentId,
+            @Valid @RequestBody CommentWriteRequestDto request,
+            @AuthUser User currentUser
+    ) {
+        StudyPostComment studyComment = studyCommentService.writeChild(studyId, commentId, request, currentUser);
+        CommentWriteResponseDto response = CommentWriteResponseDto.from(studyComment);
+
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.CREATED.value());
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(body);
+    }
+
     private void verifyUserIsCommentAuthor(Long commentId, User currentUser) {
         StudyPostComment comment = studyCommentService.getCommentById(commentId);
 

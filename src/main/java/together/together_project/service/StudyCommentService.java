@@ -54,4 +54,16 @@ public class StudyCommentService {
         StudyPostComment comment = getCommentById(commentId);
         comment.softDelete();
     }
+
+    public StudyPostComment writeChild(Long studyId, Long commentId, CommentWriteRequestDto request, User currentUser) {
+        Study study = studyService.getById(studyId);
+        StudyPostComment comment = StudyPostComment.builder()
+                .studyPost(study.getStudyPost())
+                .author(currentUser)
+                .content(request.content())
+                .parentCommentId(commentId)
+                .build();
+
+        return studyPostCommentRepository.save(comment);
+    }
 }
