@@ -26,6 +26,7 @@ public class StudyRepositoryImpl {
     public Optional<Study> findById(Long id) {
         return q.select(study)
                 .from(study)
+                .where(study.studyId.eq(id))
                 .where(study.deletedAt.isNull())
                 .stream()
                 .findFirst();
