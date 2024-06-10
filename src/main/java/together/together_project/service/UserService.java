@@ -54,7 +54,6 @@ public class UserService {
         return user.getId();
     }
 
-    // TODO - userStudyLink hard delete
     public void withdraw(WithdrawRequestDto request, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.TOKEN_VALIDATE));
 
