@@ -25,14 +25,12 @@ public enum ErrorCode {
     STUDY_ALREADY_JOINED("이미 참여 신청한 스터디입니다.", 400),
     POST_NOT_FOUND_FOR_DELETE("삭제할 게시글이 존재하지 않습니다.", 404),
     POST_BUMP_PERIOD_EXCEPTION("끌어올리기는 이틀이 지나야 가능합니다.", 409),
-    POST_NOT_FOUND("존재하는 게시물이 없습니다.", 404),
-    JOIN_REQUEST_NOT_FOUND("참여 신청한 인원이 없습니다.", 404),
-    PARTICIPANTS_NOT_FOUND("참여중인 인원이 없습니다.", 404),
     ALREADY_WITHDRAW_JOIN_REQUEST("이미 철회 신청한 스터디입니다.", 400),
 
     COMMENT_NOT_FOUND("댓글이 존재하지 않습니다.", 404),
     COMMENT_ALREADY_DELETED("이미 삭제된 댓글입니다.", 404),
 
+    DATA_NOT_FOUND("더 이상 가져올 데이터가 없습니다.", 404),
     UNAUTHORIZED_ACCESS("접근 권한이 없는 사용자입니다.", 403),
     INVALID_REQUEST("잘못된 요청건입니다.", 400),
     UNKNOWN_ERROR("알 수 없는 에러가 발생했습니다.", 500);

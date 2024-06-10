@@ -34,7 +34,7 @@ public class StudyRepositoryImpl {
 
     public List<Study> paginateStudy(Long cursor) {
         if (studyRepository.findAll().isEmpty()) {
-            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
         } else if (null == cursor) {
             cursor = q.select(study)
                     .from(study)

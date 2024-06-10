@@ -40,7 +40,7 @@ public class UserStudyLinkRepositoryImpl {
         JPAQuery<UserStudyLink> userStudyLinks = getUserStudyLinks(studyId, PENDING);
 
         if (userStudyLinks.fetch().isEmpty()) {
-            throw new CustomException(ErrorCode.JOIN_REQUEST_NOT_FOUND);
+            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
         } else if (null == cursor) {
             cursor = userStudyLinks
                     .orderBy(userStudyLink.id.desc())
@@ -59,7 +59,7 @@ public class UserStudyLinkRepositoryImpl {
         JPAQuery<UserStudyLink> userStudyLinks = getUserStudyLinks(studyId, APPROVED);
 
         if (userStudyLinks.fetch().isEmpty()) {
-            throw new CustomException(ErrorCode.PARTICIPANTS_NOT_FOUND);
+            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
         } else if (cursor == null) {
             cursor = userStudyLinks
                     .orderBy(userStudyLink.id.desc())

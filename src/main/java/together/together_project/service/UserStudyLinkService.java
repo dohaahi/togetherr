@@ -50,9 +50,9 @@ public class UserStudyLinkService {
     public UserStudyJoinStatus respondToJoinRequest(RespondToJoinRequestDto request, Long studyId) {
         studyService.getById(studyId);
         UserStudyLink userStudyLink = userStudyLinkRepository.findByStudyIdAndUserId(studyId, request.userId())
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_REQUEST));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        if (request.response()) {
+        if (request.isAccept()) {
             userStudyLink.approve();
             return UserStudyJoinStatus.APPROVED;
         }
@@ -79,5 +79,9 @@ public class UserStudyLinkService {
 
     public void withdrawParticipation(Long studyId, User currentUser) {
         userStudyLinkRepository.deleteByStudyId(studyId, currentUser.getId(), APPROVED);
+    }
+
+    public void withdrawByUserId(Long userId) {
+        userStudyLinkRepository.deleteByUserId(userId);
     }
 }
