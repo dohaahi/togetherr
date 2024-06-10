@@ -77,4 +77,12 @@ public class Study extends BaseTimeEntity {
 
         participantCount++;
     }
+
+    public void decreaseParticipantCount() {
+        if (participantCount <= 1) {
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
+        }
+
+        participantCount--;
+    }
 }

@@ -75,10 +75,14 @@ public class UserStudyLinkService {
 
     public void withdrawJoinStudyRequest(Long studyId, User currentUser) {
         userStudyLinkRepository.deleteByStudyId(studyId, currentUser.getId(), PENDING);
+        studyService.getById(studyId)
+                .decreaseParticipantCount();
     }
 
     public void withdrawParticipation(Long studyId, User currentUser) {
         userStudyLinkRepository.deleteByStudyId(studyId, currentUser.getId(), APPROVED);
+        studyService.getById(studyId)
+                .decreaseParticipantCount();
     }
 
     public void withdrawByUserId(Long userId) {
