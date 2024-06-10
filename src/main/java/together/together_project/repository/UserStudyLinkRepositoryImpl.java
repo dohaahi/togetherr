@@ -100,4 +100,10 @@ public class UserStudyLinkRepositoryImpl {
             throw new CustomException(ErrorCode.ALREADY_WITHDRAW_JOIN_REQUEST);
         }
     }
+
+    public void deleteByUserId(Long userId) {
+        q.delete(userStudyLink)
+                .where(userStudyLink.participant.id.eq(userId))
+                .execute();
+    }
 }
