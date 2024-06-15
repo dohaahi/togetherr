@@ -158,7 +158,7 @@ public class StudyController {
     ) {
         verifyUserIsStudyLeader(currentUser, studyId);
 
-        List<JoinRequestsResponseDto> joinRequests = userStudyLinkService.getAllJoinRequest(cursor, studyId)
+        List<JoinRequestsResponseDto> joinRequests = userStudyLinkService.getAllJoinRequest(studyId, cursor)
                 .stream()
                 .map(JoinRequestsResponseDto::from)
                 .toList();
@@ -244,7 +244,7 @@ public class StudyController {
             @AuthUser User currentUser
     ) {
         studyService.getById(studyId);
-        userStudyLinkService.withdrawJoinStudyRequest(studyId, currentUser);
+        userStudyLinkService.withdrawJoinStudyRequest(studyId, currentUser.getId());
 
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 

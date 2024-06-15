@@ -2,8 +2,6 @@ package together.together_project.repository;
 
 import static together.together_project.constant.StudyConstant.PAGINATION_COUNT;
 import static together.together_project.domain.QUserStudyLink.userStudyLink;
-import static together.together_project.domain.UserStudyJoinStatus.APPROVED;
-import static together.together_project.domain.UserStudyJoinStatus.PENDING;
 
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -30,19 +28,24 @@ public class UserStudyLinkRepositoryImpl {
     public Optional<UserStudyLink> findByStudyIdAndUserId(Long studyId, Long userId) {
         return q.select(userStudyLink)
                 .from(userStudyLink)
-                .where(userStudyLink.study.studyId.eq(studyId))
-                .where(userStudyLink.participant.id.eq(userId))
+                .where(userStudyLink.study.studyId.eq(studyId)
+                        .and(userStudyLink.participant.id.eq(userId))
+                        .and(userStudyLink.deletedAt.isNull()))
                 .stream()
                 .findFirst();
     }
 
-    public List<UserStudyLink> paginateJoinRequest(Long cursor, Long studyId) {
-        JPAQuery<UserStudyLink> userStudyLinks = getUserStudyLinks(studyId, PENDING);
+    public List<UserStudyLink> paginateUserStudyLink(Long studyId, Long cursor, UserStudyJoinStatus status) {
+        JPAQuery<UserStudyLink> userStudyLinks = q.select(userStudyLink)
+                .from(userStudyLink)
+                .where(userStudyLink.study.studyId.eq(studyId)
+                        .and(userStudyLink.status.eq(status)));
 
         if (userStudyLinks.fetch().isEmpty()) {
             throw new CustomException(ErrorCode.DATA_NOT_FOUND);
         } else if (null == cursor) {
             cursor = userStudyLinks
+                    .where(userStudyLink.deletedAt.isNull())
                     .orderBy(userStudyLink.id.desc())
                     .limit(1)
                     .fetchOne()
@@ -50,60 +53,34 @@ public class UserStudyLinkRepositoryImpl {
         }
 
         return userStudyLinks
-                .where(userStudyLink.id.lt(cursor))
+                .where(userStudyLink.id.lt(cursor)
+                        .and(userStudyLink.deletedAt.isNull()))
                 .limit(PAGINATION_COUNT + 1)
                 .fetch();
     }
 
-    public List<UserStudyLink> paginateParticipants(Long studyId, Long cursor) {
-        JPAQuery<UserStudyLink> userStudyLinks = getUserStudyLinks(studyId, APPROVED);
-
-        if (userStudyLinks.fetch().isEmpty()) {
-            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
-        } else if (cursor == null) {
-            cursor = userStudyLinks
-                    .orderBy(userStudyLink.id.desc())
-                    .limit(1)
-                    .fetchOne()
-                    .getId() + 1;
-        }
-
-        return userStudyLinks
-                .where(userStudyLink.id.lt(cursor))
-                .orderBy(userStudyLink.id.desc())
-                .limit(PAGINATION_COUNT + 1)
-                .fetch();
+    public void findByStudyId(Long studyId) {
+        q.delete(userStudyLink)
+                .where(userStudyLink.study.studyId.eq(studyId))
+                .execute();
     }
 
-    private JPAQuery<UserStudyLink> getUserStudyLinks(Long studyId, UserStudyJoinStatus status) {
+    public Optional<UserStudyLink> findByStudyId(Long studyId, Long userId, UserStudyJoinStatus status) {
         return q.select(userStudyLink)
                 .from(userStudyLink)
-                .where(userStudyLink.study.studyId.eq(studyId))
-                .where(userStudyLink.status.eq(status));
+                .where(userStudyLink.study.studyId.eq(studyId)
+                        .and(userStudyLink.participant.id.eq(userId))
+                        .and(userStudyLink.status.eq(status))
+                        .and(userStudyLink.deletedAt.isNull()))
+                .stream()
+                .findFirst();
     }
 
-    public void deleteByStudyId(Long studyId) {
-        q.delete(userStudyLink)
-                .where(userStudyLink.study.studyId.eq(studyId))
-                .execute();
-    }
-
-    public void deleteByStudyId(Long studyId, Long userId, UserStudyJoinStatus status) {
-        long affectedRows = q.delete(userStudyLink)
-                .where(userStudyLink.study.studyId.eq(studyId))
-                .where(userStudyLink.participant.id.eq(userId))
-                .where(userStudyLink.status.eq(status))
-                .execute();
-
-        if (affectedRows == 0) {
-            // NOTE - 참여 신청하지 않은 유저가 철회하는 경우, 리더가 참여 신청 철회하는 경우 등에도 해당 메세지가 쓰임.. 메세지 변경 필요
-            throw new CustomException(ErrorCode.ALREADY_WITHDRAW_JOIN_REQUEST);
-        }
-    }
-
-    public void deleteByUserId(Long userId) {
-        q.delete(userStudyLink)
-                .where(userStudyLink.participant.id.eq(userId))
-                .execute();
+    public List<UserStudyLink> findByUserId(Long userId) {
+        return q.select(userStudyLink)
+                .from(userStudyLink)
+                .where(userStudyLink.participant.id.eq(userId)
+                        .and(userStudyLink.deletedAt.isNull()))
+                .fetch();
     }
 }

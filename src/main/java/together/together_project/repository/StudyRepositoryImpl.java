@@ -26,8 +26,8 @@ public class StudyRepositoryImpl {
     public Optional<Study> findById(Long id) {
         return q.select(study)
                 .from(study)
-                .where(study.studyId.eq(id))
-                .where(study.deletedAt.isNull())
+                .where(study.studyId.eq(id)
+                        .and(study.isNull()))
                 .stream()
                 .findFirst();
     }
@@ -38,6 +38,7 @@ public class StudyRepositoryImpl {
         } else if (null == cursor) {
             cursor = q.select(study)
                     .from(study)
+                    .where(study.deletedAt.isNull())
                     .orderBy(study.studyId.desc())
                     .fetchOne()
                     .getStudyId() + 1L;
@@ -46,7 +47,8 @@ public class StudyRepositoryImpl {
         return q.select(study)
                 .from(study)
                 .orderBy(study.studyId.desc())
-                .where(study.studyId.lt(cursor))
+                .where(study.studyId.lt(cursor)
+                        .and(study.deletedAt.isNull()))
                 .limit(PAGINATION_COUNT + 1)
                 .fetch();
     }
