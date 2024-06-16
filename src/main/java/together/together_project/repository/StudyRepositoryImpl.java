@@ -27,7 +27,7 @@ public class StudyRepositoryImpl {
         return q.select(study)
                 .from(study)
                 .where(study.studyId.eq(id)
-                        .and(study.isNull()))
+                        .and(study.deletedAt.isNull()))
                 .stream()
                 .findFirst();
     }

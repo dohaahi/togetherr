@@ -44,6 +44,11 @@ public class StudyService {
                 .orElseThrow(() -> new CustomException(ErrorCode.STUDY_NOT_FOUND));
     }
 
+    public Study getByIdWithComment(Long id) {
+        return studyRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_ALREADY_DELETED));
+    }
+
     public Study updateStudyPost(Long id, StudyPostUpdateRequestDto request) {
         Study study = studyRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.STUDY_NOT_FOUND));

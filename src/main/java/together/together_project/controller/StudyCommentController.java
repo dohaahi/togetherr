@@ -51,7 +51,6 @@ public class StudyCommentController {
             @Valid @RequestBody CommentUpdateRequestDto request,
             @AuthUser User currentUser
     ) {
-        studyService.getById(studyId);
         verifyUserIsCommentAuthor(commentId, currentUser);
 
         StudyPostComment studyComment = studyCommentService.updateComment(studyId, commentId, request, currentUser);
@@ -67,7 +66,6 @@ public class StudyCommentController {
             @PathVariable("study-post-comment-id") Long commentId,
             @AuthUser User currentUser
     ) {
-        studyService.getById(studyId);
         verifyUserIsCommentAuthor(commentId, currentUser);
 
         studyCommentService.withdrawComment(commentId);
@@ -89,6 +87,29 @@ public class StudyCommentController {
         ResponseBody body = new ResponseBody(response, null, HttpStatus.CREATED.value());
 
         return ResponseEntity.status(HttpStatus.CREATED)
+                .body(body);
+    }
+
+    @PutMapping("/{study-post-comment-id}/{child-comment-id}")
+    public ResponseEntity<ResponseBody> updateChildComment(
+            @PathVariable("study-post-id") Long studyId,
+            @PathVariable("study-post-comment-id") Long parentCommentId,
+            @PathVariable("child-comment-id") Long childCommentId,
+            @Valid @RequestBody CommentUpdateRequestDto request,
+            @AuthUser User currentUser
+    ) {
+        verifyUserIsCommentAuthor(childCommentId, currentUser);
+        StudyPostComment studyComment = studyCommentService.updateChildComment(
+                studyId,
+                parentCommentId,
+                childCommentId,
+                request
+        );
+
+        CommentUpdateResponseDto response = CommentUpdateResponseDto.from(studyComment);
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
     }
 

@@ -21,7 +21,7 @@ public class StudyCommentService {
     private final StudyPostCommentRepositoryImpl studyPostCommentRepository;
 
     public StudyPostComment write(CommentWriteRequestDto request, Long studyId, User currentUser) {
-        Study study = studyService.getById(studyId);
+        Study study = studyService.getByIdWithComment(studyId);
 
         StudyPostComment comment = StudyPostComment.builder()
                 .studyPost(study.getStudyPost())
@@ -34,7 +34,7 @@ public class StudyCommentService {
 
     public StudyPostComment getCommentById(Long commentId) {
         return studyPostCommentRepository.findCommentById(commentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_ALREADY_DELETED));
     }
 
     public StudyPostComment updateComment(
@@ -43,7 +43,7 @@ public class StudyCommentService {
             CommentUpdateRequestDto request,
             User currentUser
     ) {
-        Study study = studyService.getById(studyId);
+        Study study = studyService.getByIdWithComment(studyId);
         StudyPostComment comment = getCommentById(commentId);
         comment.update(request);
 
@@ -56,7 +56,7 @@ public class StudyCommentService {
     }
 
     public StudyPostComment writeChild(Long studyId, Long commentId, CommentWriteRequestDto request, User currentUser) {
-        Study study = studyService.getById(studyId);
+        Study study = studyService.getByIdWithComment(studyId);
         checkParentCommentDeleted(commentId);
 
         StudyPostComment comment = StudyPostComment.builder()
@@ -67,6 +67,21 @@ public class StudyCommentService {
                 .build();
 
         return studyPostCommentRepository.save(comment);
+    }
+
+    public StudyPostComment updateChildComment(
+            Long studyId,
+            Long parentCommentId,
+            Long childCommentId,
+            CommentUpdateRequestDto request
+    ) {
+        Study study = studyService.getByIdWithComment(studyId);
+        checkParentCommentDeleted(parentCommentId);
+
+        StudyPostComment comment = getCommentById(childCommentId);
+        comment.update(request);
+
+        return comment;
     }
 
     private void checkParentCommentDeleted(Long commentId) {
