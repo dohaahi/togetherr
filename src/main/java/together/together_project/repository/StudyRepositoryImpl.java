@@ -40,7 +40,7 @@ public class StudyRepositoryImpl {
                     .from(study)
                     .where(study.deletedAt.isNull())
                     .orderBy(study.studyId.desc())
-                    .fetchOne()
+                    .fetchFirst()
                     .getStudyId() + 1L;
         }
 

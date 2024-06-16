@@ -56,7 +56,6 @@ public class UserStudyLink extends BaseTimeEntity {
             throw new CustomException(ErrorCode.INVALID_REQUEST);
         }
 
-        // NOTE - DB에서 승인된 유저만 찾아서 count 변경하는게 되는지
         study.increaseParticipantCount();
         status = UserStudyJoinStatus.APPROVED;
     }

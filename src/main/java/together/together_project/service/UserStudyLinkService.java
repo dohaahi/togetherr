@@ -79,9 +79,6 @@ public class UserStudyLinkService {
         userStudyLinkRepository.findByStudyId(studyId, userId, PENDING)
                 .orElseThrow(() -> new CustomException(ErrorCode.STUDY_ALREADY_WITHDRAW))
                 .softDelete();
-
-        studyService.getById(studyId)
-                .decreaseParticipantCount();
     }
 
     // 참여 철회
