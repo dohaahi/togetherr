@@ -21,6 +21,7 @@ public class UserService {
 
     private final UserRepositoryImpl userRepository;
     private final BcryptService bcryptService;
+    private final UserStudyLinkService userStudyLinkService;
 
     public SignupResponseDto signup(SignupRequestDto request) {
         userRepository.findByEmail(request.email()).ifPresent(user -> {
@@ -59,6 +60,7 @@ public class UserService {
         verifyUserPassword(request.password(), user.getPassword(), ErrorCode.PASSWORD_NOT_MATCH);
 
         user.softDelete();
+        userStudyLinkService.withdrawByUserId(userId);
     }
 
     public User getUserById(Long userId) {

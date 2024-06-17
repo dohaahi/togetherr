@@ -26,27 +26,29 @@ public class StudyRepositoryImpl {
     public Optional<Study> findById(Long id) {
         return q.select(study)
                 .from(study)
-                .where(study.studyId.eq(id))
-                .where(study.deletedAt.isNull())
+                .where(study.studyId.eq(id)
+                        .and(study.deletedAt.isNull()))
                 .stream()
                 .findFirst();
     }
 
     public List<Study> paginateStudy(Long cursor) {
         if (studyRepository.findAll().isEmpty()) {
-            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
         } else if (null == cursor) {
             cursor = q.select(study)
                     .from(study)
+                    .where(study.deletedAt.isNull())
                     .orderBy(study.studyId.desc())
-                    .fetchOne()
+                    .fetchFirst()
                     .getStudyId() + 1L;
         }
 
         return q.select(study)
                 .from(study)
                 .orderBy(study.studyId.desc())
-                .where(study.studyId.lt(cursor))
+                .where(study.studyId.lt(cursor)
+                        .and(study.deletedAt.isNull()))
                 .limit(PAGINATION_COUNT + 1)
                 .fetch();
     }

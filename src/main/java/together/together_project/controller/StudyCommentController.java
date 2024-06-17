@@ -16,7 +16,6 @@ import together.together_project.domain.User;
 import together.together_project.exception.CustomException;
 import together.together_project.exception.ErrorCode;
 import together.together_project.service.StudyCommentService;
-import together.together_project.service.StudyService;
 import together.together_project.service.dto.request.CommentUpdateRequestDto;
 import together.together_project.service.dto.request.CommentWriteRequestDto;
 import together.together_project.service.dto.response.CommentUpdateResponseDto;
@@ -29,7 +28,6 @@ import together.together_project.service.dto.response.ResponseBody;
 public class StudyCommentController {
 
     private final StudyCommentService studyCommentService;
-    private final StudyService studyService;
 
     @PostMapping()
     public ResponseEntity<ResponseBody> writeComment(
@@ -51,12 +49,11 @@ public class StudyCommentController {
             @Valid @RequestBody CommentUpdateRequestDto request,
             @AuthUser User currentUser
     ) {
-        studyService.getById(studyId);
         verifyUserIsCommentAuthor(commentId, currentUser);
 
         StudyPostComment studyComment = studyCommentService.updateComment(studyId, commentId, request, currentUser);
-        CommentUpdateResponseDto resonse = CommentUpdateResponseDto.from(studyComment);
-        ResponseBody body = new ResponseBody(resonse, null, HttpStatus.OK.value());
+        CommentUpdateResponseDto response = CommentUpdateResponseDto.from(studyComment);
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
@@ -67,7 +64,6 @@ public class StudyCommentController {
             @PathVariable("study-post-comment-id") Long commentId,
             @AuthUser User currentUser
     ) {
-        studyService.getById(studyId);
         verifyUserIsCommentAuthor(commentId, currentUser);
 
         studyCommentService.withdrawComment(commentId);
@@ -83,12 +79,51 @@ public class StudyCommentController {
             @Valid @RequestBody CommentWriteRequestDto request,
             @AuthUser User currentUser
     ) {
-        StudyPostComment studyComment = studyCommentService.writeChild(studyId, commentId, request, currentUser);
+        StudyPostComment studyComment = studyCommentService.writeChildComment(studyId, commentId, request, currentUser);
         CommentWriteResponseDto response = CommentWriteResponseDto.from(studyComment);
 
         ResponseBody body = new ResponseBody(response, null, HttpStatus.CREATED.value());
 
         return ResponseEntity.status(HttpStatus.CREATED)
+                .body(body);
+    }
+
+    @PutMapping("/{study-post-comment-id}/{child-comment-id}")
+    public ResponseEntity<ResponseBody> updateChildComment(
+            @PathVariable("study-post-id") Long studyId,
+            @PathVariable("study-post-comment-id") Long parentCommentId,
+            @PathVariable("child-comment-id") Long childCommentId,
+            @Valid @RequestBody CommentUpdateRequestDto request,
+            @AuthUser User currentUser
+    ) {
+        verifyUserIsCommentAuthor(childCommentId, currentUser);
+        StudyPostComment studyComment = studyCommentService.updateChildComment(
+                studyId,
+                parentCommentId,
+                childCommentId,
+                request
+        );
+
+        CommentUpdateResponseDto response = CommentUpdateResponseDto.from(studyComment);
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    @DeleteMapping("/{study-post-comment-id}/{child-comment-id}")
+    public ResponseEntity<ResponseBody> deleteChildComment(
+            @PathVariable("study-post-id") Long studyId,
+            @PathVariable("study-post-comment-id") Long parentCommentId,
+            @PathVariable("child-comment-id") Long childCommentId,
+            @AuthUser User currentUser
+    ) {
+        verifyUserIsCommentAuthor(childCommentId, currentUser);
+        studyCommentService.deleteChildComment(studyId, parentCommentId, childCommentId);
+
+        ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
     }
 
