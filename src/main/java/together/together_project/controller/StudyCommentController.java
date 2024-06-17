@@ -79,7 +79,7 @@ public class StudyCommentController {
             @Valid @RequestBody CommentWriteRequestDto request,
             @AuthUser User currentUser
     ) {
-        StudyPostComment studyComment = studyCommentService.writeChild(studyId, commentId, request, currentUser);
+        StudyPostComment studyComment = studyCommentService.writeChildComment(studyId, commentId, request, currentUser);
         CommentWriteResponseDto response = CommentWriteResponseDto.from(studyComment);
 
         ResponseBody body = new ResponseBody(response, null, HttpStatus.CREATED.value());
