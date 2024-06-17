@@ -16,7 +16,6 @@ import together.together_project.domain.User;
 import together.together_project.exception.CustomException;
 import together.together_project.exception.ErrorCode;
 import together.together_project.service.StudyCommentService;
-import together.together_project.service.StudyService;
 import together.together_project.service.dto.request.CommentUpdateRequestDto;
 import together.together_project.service.dto.request.CommentWriteRequestDto;
 import together.together_project.service.dto.response.CommentUpdateResponseDto;
@@ -29,7 +28,6 @@ import together.together_project.service.dto.response.ResponseBody;
 public class StudyCommentController {
 
     private final StudyCommentService studyCommentService;
-    private final StudyService studyService;
 
     @PostMapping()
     public ResponseEntity<ResponseBody> writeComment(
@@ -54,8 +52,8 @@ public class StudyCommentController {
         verifyUserIsCommentAuthor(commentId, currentUser);
 
         StudyPostComment studyComment = studyCommentService.updateComment(studyId, commentId, request, currentUser);
-        CommentUpdateResponseDto resonse = CommentUpdateResponseDto.from(studyComment);
-        ResponseBody body = new ResponseBody(resonse, null, HttpStatus.OK.value());
+        CommentUpdateResponseDto response = CommentUpdateResponseDto.from(studyComment);
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }

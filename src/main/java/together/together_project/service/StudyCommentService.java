@@ -21,7 +21,7 @@ public class StudyCommentService {
     private final StudyPostCommentRepositoryImpl studyPostCommentRepository;
 
     public StudyPostComment write(CommentWriteRequestDto request, Long studyId, User currentUser) {
-        Study study = studyService.getByIdWithComment(studyId);
+        Study study = studyService.getById(studyId);
 
         StudyPostComment comment = StudyPostComment.builder()
                 .studyPost(study.getStudyPost())
@@ -34,7 +34,7 @@ public class StudyCommentService {
 
     public StudyPostComment getCommentById(Long commentId) {
         return studyPostCommentRepository.findCommentById(commentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_ALREADY_DELETED));
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
     }
 
     public StudyPostComment updateComment(
@@ -43,7 +43,7 @@ public class StudyCommentService {
             CommentUpdateRequestDto request,
             User currentUser
     ) {
-        Study study = studyService.getByIdWithComment(studyId);
+        Study study = studyService.getById(studyId);
         StudyPostComment comment = getCommentById(commentId);
         comment.update(request);
 
@@ -56,7 +56,7 @@ public class StudyCommentService {
     }
 
     public StudyPostComment writeChild(Long studyId, Long commentId, CommentWriteRequestDto request, User currentUser) {
-        Study study = studyService.getByIdWithComment(studyId);
+        Study study = studyService.getById(studyId);
         checkParentCommentDeleted(commentId);
 
         StudyPostComment comment = StudyPostComment.builder()
@@ -75,7 +75,7 @@ public class StudyCommentService {
             Long childCommentId,
             CommentUpdateRequestDto request
     ) {
-        Study study = studyService.getByIdWithComment(studyId);
+        Study study = studyService.getById(studyId);
         checkParentCommentDeleted(parentCommentId);
 
         StudyPostComment comment = getCommentById(childCommentId);

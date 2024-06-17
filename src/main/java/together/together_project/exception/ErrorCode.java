@@ -25,9 +25,9 @@ public enum ErrorCode {
     STUDY_ALREADY_JOINED("이미 참여 신청한 스터디입니다.", 400),
     STUDY_ALREADY_WITHDRAW("이미 철회 신청한 스터디입니다.", 404),
     POST_BUMP_PERIOD_EXCEPTION("끌어올리기는 이틀이 지나야 가능합니다.", 409),
-    STUDY_ALREADY_DELETED("이미 삭제된 게시물입니다.", 404),
 
-    COMMENT_ALREADY_DELETED("이미 삭제된 댓글입니다.", 404),
+    COMMENT_NOT_FOUND("이미 삭제된 댓글입니다.", 404),
+    COMMENT_ALREADY_DELETED("존재하지 않는 댓글입니다.", 404),
 
     DATA_NOT_FOUND("더 이상 가져올 데이터가 없습니다.", 404),
     UNAUTHORIZED_ACCESS("접근 권한이 없는 사용자입니다.", 403),
