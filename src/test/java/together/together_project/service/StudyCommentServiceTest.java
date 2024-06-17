@@ -98,14 +98,14 @@ class StudyCommentServiceTest {
 
     @DisplayName("대댓글 작성 가능")
     @Test
-    public void writeChildComment() {
+    public void writeChildCommentComment() {
         User user = new User(2L, "ccc@abc.com", "ccc", "a123", null, null);
         userRepository.save(user);
 
         CommentWriteRequestDto commentWriteRequest = new CommentWriteRequestDto("content");
         StudyPostComment comment = studyCommentService.write(commentWriteRequest, study.getStudyId(), user);
         CommentWriteRequestDto childCommentWriteRequest = new CommentWriteRequestDto("child content");
-        StudyPostComment childComment = studyCommentService.writeChild(study.getStudyId(), comment.getId(),
+        StudyPostComment childComment = studyCommentService.writeChildComment(study.getStudyId(), comment.getId(),
                 childCommentWriteRequest, user);
 
         assertThat(childComment.getParentCommentId()).isEqualTo(comment.getId());
@@ -124,7 +124,7 @@ class StudyCommentServiceTest {
         CommentWriteRequestDto commentWriteRequest = new CommentWriteRequestDto("content");
         StudyPostComment comment = studyCommentService.write(commentWriteRequest, study.getStudyId(), user);
         CommentWriteRequestDto childCommentWriteRequest = new CommentWriteRequestDto("child content");
-        StudyPostComment childComment = studyCommentService.writeChild(study.getStudyId(), comment.getId(),
+        StudyPostComment childComment = studyCommentService.writeChildComment(study.getStudyId(), comment.getId(),
                 childCommentWriteRequest, user);
 
         CommentUpdateRequestDto commentUpdateRequest = new CommentUpdateRequestDto("update child content");
@@ -136,5 +136,22 @@ class StudyCommentServiceTest {
         assertThat(childComment.getContent()).isEqualTo("update child content");
         assertThat(comment.getStudyPost()).isEqualTo(study.getStudyPost());
         assertThat(childComment.getTotalLikeCount()).isEqualTo(0);
+    }
+
+    @DisplayName("대댓글 삭제 가능")
+    @Test
+    public void deleteChildComment() {
+        User user = new User(2L, "ccc@abc.com", "ccc", "a123", null, null);
+        userRepository.save(user);
+
+        CommentWriteRequestDto commentWriteRequest = new CommentWriteRequestDto("content");
+        StudyPostComment comment = studyCommentService.write(commentWriteRequest, study.getStudyId(), user);
+        CommentWriteRequestDto childCommentWriteRequest = new CommentWriteRequestDto("child content");
+        StudyPostComment childComment = studyCommentService.writeChildComment(study.getStudyId(), comment.getId(),
+                childCommentWriteRequest, user);
+
+        studyCommentService.deleteChildComment(study.getStudyId(), comment.getId(), childComment.getId());
+
+        assertThat(childComment.getDeletedAt()).isNotNull();
     }
 }
