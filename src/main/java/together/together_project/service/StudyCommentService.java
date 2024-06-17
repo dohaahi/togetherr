@@ -55,7 +55,12 @@ public class StudyCommentService {
         comment.softDelete();
     }
 
-    public StudyPostComment writeChild(Long studyId, Long commentId, CommentWriteRequestDto request, User currentUser) {
+    public StudyPostComment writeChildComment(
+            Long studyId,
+            Long commentId,
+            CommentWriteRequestDto request,
+            User currentUser
+    ) {
         Study study = studyService.getById(studyId);
         checkParentCommentDeleted(commentId);
 
@@ -78,10 +83,20 @@ public class StudyCommentService {
         Study study = studyService.getById(studyId);
         checkParentCommentDeleted(parentCommentId);
 
-        StudyPostComment comment = getCommentById(childCommentId);
+        StudyPostComment comment = studyPostCommentRepository.findCommentById(childCommentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_ALREADY_DELETED));
         comment.update(request);
 
         return comment;
+    }
+
+    public void deleteChildComment(Long studyId, Long parentCommentId, Long childCommentId) {
+        studyService.getById(studyId);
+        checkParentCommentDeleted(parentCommentId);
+
+        studyPostCommentRepository.findCommentById(childCommentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND))
+                .softDelete();
     }
 
     private void checkParentCommentDeleted(Long commentId) {

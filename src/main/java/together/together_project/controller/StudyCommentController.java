@@ -111,6 +111,22 @@ public class StudyCommentController {
                 .body(body);
     }
 
+    @DeleteMapping("/{study-post-comment-id}/{child-comment-id}")
+    public ResponseEntity<ResponseBody> deleteChildComment(
+            @PathVariable("study-post-id") Long studyId,
+            @PathVariable("study-post-comment-id") Long parentCommentId,
+            @PathVariable("child-comment-id") Long childCommentId,
+            @AuthUser User currentUser
+    ) {
+        verifyUserIsCommentAuthor(childCommentId, currentUser);
+        studyCommentService.deleteChildComment(studyId, parentCommentId, childCommentId);
+
+        ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
     private void verifyUserIsCommentAuthor(Long commentId, User currentUser) {
         StudyPostComment comment = studyCommentService.getCommentById(commentId);
 
