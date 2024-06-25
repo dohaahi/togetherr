@@ -2,6 +2,7 @@ package together.together_project.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -153,5 +154,27 @@ class StudyCommentServiceTest {
         studyCommentService.deleteChildComment(study.getStudyId(), comment.getId(), childComment.getId());
 
         assertThat(childComment.getDeletedAt()).isNotNull();
+    }
+
+    @DisplayName("댓글 전체 조회 기능")
+    @Test
+    public void getAllComment() {
+        User user = new User(2L, "ccc@abc.com", "ccc", "a123", null, null);
+        userRepository.save(user);
+
+        CommentWriteRequestDto commentWriteRequest1 = new CommentWriteRequestDto("content1");
+        studyCommentService.write(commentWriteRequest1, study.getStudyId(), user);
+        CommentWriteRequestDto commentWriteRequest2 = new CommentWriteRequestDto("content2");
+        studyCommentService.write(commentWriteRequest2, study.getStudyId(), user);
+        CommentWriteRequestDto commentWriteRequest3 = new CommentWriteRequestDto("content3");
+        studyCommentService.write(commentWriteRequest3, study.getStudyId(), user);
+        CommentWriteRequestDto commentWriteRequest4 = new CommentWriteRequestDto("content4");
+        studyCommentService.write(commentWriteRequest4, study.getStudyId(), user);
+        CommentWriteRequestDto commentWriteRequest5 = new CommentWriteRequestDto("content5");
+        studyCommentService.write(commentWriteRequest5, study.getStudyId(), user);
+
+        List<StudyPostComment> comments = studyCommentService.getAllComment(study.getStudyId(), null);
+
+        assertThat(comments.size()).isEqualTo(5);
     }
 }

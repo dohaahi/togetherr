@@ -1,5 +1,6 @@
 package together.together_project.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -97,6 +98,11 @@ public class StudyCommentService {
         studyPostCommentRepository.findCommentById(childCommentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND))
                 .softDelete();
+    }
+
+    public List<StudyPostComment> getAllComment(Long studyId, Long cursor) {
+        studyService.getById(studyId);
+        return studyPostCommentRepository.paginateComment(studyId, cursor);
     }
 
     private void checkParentCommentDeleted(Long commentId) {
