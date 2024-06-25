@@ -33,9 +33,7 @@ public class StudyRepositoryImpl {
     }
 
     public List<Study> paginateStudy(Long cursor) {
-        if (studyRepository.findAll().isEmpty()) {
-            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
-        } else if (null == cursor) {
+        if (null == cursor) {
             cursor = q.select(study)
                     .from(study)
                     .where(study.deletedAt.isNull())
@@ -44,12 +42,18 @@ public class StudyRepositoryImpl {
                     .getStudyId() + 1L;
         }
 
-        return q.select(study)
+        List<Study> studies = q.select(study)
                 .from(study)
                 .orderBy(study.studyId.desc())
                 .where(study.studyId.lt(cursor)
                         .and(study.deletedAt.isNull()))
                 .limit(PAGINATION_COUNT + 1)
                 .fetch();
+
+        if (studies.isEmpty()) {
+            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
+        }
+
+        return studies;
     }
 }

@@ -6,21 +6,19 @@ import java.time.LocalDateTime;
 import together.together_project.domain.StudyPostComment;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public record CommentUpdateResponseDto(
+public record CommentsResponseDto(
         Long id,
-        Long userId,
-        String content,
-        int totalLikeCount,
+        String nickname,
+        String profileUrl,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         LocalDateTime deletedAt
 ) {
-    public static CommentUpdateResponseDto from(StudyPostComment comment) {
-        return new CommentUpdateResponseDto(
+    public static CommentsResponseDto from(StudyPostComment comment) {
+        return new CommentsResponseDto(
                 comment.getId(),
-                comment.getAuthor().getId(),
-                comment.getContent(),
-                comment.getTotalLikeCount(),
+                comment.getAuthor().getNickname(),
+                comment.getAuthor().getProfileUrl(),
                 comment.getCreatedAt(),
                 comment.getUpdatedAt(),
                 comment.getDeletedAt()
