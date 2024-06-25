@@ -24,13 +24,15 @@ public class UserService {
     private final UserStudyLinkService userStudyLinkService;
 
     public SignupResponseDto signup(SignupRequestDto request) {
-        userRepository.findByEmail(request.email()).ifPresent(user -> {
-            throw new CustomException(ErrorCode.EMAIL_DUPLICATE);
-        });
+        userRepository.findByEmail(request.email())
+                .ifPresent(user -> {
+                    throw new CustomException(ErrorCode.EMAIL_DUPLICATE);
+                });
 
-        userRepository.findByNickname(request.nickname()).ifPresent(user -> {
-            throw new CustomException(ErrorCode.NICKNAME_DUPLICATE);
-        });
+        userRepository.findByNickname(request.nickname())
+                .ifPresent(user -> {
+                    throw new CustomException(ErrorCode.NICKNAME_DUPLICATE);
+                });
 
         String encodedPassword = bcryptService.encodeBcrypt(request.password());
         User hashedUser = request.toUser(encodedPassword);
@@ -55,7 +57,8 @@ public class UserService {
     }
 
     public void withdraw(WithdrawRequestDto request, Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.TOKEN_VALIDATE));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.TOKEN_VALIDATE));
 
         verifyUserPassword(request.password(), user.getPassword(), ErrorCode.PASSWORD_NOT_MATCH);
 
@@ -64,23 +67,28 @@ public class UserService {
     }
 
     public User getUserById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
     public User updateMyPage(MyPageRequestDto request, Long userId) {
         User user = getUserById(userId);
 
-        if (request.email() != null) {
-            userRepository.findByEmail(request.email()).ifPresent(u -> {
-                throw new CustomException(ErrorCode.EMAIL_DUPLICATE);
-            });
+        if (request.nickname().trim().isBlank()) {
+            throw new CustomException(ErrorCode.EMPTY_CONTENT_ERROR);
         }
 
-        if (request.nickname() != null) {
-            userRepository.findByNickname(request.nickname()).ifPresent(u -> {
-                throw new CustomException(ErrorCode.NICKNAME_DUPLICATE);
-            });
+        if (request.email() != null) {
+            userRepository.findByEmail(request.email())
+                    .ifPresent(u -> {
+                        throw new CustomException(ErrorCode.EMAIL_DUPLICATE);
+                    });
         }
+
+        userRepository.findByNickname(request.nickname())
+                .ifPresent(u -> {
+                    throw new CustomException(ErrorCode.NICKNAME_DUPLICATE);
+                });
 
         return user.update(request);
     }

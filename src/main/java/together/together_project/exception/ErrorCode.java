@@ -29,6 +29,7 @@ public enum ErrorCode {
     COMMENT_NOT_FOUND("이미 삭제된 댓글입니다.", 404),
     COMMENT_ALREADY_DELETED("존재하지 않는 댓글입니다.", 404),
 
+    EMPTY_CONTENT_ERROR("내용을 입력하지 않았습니다.", 400),
     DATA_NOT_FOUND("더 이상 가져올 데이터가 없습니다.", 404),
     UNAUTHORIZED_ACCESS("접근 권한이 없는 사용자입니다.", 403),
     INVALID_REQUEST("잘못된 요청건입니다.", 400),
