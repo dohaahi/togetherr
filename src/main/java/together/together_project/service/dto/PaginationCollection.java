@@ -1,6 +1,6 @@
 package together.together_project.service.dto;
 
-import static together.together_project.constant.StudyConstant.PAGINATION_COUNT;
+import static together.together_project.constant.StudyConstant.PAGINATION_COUNT_AND_ONE_MORE;
 
 import java.util.List;
 import java.util.function.Function;
@@ -14,7 +14,7 @@ public record PaginationCollection<T>(
             List<T> elementsWithNextCursor,
             Function<T, Long> listToId
     ) {
-        boolean hasMore = elementsWithNextCursor.size() < PAGINATION_COUNT + 1;
+        boolean hasMore = elementsWithNextCursor.size() < PAGINATION_COUNT_AND_ONE_MORE;
 
         Long lastId = -1L;
         if (hasMore) {
