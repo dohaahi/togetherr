@@ -1,13 +1,27 @@
 package together.together_project.service.dto;
 
+import static together.together_project.constant.StudyConstant.PAGINATION_COUNT_AND_ONE_MORE;
+
 import java.util.List;
+import java.util.function.Function;
 
 
 public record PaginationCollection<T>(
         Meta meta,
         List<T> elementsWithNextCursor
 ) {
-    public static <T> PaginationCollection<T> of(boolean hasMore, Long lastId, List<T> elementsWithNextCursor) {
+    public static <T> PaginationCollection<T> of(
+            List<T> elementsWithNextCursor,
+            Function<T, Long> listToId
+    ) {
+        boolean hasMore = elementsWithNextCursor.size() < PAGINATION_COUNT_AND_ONE_MORE;
+
+        Long lastId = -1L;
+        if (hasMore) {
+            elementsWithNextCursor.subList(0, elementsWithNextCursor.size());
+            lastId = listToId.apply(elementsWithNextCursor.get(elementsWithNextCursor.size() - 1));
+        }
+
         return new PaginationCollection<>(
                 new Meta(elementsWithNextCursor.size(), hasMore, lastId),
                 elementsWithNextCursor

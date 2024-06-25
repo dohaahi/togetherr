@@ -109,4 +109,10 @@ public class StudyCommentService {
         studyPostCommentRepository.findCommentById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_ALREADY_DELETED));
     }
+
+    public List<StudyPostComment> getChildComment(Long studyId, Long parentCommentId, Long cursor) {
+        studyService.getById(studyId);
+        getCommentById(parentCommentId);
+        return studyPostCommentRepository.paginateChildComment(studyId, parentCommentId, cursor);
+    }
 }

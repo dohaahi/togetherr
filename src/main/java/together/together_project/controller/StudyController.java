@@ -1,8 +1,6 @@
 package together.together_project.controller;
 
 
-import static together.together_project.constant.StudyConstant.PAGINATION_COUNT;
-
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -71,21 +69,10 @@ public class StudyController {
                 .map(StudyPostsResponseDto::from)
                 .toList();
 
-        boolean hasMore = studies.size() == PAGINATION_COUNT + 1;
-
-        Long lastId = -1L;
-        if (hasMore) {
-            studies = studies.subList(0, studies.size() - 1);
-            lastId = studies.get(studies.size() - 1).id();
-        }
-
-        PaginationCollection<StudyPostsResponseDto> data = PaginationCollection.of(hasMore, lastId, studies);
-
-        PaginationResponseDto<StudyPostsResponseDto> response = new PaginationResponseDto<>(
-                data.hasMore(),
-                data.getNextCursor(),
-                data.getCurrentData()
-        );
+        PaginationCollection<StudyPostsResponseDto> collection = PaginationCollection.of(
+                studies, StudyPostsResponseDto::id);
+        PaginationResponseDto<StudyPostsResponseDto> response = PaginationResponseDto.of(
+                collection);
 
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 
@@ -163,21 +150,9 @@ public class StudyController {
                 .map(JoinRequestsResponseDto::from)
                 .toList();
 
-        boolean hasMore = joinRequests.size() == PAGINATION_COUNT + 1;
-
-        Long lastId = -1L;
-        if (hasMore) {
-            joinRequests.subList(0, joinRequests.size() - 1);
-            lastId = joinRequests.get(joinRequests.size() - 1).id();
-        }
-
-        PaginationCollection<JoinRequestsResponseDto> data = PaginationCollection.of(hasMore, lastId, joinRequests);
-
-        PaginationResponseDto<JoinRequestsResponseDto> response = new PaginationResponseDto<>(
-                data.hasMore(),
-                data.getNextCursor(),
-                data.getCurrentData()
-        );
+        PaginationCollection<JoinRequestsResponseDto> collection = PaginationCollection.of(joinRequests,
+                JoinRequestsResponseDto::id);
+        PaginationResponseDto<JoinRequestsResponseDto> response = PaginationResponseDto.of(collection);
 
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 
@@ -196,25 +171,10 @@ public class StudyController {
                 .map(StudyParticipantsResponseDto::from)
                 .toList();
 
-        boolean hasMore = participants.size() == PAGINATION_COUNT + 1;
-
-        long lastId = -1L;
-        if (hasMore) {
-            participants.subList(0, participants.size() - 1);
-            lastId = participants.get(participants.size() - 1).id();
-        }
-
-        PaginationCollection<StudyParticipantsResponseDto> data = PaginationCollection.of(
-                hasMore,
-                lastId,
-                participants
-        );
-
-        PaginationResponseDto<StudyParticipantsResponseDto> response = new PaginationResponseDto<StudyParticipantsResponseDto>(
-                data.hasMore(),
-                data.getNextCursor(),
-                data.getCurrentData()
-        );
+        PaginationCollection<StudyParticipantsResponseDto> collection = PaginationCollection.of(
+                participants, StudyParticipantsResponseDto::id);
+        PaginationResponseDto<StudyParticipantsResponseDto> response = PaginationResponseDto.of(
+                collection);
 
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 

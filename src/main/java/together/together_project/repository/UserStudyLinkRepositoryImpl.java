@@ -1,9 +1,8 @@
 package together.together_project.repository;
 
-import static together.together_project.constant.StudyConstant.PAGINATION_COUNT;
+import static together.together_project.constant.StudyConstant.PAGINATION_COUNT_AND_ONE_MORE;
 import static together.together_project.domain.QUserStudyLink.userStudyLink;
 
-import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import java.util.Optional;
@@ -36,27 +35,37 @@ public class UserStudyLinkRepositoryImpl {
     }
 
     public List<UserStudyLink> paginateUserStudyLink(Long studyId, Long cursor, UserStudyJoinStatus status) {
-        JPAQuery<UserStudyLink> userStudyLinks = q.select(userStudyLink)
-                .from(userStudyLink)
-                .where(userStudyLink.study.studyId.eq(studyId)
-                        .and(userStudyLink.status.eq(status)));
-
-        if (userStudyLinks.fetch().isEmpty()) {
-            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
-        } else if (null == cursor) {
-            cursor = userStudyLinks
-                    .where(userStudyLink.deletedAt.isNull())
+        if (null == cursor) {
+            UserStudyLink studyLink = q.select(userStudyLink)
+                    .from(userStudyLink)
                     .orderBy(userStudyLink.id.desc())
-                    .limit(1)
-                    .fetchOne()
-                    .getId() + 1;
+                    .where(userStudyLink.deletedAt.isNull()
+                            .and(userStudyLink.study.studyId.eq(studyId))
+                            .and(userStudyLink.status.eq(status)))
+                    .fetchFirst();
+
+            if (studyLink == null) {
+                throw new CustomException(ErrorCode.DATA_NOT_FOUND);
+            }
+
+            cursor = studyLink.getId() + 1;
         }
 
-        return userStudyLinks
+        List<UserStudyLink> studyLinks = q.select(userStudyLink)
+                .from(userStudyLink)
+                .orderBy(userStudyLink.id.desc())
                 .where(userStudyLink.id.lt(cursor)
-                        .and(userStudyLink.deletedAt.isNull()))
-                .limit(PAGINATION_COUNT + 1)
+                        .and(userStudyLink.deletedAt.isNull())
+                        .and(userStudyLink.study.studyId.eq(studyId))
+                        .and(userStudyLink.status.eq(status)))
+                .limit(PAGINATION_COUNT_AND_ONE_MORE)
                 .fetch();
+
+        if (studyLinks.isEmpty()) {
+            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
+        }
+
+        return studyLinks;
     }
 
     public void findByStudyId(Long studyId) {
