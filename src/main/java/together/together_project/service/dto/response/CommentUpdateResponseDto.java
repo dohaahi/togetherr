@@ -1,8 +1,11 @@
 package together.together_project.service.dto.response;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.time.LocalDateTime;
 import together.together_project.domain.StudyPostComment;
 
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record CommentUpdateResponseDto(
         Long id,
         Long userId,
