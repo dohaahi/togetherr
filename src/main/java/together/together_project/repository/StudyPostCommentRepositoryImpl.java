@@ -59,4 +59,38 @@ public class StudyPostCommentRepositoryImpl {
 
         return comments;
     }
+
+    public List<StudyPostComment> paginateChildComment(Long studyId, Long parentCommentId, Long cursor) {
+        if (null == cursor) {
+            StudyPostComment comment = q.select(studyPostComment)
+                    .from(studyPostComment)
+                    .orderBy(studyPostComment.id.desc())
+                    .where(studyPostComment.deletedAt.isNull()
+                            .and(studyPostComment.studyPost.studyPostId.eq(studyId))
+                            .and(studyPostComment.parentCommentId.eq(parentCommentId)))
+                    .fetchFirst();
+
+            if (comment == null) {
+                throw new CustomException(ErrorCode.DATA_NOT_FOUND);
+            }
+
+            cursor = comment.getId() + 1L;
+        }
+
+        List<StudyPostComment> comments = q.select(studyPostComment)
+                .from(studyPostComment)
+                .orderBy(studyPostComment.id.desc())
+                .where(studyPostComment.id.lt(cursor)
+                        .and(studyPostComment.deletedAt.isNull())
+                        .and(studyPostComment.studyPost.studyPostId.eq(studyId))
+                        .and(studyPostComment.parentCommentId.eq(parentCommentId)))
+                .limit(PAGINATION_COUNT_AND_ONE_MORE)
+                .fetch();
+
+        if (comments.isEmpty()) {
+            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
+        }
+
+        return comments;
+    }
 }

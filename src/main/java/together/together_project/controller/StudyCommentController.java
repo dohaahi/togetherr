@@ -131,6 +131,27 @@ public class StudyCommentController {
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
+    @GetMapping("/{parent-comment-id}")
+    public ResponseEntity<ResponseBody> getAllChildComment(@PathVariable("study-id") Long studyId,
+                                                           @PathVariable("parent-comment-id") Long parentCommentId,
+                                                           @RequestParam(value = "cursor", required = false) Long cursor,
+                                                           @AuthUser User currentUser) {
+        List<CommentsResponseDto> comments = studyCommentService.getChildComment(studyId, parentCommentId, cursor)
+                .stream()
+                .map(CommentsResponseDto::from)
+                .toList();
+
+        PaginationCollection<CommentsResponseDto> collection = PaginationCollection.of(
+                comments, CommentsResponseDto::id);
+        PaginationResponseDto<CommentsResponseDto> response = PaginationResponseDto.of(
+                collection);
+
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
     private void verifyUserIsCommentAuthor(Long commentId, User currentUser) {
         StudyPostComment comment = studyCommentService.getCommentById(commentId);
 
