@@ -10,4 +10,12 @@ public record PaginationResponseDto<T>(
         long lastId,
         List<T> elements
 ) {
+
+    public static <T, R extends PaginationCollection<T>> PaginationResponseDto<T> of(R paginationCollection) {
+        return new PaginationResponseDto<>(
+                paginationCollection.hasMore(),
+                paginationCollection.getNextCursor(),
+                paginationCollection.getCurrentData()
+        );
+    }
 }
