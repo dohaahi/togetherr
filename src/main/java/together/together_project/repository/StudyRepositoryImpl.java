@@ -1,6 +1,6 @@
 package together.together_project.repository;
 
-import static together.together_project.constant.StudyConstant.PAGINATION_COUNT;
+import static together.together_project.constant.StudyConstant.PAGINATION_COUNT_AND_ONE_MORE;
 import static together.together_project.domain.QStudy.study;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import together.together_project.domain.QStudy;
 import together.together_project.domain.Study;
 import together.together_project.exception.CustomException;
 import together.together_project.exception.ErrorCode;
@@ -34,12 +35,17 @@ public class StudyRepositoryImpl {
 
     public List<Study> paginateStudy(Long cursor) {
         if (null == cursor) {
-            cursor = q.select(study)
-                    .from(study)
-                    .where(study.deletedAt.isNull())
-                    .orderBy(study.studyId.desc())
-                    .fetchFirst()
-                    .getStudyId() + 1L;
+            Study study = q.select(QStudy.study)
+                    .from(QStudy.study)
+                    .where(QStudy.study.deletedAt.isNull())
+                    .orderBy(QStudy.study.studyId.desc())
+                    .fetchFirst();
+
+            if (study == null) {
+                throw new CustomException(ErrorCode.DATA_NOT_FOUND);
+            }
+
+            cursor = study.getStudyId() + 1L;
         }
 
         List<Study> studies = q.select(study)
@@ -47,7 +53,7 @@ public class StudyRepositoryImpl {
                 .orderBy(study.studyId.desc())
                 .where(study.studyId.lt(cursor)
                         .and(study.deletedAt.isNull()))
-                .limit(PAGINATION_COUNT + 1)
+                .limit(PAGINATION_COUNT_AND_ONE_MORE)
                 .fetch();
 
         if (studies.isEmpty()) {

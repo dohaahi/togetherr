@@ -1,6 +1,6 @@
 package together.together_project.repository;
 
-import static together.together_project.constant.StudyConstant.PAGINATION_COUNT;
+import static together.together_project.constant.StudyConstant.PAGINATION_COUNT_AND_ONE_MORE;
 import static together.together_project.domain.QStudyPostComment.studyPostComment;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -34,13 +34,18 @@ public class StudyPostCommentRepositoryImpl {
 
     public List<StudyPostComment> paginateComment(Long studyId, Long cursor) {
         if (null == cursor) {
-            cursor = q.select(studyPostComment)
+            StudyPostComment comment = q.select(studyPostComment)
                     .from(studyPostComment)
                     .orderBy(studyPostComment.id.desc())
                     .where(studyPostComment.studyPost.studyPostId.eq(studyId)
                             .and(studyPostComment.deletedAt.isNull()))
-                    .fetchFirst()
-                    .getId() + 1L;
+                    .fetchFirst();
+
+            if (comment == null) {
+                throw new CustomException(ErrorCode.DATA_NOT_FOUND);
+            }
+
+            cursor = comment.getId() + 1L;
         }
 
         List<StudyPostComment> comments = q.select(studyPostComment)
@@ -50,7 +55,7 @@ public class StudyPostCommentRepositoryImpl {
                         .and(studyPostComment.studyPost.studyPostId.eq(studyId))
                         .and(studyPostComment.deletedAt.isNull())
                         .and(studyPostComment.parentCommentId.isNull()))
-                .limit(PAGINATION_COUNT + 1)
+                .limit(PAGINATION_COUNT_AND_ONE_MORE)
                 .fetch();
 
         if (comments.isEmpty()) {
