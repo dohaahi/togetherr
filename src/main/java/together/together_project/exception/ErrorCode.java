@@ -26,8 +26,9 @@ public enum ErrorCode {
     STUDY_ALREADY_WITHDRAW("이미 철회 신청한 스터디입니다.", 404),
     POST_BUMP_PERIOD_EXCEPTION("끌어올리기는 이틀이 지나야 가능합니다.", 409),
 
-    COMMENT_NOT_FOUND("이미 삭제된 댓글입니다.", 404),
-    COMMENT_ALREADY_DELETED("존재하지 않는 댓글입니다.", 404),
+    COMMENT_NOT_FOUND("존재하지 않는 댓글입니다.", 404),
+
+    REVIEW_NOT_FOUND("존재하지 않는 리뷰입니다.", 404),
 
     EMPTY_CONTENT_ERROR("내용을 입력하지 않았습니다.", 400),
     DATA_NOT_FOUND("더 이상 가져올 데이터가 없습니다.", 404),

@@ -13,6 +13,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import together.together_project.exception.CustomException;
+import together.together_project.exception.ErrorCode;
+import together.together_project.service.dto.request.ReviewUpdateRequestDto;
 
 @Entity
 @Getter
@@ -38,4 +41,22 @@ public class ReviewPost extends BaseTimeEntity {
     private String reviewPicUrl;
 
     private int totalLikeCount;
+
+    public ReviewPost update(ReviewUpdateRequestDto request) {
+        if (request.content() != null) {
+            if (request.content().trim().isBlank()) {
+                throw new CustomException(ErrorCode.EMPTY_CONTENT_ERROR);
+            }
+            content = request.content();
+        }
+
+        if (request.reviewPicUrl() != null) {
+            if (request.reviewPicUrl().trim().isBlank()) {
+                throw new CustomException(ErrorCode.EMPTY_CONTENT_ERROR);
+            }
+            reviewPicUrl = request.reviewPicUrl();
+        }
+
+        return this;
+    }
 }

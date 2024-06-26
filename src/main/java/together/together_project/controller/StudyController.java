@@ -20,6 +20,7 @@ import together.together_project.domain.User;
 import together.together_project.domain.UserStudyJoinStatus;
 import together.together_project.exception.CustomException;
 import together.together_project.exception.ErrorCode;
+import together.together_project.service.StudyCommentService;
 import together.together_project.service.StudyService;
 import together.together_project.service.UserStudyLinkService;
 import together.together_project.service.dto.PaginationCollection;
@@ -46,6 +47,7 @@ public class StudyController {
 
     private final StudyService studyService;
     private final UserStudyLinkService userStudyLinkService;
+    private final StudyCommentService studyCommentService;
 
     @PostMapping()
     public ResponseEntity<ResponseBody> write(
@@ -81,8 +83,8 @@ public class StudyController {
     }
 
     @GetMapping("/{study-id}")
-    public ResponseEntity<ResponseBody> getById(@PathVariable("study-id") Long id) {
-        Study study = studyService.getById(id);
+    public ResponseEntity<ResponseBody> getById(@PathVariable("study-id") Long studyId) {
+        Study study = studyService.getById(studyId);
         StudyPostResponseDto response = StudyPostResponseDto.from(study);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 
@@ -92,13 +94,13 @@ public class StudyController {
 
     @PutMapping("/{study-id}")
     public ResponseEntity<ResponseBody> updateStudyPost(
-            @PathVariable("study-id") Long id,
+            @PathVariable("study-id") Long studyId,
             @RequestBody StudyPostUpdateRequestDto request,
             @AuthUser User currentUser
     ) {
-        verifyUserIsStudyLeader(currentUser, id);
+        verifyUserIsStudyLeader(currentUser, studyId);
 
-        Study study = studyService.updateStudyPost(id, request);
+        Study study = studyService.updateStudyPost(studyId, request);
         StudyPostUpdateResponseDto response = StudyPostUpdateResponseDto.from(study);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 
@@ -108,13 +110,13 @@ public class StudyController {
 
     @PutMapping("/{study-id}/bump")
     public ResponseEntity<ResponseBody> bumpStudyPost(
-            @PathVariable("study-id") Long id,
+            @PathVariable("study-id") Long studyId,
             @Valid @RequestBody StudyPostBumpRequestDto request,
             @AuthUser User currentUser
     ) {
-        verifyUserIsStudyLeader(currentUser, id);
+        verifyUserIsStudyLeader(currentUser, studyId);
 
-        Study study = studyService.bumpStudyPost(id, request);
+        Study study = studyService.bumpStudyPost(studyId, request);
         StudyPostBumpResponseDto response = StudyPostBumpResponseDto.from(study);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 
@@ -124,13 +126,14 @@ public class StudyController {
 
     @DeleteMapping("/{study-id}")
     public ResponseEntity<ResponseBody> deletePost(
-            @PathVariable("study-id") Long id,
+            @PathVariable("study-id") Long studyId,
             @AuthUser User currentUser
     ) {
-        verifyUserIsStudyLeader(currentUser, id);
+        verifyUserIsStudyLeader(currentUser, studyId);
 
-        studyService.deleteStudy(id);
-        userStudyLinkService.deleteByStudyId(id);
+        studyService.deleteStudy(studyId);
+        userStudyLinkService.deleteByStudyId(studyId);
+        studyCommentService.withdrawCommentWithStudy(studyId);
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK)

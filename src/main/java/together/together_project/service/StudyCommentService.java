@@ -4,6 +4,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import together.together_project.domain.BaseTimeEntity;
 import together.together_project.domain.Study;
 import together.together_project.domain.StudyPostComment;
 import together.together_project.domain.User;
@@ -38,12 +39,10 @@ public class StudyCommentService {
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
     }
 
-    public StudyPostComment updateComment(
-            Long studyId,
-            Long commentId,
-            CommentUpdateRequestDto request,
-            User currentUser
-    ) {
+    public StudyPostComment updateComment(Long studyId,
+                                          Long commentId,
+                                          CommentUpdateRequestDto request,
+                                          User currentUser) {
         Study study = studyService.getById(studyId);
         StudyPostComment comment = getCommentById(commentId);
         comment.update(request);
@@ -52,18 +51,21 @@ public class StudyCommentService {
     }
 
     public void withdrawComment(Long commentId) {
-        StudyPostComment comment = getCommentById(commentId);
-        comment.softDelete();
+        studyPostCommentRepository.findCommentByIdWithChildComment(commentId)
+                .forEach(BaseTimeEntity::softDelete);
     }
 
-    public StudyPostComment writeChildComment(
-            Long studyId,
-            Long commentId,
-            CommentWriteRequestDto request,
-            User currentUser
-    ) {
+    public void withdrawCommentWithStudy(Long studyId) {
+        studyPostCommentRepository.findCommentByStudyId(studyId)
+                .forEach(BaseTimeEntity::softDelete);
+    }
+
+    public StudyPostComment writeChildComment(Long studyId,
+                                              Long commentId,
+                                              CommentWriteRequestDto request,
+                                              User currentUser) {
         Study study = studyService.getById(studyId);
-        checkParentCommentDeleted(commentId);
+        checkParentCommentAndCheckCommentDeleted(commentId);
 
         StudyPostComment comment = StudyPostComment.builder()
                 .studyPost(study.getStudyPost())
@@ -75,28 +77,24 @@ public class StudyCommentService {
         return studyPostCommentRepository.save(comment);
     }
 
-    public StudyPostComment updateChildComment(
-            Long studyId,
-            Long parentCommentId,
-            Long childCommentId,
-            CommentUpdateRequestDto request
-    ) {
+    public StudyPostComment updateChildComment(Long studyId,
+                                               Long parentCommentId,
+                                               Long childCommentId,
+                                               CommentUpdateRequestDto request) {
         Study study = studyService.getById(studyId);
-        checkParentCommentDeleted(parentCommentId);
+        checkParentCommentAndCheckCommentDeleted(parentCommentId);
 
-        StudyPostComment comment = studyPostCommentRepository.findCommentById(childCommentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_ALREADY_DELETED));
+        StudyPostComment comment = checkChildCommentAndGet(childCommentId);
         comment.update(request);
 
         return comment;
     }
 
-    public void deleteChildComment(Long studyId, Long parentCommentId, Long childCommentId) {
+    public void withdrawChildComment(Long studyId, Long parentCommentId, Long childCommentId) {
         studyService.getById(studyId);
-        checkParentCommentDeleted(parentCommentId);
+        checkParentCommentAndCheckCommentDeleted(parentCommentId);
 
-        studyPostCommentRepository.findCommentById(childCommentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND))
+        checkChildCommentAndGet(childCommentId)
                 .softDelete();
     }
 
@@ -105,14 +103,29 @@ public class StudyCommentService {
         return studyPostCommentRepository.paginateComment(studyId, cursor);
     }
 
-    private void checkParentCommentDeleted(Long commentId) {
-        studyPostCommentRepository.findCommentById(commentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_ALREADY_DELETED));
-    }
-
     public List<StudyPostComment> getChildComment(Long studyId, Long parentCommentId, Long cursor) {
         studyService.getById(studyId);
         getCommentById(parentCommentId);
         return studyPostCommentRepository.paginateChildComment(studyId, parentCommentId, cursor);
+    }
+
+    private void checkParentCommentAndCheckCommentDeleted(Long commentId) {
+        StudyPostComment comment = studyPostCommentRepository.findCommentById(commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (comment.getParentCommentId() != null) {
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
+        }
+    }
+
+    private StudyPostComment checkChildCommentAndGet(Long childCommentId) {
+        StudyPostComment comment = studyPostCommentRepository.findCommentById(childCommentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (comment.getParentCommentId() == null) {
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
+        }
+
+        return comment;
     }
 }
