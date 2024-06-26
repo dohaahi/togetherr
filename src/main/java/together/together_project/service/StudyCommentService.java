@@ -25,17 +25,23 @@ public class StudyCommentService {
     public StudyPostComment write(CommentWriteRequestDto request, Long studyId, User currentUser) {
         Study study = studyService.getById(studyId);
 
-        StudyPostComment comment = StudyPostComment.builder().studyPost(study.getStudyPost()).author(currentUser)
-                .content(request.content()).build();
+        StudyPostComment comment = StudyPostComment.builder()
+                .studyPost(study.getStudyPost())
+                .author(currentUser)
+                .content(request.content())
+                .build();
 
         return studyPostCommentRepository.save(comment);
     }
 
     public StudyPostComment getCommentById(Long commentId) {
-        return checkChildCommentAndGet(commentId);
+        return studyPostCommentRepository.findCommentById(commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
     }
 
-    public StudyPostComment updateComment(Long studyId, Long commentId, CommentUpdateRequestDto request,
+    public StudyPostComment updateComment(Long studyId,
+                                          Long commentId,
+                                          CommentUpdateRequestDto request,
                                           User currentUser) {
         Study study = studyService.getById(studyId);
         StudyPostComment comment = getCommentById(commentId);
@@ -45,25 +51,35 @@ public class StudyCommentService {
     }
 
     public void withdrawComment(Long commentId) {
-        studyPostCommentRepository.findCommentByIdWithChildComment(commentId).forEach(BaseTimeEntity::softDelete);
+        studyPostCommentRepository.findCommentByIdWithChildComment(commentId)
+                .forEach(BaseTimeEntity::softDelete);
     }
 
     public void withdrawCommentWithStudy(Long studyId) {
-        studyPostCommentRepository.findCommentByStudyId(studyId).forEach(BaseTimeEntity::softDelete);
+        studyPostCommentRepository.findCommentByStudyId(studyId)
+                .forEach(BaseTimeEntity::softDelete);
     }
 
-    public StudyPostComment writeChildComment(Long studyId, Long commentId, CommentWriteRequestDto request,
+    public StudyPostComment writeChildComment(Long studyId,
+                                              Long commentId,
+                                              CommentWriteRequestDto request,
                                               User currentUser) {
         Study study = studyService.getById(studyId);
         checkParentCommentAndCheckCommentDeleted(commentId);
 
-        StudyPostComment comment = StudyPostComment.builder().studyPost(study.getStudyPost()).author(currentUser)
-                .content(request.content()).parentCommentId(commentId).build();
+        StudyPostComment comment = StudyPostComment.builder()
+                .studyPost(study.getStudyPost())
+                .author(currentUser)
+                .content(request.content())
+                .parentCommentId(commentId)
+                .build();
 
         return studyPostCommentRepository.save(comment);
     }
 
-    public StudyPostComment updateChildComment(Long studyId, Long parentCommentId, Long childCommentId,
+    public StudyPostComment updateChildComment(Long studyId,
+                                               Long parentCommentId,
+                                               Long childCommentId,
                                                CommentUpdateRequestDto request) {
         Study study = studyService.getById(studyId);
         checkParentCommentAndCheckCommentDeleted(parentCommentId);
