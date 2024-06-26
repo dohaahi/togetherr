@@ -91,7 +91,7 @@ public class StudyCommentService {
         return comment;
     }
 
-    public void deleteChildComment(Long studyId, Long parentCommentId, Long childCommentId) {
+    public void withdrawChildComment(Long studyId, Long parentCommentId, Long childCommentId) {
         studyService.getById(studyId);
         checkParentCommentDeleted(parentCommentId);
 
