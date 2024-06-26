@@ -99,4 +99,13 @@ public class UserStudyLinkService {
                     userStudyLink.getStudy().increaseParticipantCount();
                 });
     }
+
+    public void checkUserParticipant(Long studyId, Long userId) {
+        UserStudyLink userStudyLink = userStudyLinkRepository.findByStudyIdAndUserId(studyId, userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED_ACCESS));
+        
+        if (!userStudyLink.getStatus().equals(APPROVED)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+    }
 }

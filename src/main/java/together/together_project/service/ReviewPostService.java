@@ -15,18 +15,17 @@ import together.together_project.service.dto.request.ReviewCreateRequestDto;
 public class ReviewPostService {
 
     private final StudyService studyService;
+    private final UserStudyLinkService userStudyLinkService;
 
     private final ReviewPostRepositoryImpl reviewPostRepository;
 
     public ReviewPost write(ReviewCreateRequestDto request, User user) {
         Study study = studyService.getById(request.studyId());
 
-        ReviewPost review = ReviewPost.builder()
-                .author(user)
-                .study(study)
-                .content(request.content())
-                .reviewPicUrl(request.reviewPicUrl())
-                .build();
+        userStudyLinkService.checkUserParticipant(request.studyId(), user.getId());
+
+        ReviewPost review = ReviewPost.builder().author(user).study(study).content(request.content())
+                .reviewPicUrl(request.reviewPicUrl()).build();
 
         return reviewPostRepository.save(review);
     }
