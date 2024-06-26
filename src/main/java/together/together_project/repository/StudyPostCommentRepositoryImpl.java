@@ -98,4 +98,21 @@ public class StudyPostCommentRepositoryImpl {
 
         return comments;
     }
+
+    public List<StudyPostComment> findCommentByIdWithChildComment(Long commentId) {
+        return q.select(studyPostComment)
+                .from(studyPostComment)
+                .where((studyPostComment.id.eq(commentId)
+                        .or(studyPostComment.parentCommentId.eq(commentId)))
+                        .and(studyPostComment.deletedAt.isNull()))
+                .fetch();
+    }
+
+    public List<StudyPostComment> findCommentByStudyId(Long studyId) {
+        return q.select(studyPostComment)
+                .from(studyPostComment)
+                .where(studyPostComment.studyPost.studyPostId.eq(studyId)
+                        .and(studyPostComment.deletedAt.isNull()))
+                .fetch();
+    }
 }

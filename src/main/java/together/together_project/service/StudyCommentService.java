@@ -52,8 +52,8 @@ public class StudyCommentService {
     }
 
     public void withdrawComment(Long commentId) {
-        StudyPostComment comment = getCommentById(commentId);
-        comment.softDelete();
+        studyPostCommentRepository.findCommentByIdWithChildComment(commentId)
+                .forEach(BaseTimeEntity::softDelete);
     }
 
     public StudyPostComment writeChildComment(
