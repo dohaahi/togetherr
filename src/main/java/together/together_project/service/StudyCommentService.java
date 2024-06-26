@@ -25,26 +25,18 @@ public class StudyCommentService {
     public StudyPostComment write(CommentWriteRequestDto request, Long studyId, User currentUser) {
         Study study = studyService.getById(studyId);
 
-        StudyPostComment comment = StudyPostComment.builder()
-                .studyPost(study.getStudyPost())
-                .author(currentUser)
-                .content(request.content())
-                .build();
+        StudyPostComment comment = StudyPostComment.builder().studyPost(study.getStudyPost()).author(currentUser)
+                .content(request.content()).build();
 
         return studyPostCommentRepository.save(comment);
     }
 
     public StudyPostComment getCommentById(Long commentId) {
-        return studyPostCommentRepository.findCommentById(commentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+        return checkChildCommentAndGet(commentId);
     }
 
-    public StudyPostComment updateComment(
-            Long studyId,
-            Long commentId,
-            CommentUpdateRequestDto request,
-            User currentUser
-    ) {
+    public StudyPostComment updateComment(Long studyId, Long commentId, CommentUpdateRequestDto request,
+                                          User currentUser) {
         Study study = studyService.getById(studyId);
         StudyPostComment comment = getCommentById(commentId);
         comment.update(request);
@@ -53,46 +45,30 @@ public class StudyCommentService {
     }
 
     public void withdrawComment(Long commentId) {
-        studyPostCommentRepository.findCommentByIdWithChildComment(commentId)
-                .forEach(BaseTimeEntity::softDelete);
+        studyPostCommentRepository.findCommentByIdWithChildComment(commentId).forEach(BaseTimeEntity::softDelete);
     }
 
     public void withdrawCommentWithStudy(Long studyId) {
-        studyPostCommentRepository.findCommentByStudyId(studyId)
-                .forEach(BaseTimeEntity::softDelete);
+        studyPostCommentRepository.findCommentByStudyId(studyId).forEach(BaseTimeEntity::softDelete);
     }
 
-    public StudyPostComment writeChildComment(
-            Long studyId,
-            Long commentId,
-            CommentWriteRequestDto request,
-            User currentUser
-    ) {
+    public StudyPostComment writeChildComment(Long studyId, Long commentId, CommentWriteRequestDto request,
+                                              User currentUser) {
         Study study = studyService.getById(studyId);
-        checkParentCommentDeleted(commentId);
+        checkParentCommentAndCheckCommentDeleted(commentId);
 
-        StudyPostComment comment = StudyPostComment.builder()
-                .studyPost(study.getStudyPost())
-                .author(currentUser)
-                .content(request.content())
-                .parentCommentId(commentId)
-                .build();
+        StudyPostComment comment = StudyPostComment.builder().studyPost(study.getStudyPost()).author(currentUser)
+                .content(request.content()).parentCommentId(commentId).build();
 
         return studyPostCommentRepository.save(comment);
     }
 
-    public StudyPostComment updateChildComment(
-            Long studyId,
-            Long parentCommentId,
-            Long childCommentId,
-            CommentUpdateRequestDto request
-    ) {
+    public StudyPostComment updateChildComment(Long studyId, Long parentCommentId, Long childCommentId,
+                                               CommentUpdateRequestDto request) {
         Study study = studyService.getById(studyId);
-        checkParentCommentDeleted(parentCommentId);
+        checkParentCommentAndCheckCommentDeleted(parentCommentId);
 
-        // TODO: child일 때만 수정, 삭제 되도록 수정
-        StudyPostComment comment = studyPostCommentRepository.findCommentById(childCommentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_ALREADY_DELETED));
+        StudyPostComment comment = checkChildCommentAndGet(childCommentId);
         comment.update(request);
 
         return comment;
@@ -100,10 +76,9 @@ public class StudyCommentService {
 
     public void withdrawChildComment(Long studyId, Long parentCommentId, Long childCommentId) {
         studyService.getById(studyId);
-        checkParentCommentDeleted(parentCommentId);
+        checkParentCommentAndCheckCommentDeleted(parentCommentId);
 
-        studyPostCommentRepository.findCommentById(childCommentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND))
+        checkChildCommentAndGet(childCommentId)
                 .softDelete();
     }
 
@@ -112,14 +87,29 @@ public class StudyCommentService {
         return studyPostCommentRepository.paginateComment(studyId, cursor);
     }
 
-    private void checkParentCommentDeleted(Long commentId) {
-        studyPostCommentRepository.findCommentById(commentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_ALREADY_DELETED));
-    }
-
     public List<StudyPostComment> getChildComment(Long studyId, Long parentCommentId, Long cursor) {
         studyService.getById(studyId);
         getCommentById(parentCommentId);
         return studyPostCommentRepository.paginateChildComment(studyId, parentCommentId, cursor);
+    }
+
+    private void checkParentCommentAndCheckCommentDeleted(Long commentId) {
+        StudyPostComment comment = studyPostCommentRepository.findCommentById(commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (comment.getParentCommentId() != null) {
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
+        }
+    }
+
+    private StudyPostComment checkChildCommentAndGet(Long childCommentId) {
+        StudyPostComment comment = studyPostCommentRepository.findCommentById(childCommentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (comment.getParentCommentId() == null) {
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
+        }
+
+        return comment;
     }
 }
