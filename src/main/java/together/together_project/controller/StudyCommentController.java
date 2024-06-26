@@ -107,7 +107,7 @@ public class StudyCommentController {
                                                            @PathVariable("child-comment-id") Long childCommentId,
                                                            @AuthUser User currentUser) {
         verifyUserIsCommentAuthor(childCommentId, currentUser);
-        studyCommentService.deleteChildComment(studyId, parentCommentId, childCommentId);
+        studyCommentService.withdrawChildComment(studyId, parentCommentId, childCommentId);
 
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
