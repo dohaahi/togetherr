@@ -4,6 +4,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import together.together_project.domain.BaseTimeEntity;
 import together.together_project.domain.Study;
 import together.together_project.domain.StudyPostComment;
 import together.together_project.domain.User;
@@ -56,6 +57,11 @@ public class StudyCommentService {
                 .forEach(BaseTimeEntity::softDelete);
     }
 
+    public void withdrawCommentWithStudy(Long studyId) {
+        studyPostCommentRepository.findCommentByStudyId(studyId)
+                .forEach(BaseTimeEntity::softDelete);
+    }
+
     public StudyPostComment writeChildComment(
             Long studyId,
             Long commentId,
@@ -84,6 +90,7 @@ public class StudyCommentService {
         Study study = studyService.getById(studyId);
         checkParentCommentDeleted(parentCommentId);
 
+        // TODO: child일 때만 수정, 삭제 되도록 수정
         StudyPostComment comment = studyPostCommentRepository.findCommentById(childCommentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_ALREADY_DELETED));
         comment.update(request);
