@@ -45,10 +45,18 @@ public class Study extends BaseTimeEntity {
 
     public Study update(StudyPostUpdateRequestDto request) {
         if (request.title() != null) {
+            if (request.title().trim().isBlank()) {
+                throw new CustomException(ErrorCode.EMPTY_CONTENT_ERROR);
+            }
+
             studyPost.updateTitle(request.title());
         }
 
         if (request.content() != null) {
+            if (request.content().trim().isBlank()) {
+                throw new CustomException(ErrorCode.DATA_NOT_FOUND);
+            }
+
             studyPost.updateContent(request.content());
         }
 
