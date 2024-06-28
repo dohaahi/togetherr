@@ -1,5 +1,6 @@
 package together.together_project.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,5 +56,9 @@ public class ReviewPostService {
         return reviewPostRepository.findReviewByReviewId(reviewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
+    }
+
+    public List<ReviewPost> getAllReview(Long cursor) {
+        return reviewPostRepository.paginateReviews(cursor);
     }
 }
