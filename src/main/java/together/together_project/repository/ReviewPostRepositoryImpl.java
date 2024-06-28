@@ -63,4 +63,13 @@ public class ReviewPostRepositoryImpl {
 
         return reviews;
     }
+
+    public Optional<ReviewPost> findReviewByStudyAndUser(Long studyId, Long userId) {
+        return q.select(reviewPost)
+                .from(reviewPost)
+                .where(reviewPost.study.studyId.eq(studyId)
+                        .and(reviewPost.author.id.eq(userId)))
+                .stream()
+                .findFirst();
+    }
 }

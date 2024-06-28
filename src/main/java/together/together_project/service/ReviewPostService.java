@@ -26,6 +26,12 @@ public class ReviewPostService {
     public ReviewPost write(ReviewCreateRequestDto request, User user) {
         Study study = studyService.getById(request.studyId());
 
+        // 하나의 스터디 당 리뷰는 한 개만 작성 가능
+        reviewPostRepository.findReviewByStudyAndUser(request.studyId(), user.getId())
+                .ifPresent(reviewPost -> {
+                    throw new CustomException(ErrorCode.REVIEW_DUPLICATE);
+                });
+
         if (!study.getLeader().equals(user)) {
             userStudyLinkService.checkUserParticipant(request.studyId(), user.getId());
         }
