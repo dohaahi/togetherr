@@ -42,6 +42,15 @@ public class ReviewPostService {
                 .update(request);
     }
 
+    public void withdrawReview(Long reviewId) {
+        ReviewPost reviewPost = reviewPostRepository.findReviewByReviewId(reviewId)
+                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
+
+        studyService.getById(reviewPost.getStudy().getStudyId());
+
+        reviewPost.softDelete();
+    }
+
     public ReviewPost getReview(Long reviewId) {
         return reviewPostRepository.findReviewByReviewId(reviewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
