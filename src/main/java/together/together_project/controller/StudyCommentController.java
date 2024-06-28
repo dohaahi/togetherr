@@ -102,10 +102,10 @@ public class StudyCommentController {
     }
 
     @DeleteMapping("/{study-comment-id}/{child-comment-id}")
-    public ResponseEntity<ResponseBody> deleteChildComment(@PathVariable("study-id") Long studyId,
-                                                           @PathVariable("study-comment-id") Long parentCommentId,
-                                                           @PathVariable("child-comment-id") Long childCommentId,
-                                                           @AuthUser User currentUser) {
+    public ResponseEntity<ResponseBody> withdrawChildComment(@PathVariable("study-id") Long studyId,
+                                                             @PathVariable("study-comment-id") Long parentCommentId,
+                                                             @PathVariable("child-comment-id") Long childCommentId,
+                                                             @AuthUser User currentUser) {
         verifyUserIsCommentAuthor(childCommentId, currentUser);
         studyCommentService.withdrawChildComment(studyId, parentCommentId, childCommentId);
 
