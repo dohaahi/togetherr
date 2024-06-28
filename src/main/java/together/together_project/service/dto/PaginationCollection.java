@@ -14,7 +14,7 @@ public record PaginationCollection<T>(
             List<T> elementsWithNextCursor,
             Function<T, Long> listToId
     ) {
-        boolean hasMore = elementsWithNextCursor.size() < PAGINATION_COUNT_AND_ONE_MORE;
+        boolean hasMore = elementsWithNextCursor.size() >= PAGINATION_COUNT_AND_ONE_MORE;
 
         Long lastId = -1L;
         if (hasMore) {
