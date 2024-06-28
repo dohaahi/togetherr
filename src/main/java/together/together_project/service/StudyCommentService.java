@@ -4,7 +4,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import together.together_project.domain.BaseTimeEntity;
 import together.together_project.domain.Study;
 import together.together_project.domain.StudyPostComment;
 import together.together_project.domain.User;
@@ -51,13 +50,9 @@ public class StudyCommentService {
     }
 
     public void withdrawComment(Long commentId) {
-        studyPostCommentRepository.findCommentByIdWithChildComment(commentId)
-                .forEach(BaseTimeEntity::softDelete);
-    }
-
-    public void withdrawCommentWithStudy(Long studyId) {
-        studyPostCommentRepository.findCommentByStudyId(studyId)
-                .forEach(BaseTimeEntity::softDelete);
+        studyPostCommentRepository.findCommentById(commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND))
+                .softDelete();
     }
 
     public StudyPostComment writeChildComment(Long studyId,
