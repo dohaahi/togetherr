@@ -27,6 +27,7 @@ public class ReviewPostRepositoryImpl {
         return q.select(reviewPost)
                 .from(reviewPost)
                 .where(reviewPost.id.eq(reviewId)
+                        .and(reviewPost.study.deletedAt.isNull())
                         .and(reviewPost.deletedAt.isNull()))
                 .stream()
                 .findFirst();

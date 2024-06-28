@@ -25,6 +25,7 @@ import together.together_project.service.dto.request.ReviewCreateRequestDto;
 import together.together_project.service.dto.request.ReviewUpdateRequestDto;
 import together.together_project.service.dto.response.ResponseBody;
 import together.together_project.service.dto.response.ReviewPostResponseDto;
+import together.together_project.service.dto.response.ReviewResponseDto;
 import together.together_project.service.dto.response.ReviewsResponseDto;
 
 @RestController
@@ -91,6 +92,18 @@ public class ReviewPostController {
         PaginationResponseDto<ReviewsResponseDto> response = PaginationResponseDto.of(
                 collection);
 
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    @GetMapping("{review-post-id}")
+    public ResponseEntity<ResponseBody> getReview(
+            @PathVariable("review-post-id") Long reviewId
+    ) {
+        ReviewPost reviewPost = reviewPostService.getReview(reviewId);
+        ReviewResponseDto response = ReviewResponseDto.of(reviewPost);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK)
