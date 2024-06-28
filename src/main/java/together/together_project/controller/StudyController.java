@@ -132,8 +132,6 @@ public class StudyController {
         verifyUserIsStudyLeader(currentUser, studyId);
 
         studyService.deleteStudy(studyId);
-        userStudyLinkService.deleteByStudyId(studyId);
-        studyCommentService.withdrawCommentWithStudy(studyId);
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK)
