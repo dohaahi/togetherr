@@ -1,5 +1,6 @@
 package together.together_project.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,12 @@ public class ReviewPostService {
 
     public ReviewPost write(ReviewCreateRequestDto request, User user) {
         Study study = studyService.getById(request.studyId());
+
+        // 하나의 스터디 당 리뷰는 한 개만 작성 가능
+        reviewPostRepository.findReviewByStudyAndUser(request.studyId(), user.getId())
+                .ifPresent(reviewPost -> {
+                    throw new CustomException(ErrorCode.REVIEW_DUPLICATE);
+                });
 
         if (!study.getLeader().equals(user)) {
             userStudyLinkService.checkUserParticipant(request.studyId(), user.getId());
@@ -55,5 +62,9 @@ public class ReviewPostService {
         return reviewPostRepository.findReviewByReviewId(reviewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
+    }
+
+    public List<ReviewPost> getAllReview(Long cursor) {
+        return reviewPostRepository.paginateReviews(cursor);
     }
 }

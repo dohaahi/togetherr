@@ -29,6 +29,7 @@ public enum ErrorCode {
     COMMENT_NOT_FOUND("존재하지 않는 댓글입니다.", 404),
 
     REVIEW_NOT_FOUND("존재하지 않는 리뷰입니다.", 404),
+    REVIEW_DUPLICATE("리뷰를 이미 작성하였습니다.", 400),
 
     EMPTY_CONTENT_ERROR("내용을 입력하지 않았습니다.", 400),
     DATA_NOT_FOUND("더 이상 가져올 데이터가 없습니다.", 404),
