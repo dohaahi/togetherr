@@ -100,7 +100,8 @@ public class ReviewPostController {
 
     @GetMapping("{review-id}")
     public ResponseEntity<ResponseBody> getReview(
-            @PathVariable("review-id") Long reviewId
+            @PathVariable("review-id") Long reviewId,
+            @AuthUser User currentUser
     ) {
         ReviewPost reviewPost = reviewPostService.getReview(reviewId);
         ReviewResponseDto response = ReviewResponseDto.of(reviewPost);
