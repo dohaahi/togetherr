@@ -7,7 +7,7 @@ import together.together_project.domain.ReviewPost;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record ReviewResponseDto(
-        Long reviewId,
+        Long id,
         Long studyId,
         Long userId,
         String reviewPicUrl,

@@ -7,7 +7,7 @@ import together.together_project.domain.ReviewComment;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record ReviewCommentCreateResponseDto(
-        Long reviewCommentId,
+        Long id,
         Long userId,
         String content,
         int totalLikeCount,
