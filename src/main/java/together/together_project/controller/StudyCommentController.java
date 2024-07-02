@@ -60,9 +60,9 @@ public class StudyCommentController {
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
-    @DeleteMapping("/{study-post-comment-id}")
+    @DeleteMapping("/{study-comment-id}")
     public ResponseEntity<ResponseBody> withdrawComment(@PathVariable("study-id") Long studyId,
-                                                        @PathVariable("study-post-comment-id") Long commentId,
+                                                        @PathVariable("study-comment-id") Long commentId,
                                                         @AuthUser User currentUser) {
         verifyUserIsCommentAuthor(commentId, currentUser);
 
@@ -85,9 +85,9 @@ public class StudyCommentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(body);
     }
 
-    @PutMapping("/{study-comment-id}/{child-comment-id}")
+    @PutMapping("/{parent-comment-id}/{child-comment-id}")
     public ResponseEntity<ResponseBody> updateChildComment(@PathVariable("study-id") Long studyId,
-                                                           @PathVariable("study-comment-id") Long parentCommentId,
+                                                           @PathVariable("parent-comment-id") Long parentCommentId,
                                                            @PathVariable("child-comment-id") Long childCommentId,
                                                            @Valid @RequestBody CommentUpdateRequestDto request,
                                                            @AuthUser User currentUser) {
@@ -101,9 +101,9 @@ public class StudyCommentController {
         return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
-    @DeleteMapping("/{study-comment-id}/{child-comment-id}")
+    @DeleteMapping("/{parent-comment-id}/{child-comment-id}")
     public ResponseEntity<ResponseBody> withdrawChildComment(@PathVariable("study-id") Long studyId,
-                                                             @PathVariable("study-comment-id") Long parentCommentId,
+                                                             @PathVariable("parent-comment-id") Long parentCommentId,
                                                              @PathVariable("child-comment-id") Long childCommentId,
                                                              @AuthUser User currentUser) {
         verifyUserIsCommentAuthor(childCommentId, currentUser);
