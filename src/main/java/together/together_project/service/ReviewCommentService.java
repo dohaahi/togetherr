@@ -1,5 +1,6 @@
 package together.together_project.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,5 +59,11 @@ public class ReviewCommentService {
 
         getByCommentId(commentId)
                 .softDelete();
+    }
+
+    public List<ReviewComment> getAllComment(Long reviewId, Long cursor) {
+        reviewPostService.getReview(reviewId);
+
+        return reviewCommentRepository.paginateComment(reviewId, cursor);
     }
 }
