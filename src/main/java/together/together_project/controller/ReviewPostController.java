@@ -48,9 +48,9 @@ public class ReviewPostController {
                 .body(body);
     }
 
-    @PutMapping("{review-post-id}")
+    @PutMapping("{review-id}")
     public ResponseEntity<ResponseBody> updateReview(
-            @PathVariable("review-post-id") Long reviewId,
+            @PathVariable("review-id") Long reviewId,
             @RequestBody ReviewUpdateRequestDto request,
             @AuthUser User currentUser
     ) {
@@ -64,9 +64,9 @@ public class ReviewPostController {
                 .body(body);
     }
 
-    @DeleteMapping("{review-post-id}")
+    @DeleteMapping("{review-id}")
     public ResponseEntity<ResponseBody> withdrawReview(
-            @PathVariable("review-post-id") Long reviewId,
+            @PathVariable("review-id") Long reviewId,
             @AuthUser User currentUser
     ) {
         verifyReviewAuthor(reviewId, currentUser);
@@ -98,9 +98,9 @@ public class ReviewPostController {
                 .body(body);
     }
 
-    @GetMapping("{review-post-id}")
+    @GetMapping("{review-id}")
     public ResponseEntity<ResponseBody> getReview(
-            @PathVariable("review-post-id") Long reviewId
+            @PathVariable("review-id") Long reviewId
     ) {
         ReviewPost reviewPost = reviewPostService.getReview(reviewId);
         ReviewResponseDto response = ReviewResponseDto.of(reviewPost);
