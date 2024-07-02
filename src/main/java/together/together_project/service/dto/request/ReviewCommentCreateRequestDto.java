@@ -1,4 +1,4 @@
-package together.together_project.controller;
+package together.together_project.service.dto.request;
 
 import jakarta.validation.constraints.NotEmpty;
 
