@@ -47,6 +47,8 @@ public class ReviewPost extends BaseTimeEntity {
             if (request.content().trim().isBlank()) {
                 throw new CustomException(ErrorCode.EMPTY_CONTENT_ERROR);
             }
+
+            updateTime();
             content = request.content();
         }
 
@@ -54,6 +56,8 @@ public class ReviewPost extends BaseTimeEntity {
             if (request.reviewPicUrl().trim().isBlank()) {
                 throw new CustomException(ErrorCode.EMPTY_CONTENT_ERROR);
             }
+
+            updateTime();
             reviewPicUrl = request.reviewPicUrl();
         }
 
