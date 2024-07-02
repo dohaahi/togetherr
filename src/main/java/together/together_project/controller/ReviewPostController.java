@@ -88,7 +88,7 @@ public class ReviewPostController {
                 .toList();
 
         PaginationCollection<ReviewsResponseDto> collection = PaginationCollection.of(
-                reviews, ReviewsResponseDto::reviewId);
+                reviews, ReviewsResponseDto::id);
         PaginationResponseDto<ReviewsResponseDto> response = PaginationResponseDto.of(
                 collection);
 
