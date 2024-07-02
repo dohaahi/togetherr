@@ -56,7 +56,7 @@ public class ReviewPostController {
     ) {
         verifyReviewAuthor(reviewId, currentUser);
 
-        ReviewPost reviewPost = reviewPostService.updateReview(reviewId, request);
+        ReviewPost reviewPost = reviewPostService.updateReview(reviewId, request, currentUser);
         ReviewPostResponseDto response = ReviewPostResponseDto.of(reviewPost);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 
