@@ -42,11 +42,15 @@ public class ReviewPostService {
         return reviewPostRepository.save(review);
     }
 
-    public ReviewPost updateReview(Long reviewId, ReviewUpdateRequestDto request) {
-        studyService.getById(request.studyId());
+    public ReviewPost updateReview(Long reviewId, ReviewUpdateRequestDto request, User user) {
+        Study study = null;
+        if (request.studyId() != null) {
+            userStudyLinkService.checkUserParticipant(request.studyId(), user.getId());
+            study = studyService.getById(request.studyId());
+        }
 
         return getReview(reviewId)
-                .update(request);
+                .update(request, study);
     }
 
     public void withdrawReview(Long reviewId) {

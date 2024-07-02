@@ -42,11 +42,18 @@ public class ReviewPost extends BaseTimeEntity {
 
     private int totalLikeCount;
 
-    public ReviewPost update(ReviewUpdateRequestDto request) {
+    public ReviewPost update(ReviewUpdateRequestDto request, Study study) {
+        if (study != null) {
+            updateTime();
+            this.study = study;
+        }
+
         if (request.content() != null) {
             if (request.content().trim().isBlank()) {
                 throw new CustomException(ErrorCode.EMPTY_CONTENT_ERROR);
             }
+
+            updateTime();
             content = request.content();
         }
 
@@ -54,6 +61,8 @@ public class ReviewPost extends BaseTimeEntity {
             if (request.reviewPicUrl().trim().isBlank()) {
                 throw new CustomException(ErrorCode.EMPTY_CONTENT_ERROR);
             }
+
+            updateTime();
             reviewPicUrl = request.reviewPicUrl();
         }
 

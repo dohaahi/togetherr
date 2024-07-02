@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import together.together_project.domain.ReviewComment;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public record ReviewCommentCreateResponseDto(
+public record ReviewCommentUpdateResponseDto(
         Long id,
         Long userId,
         String content,
@@ -15,9 +15,8 @@ public record ReviewCommentCreateResponseDto(
         LocalDateTime updatedAt,
         LocalDateTime deletedAt
 ) {
-
-    public static ReviewCommentCreateResponseDto of(ReviewComment comment) {
-        return new ReviewCommentCreateResponseDto(
+    public static ReviewCommentUpdateResponseDto of(ReviewComment comment) {
+        return new ReviewCommentUpdateResponseDto(
                 comment.getId(),
                 comment.getAuthor().getId(),
                 comment.getContent(),

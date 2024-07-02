@@ -48,15 +48,15 @@ public class ReviewPostController {
                 .body(body);
     }
 
-    @PutMapping("{review-post-id}")
+    @PutMapping("{review-id}")
     public ResponseEntity<ResponseBody> updateReview(
-            @PathVariable("review-post-id") Long reviewId,
+            @PathVariable("review-id") Long reviewId,
             @RequestBody ReviewUpdateRequestDto request,
             @AuthUser User currentUser
     ) {
         verifyReviewAuthor(reviewId, currentUser);
 
-        ReviewPost reviewPost = reviewPostService.updateReview(reviewId, request);
+        ReviewPost reviewPost = reviewPostService.updateReview(reviewId, request, currentUser);
         ReviewPostResponseDto response = ReviewPostResponseDto.of(reviewPost);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 
@@ -64,9 +64,9 @@ public class ReviewPostController {
                 .body(body);
     }
 
-    @DeleteMapping("{review-post-id}")
+    @DeleteMapping("{review-id}")
     public ResponseEntity<ResponseBody> withdrawReview(
-            @PathVariable("review-post-id") Long reviewId,
+            @PathVariable("review-id") Long reviewId,
             @AuthUser User currentUser
     ) {
         verifyReviewAuthor(reviewId, currentUser);
@@ -88,7 +88,7 @@ public class ReviewPostController {
                 .toList();
 
         PaginationCollection<ReviewsResponseDto> collection = PaginationCollection.of(
-                reviews, ReviewsResponseDto::reviewId);
+                reviews, ReviewsResponseDto::id);
         PaginationResponseDto<ReviewsResponseDto> response = PaginationResponseDto.of(
                 collection);
 
@@ -98,9 +98,10 @@ public class ReviewPostController {
                 .body(body);
     }
 
-    @GetMapping("{review-post-id}")
+    @GetMapping("{review-id}")
     public ResponseEntity<ResponseBody> getReview(
-            @PathVariable("review-post-id") Long reviewId
+            @PathVariable("review-id") Long reviewId,
+            @AuthUser User currentUser
     ) {
         ReviewPost reviewPost = reviewPostService.getReview(reviewId);
         ReviewResponseDto response = ReviewResponseDto.of(reviewPost);

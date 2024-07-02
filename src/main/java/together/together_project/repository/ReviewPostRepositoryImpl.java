@@ -27,7 +27,6 @@ public class ReviewPostRepositoryImpl {
         return q.select(reviewPost)
                 .from(reviewPost)
                 .where(reviewPost.id.eq(reviewId)
-                        .and(reviewPost.study.deletedAt.isNull())
                         .and(reviewPost.deletedAt.isNull()))
                 .stream()
                 .findFirst();
@@ -38,8 +37,7 @@ public class ReviewPostRepositoryImpl {
             ReviewPost review = q.select(reviewPost)
                     .from(reviewPost)
                     .orderBy(reviewPost.id.desc())
-                    .where(reviewPost.deletedAt.isNull()
-                            .and(reviewPost.study.deletedAt.isNull()))
+                    .where(reviewPost.deletedAt.isNull())
                     .fetchFirst();
 
             if (review == null) {
@@ -53,7 +51,6 @@ public class ReviewPostRepositoryImpl {
                 .from(reviewPost)
                 .orderBy(reviewPost.id.desc())
                 .where(reviewPost.deletedAt.isNull()
-                        .and(reviewPost.study.deletedAt.isNull())
                         .and(reviewPost.id.lt(cursor)))
                 .limit(PAGINATION_COUNT_AND_ONE_MORE)
                 .fetch();

@@ -25,16 +25,14 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private static final String AUTH_URI = "/api/auth";
     private static final String STUDIES_URI = "/api/studies";
+    private static final String REVIEW_URI = "/api/reviews";
     private static final String GET_METHOD = "GET";
 
     private final JwtProvider jwtProvider;
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            FilterChain filterChain
-    ) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
         // 회원가입, 로그인의 경우 필터 실행 X
         if (request.getRequestURI().startsWith(AUTH_URI)) {
@@ -44,6 +42,15 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // 게시물 조회의 경우 필터 실행 X
         if (request.getRequestURI().startsWith(STUDIES_URI) && request.getMethod().equals(GET_METHOD)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // 리뷰 전체 조회의 경우 필터 실행 X
+        if (request.getRequestURI().startsWith(REVIEW_URI) &&
+                !request.getRequestURI().endsWith("{review-id}") &&
+                request.getMethod().equals(GET_METHOD)
+        ) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -64,20 +71,14 @@ public class JwtFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private String resolveTokenFromRequest(
-            HttpServletResponse response,
-            HttpServletRequest request
-    ) {
+    private String resolveTokenFromRequest(HttpServletResponse response, HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (isEmpty(cookies)) {
             return null;
         }
 
-        return Arrays.stream(cookies)
-                .filter(cookie -> cookie.getName().equals("accessToken"))
-                .map(Cookie::getValue)
-                .findFirst()
-                .orElseThrow(() -> new JwtException(ErrorCode.AUTHENTICATION_REQUIRED.getDescription()));
+        return Arrays.stream(cookies).filter(cookie -> cookie.getName().equals("accessToken")).map(Cookie::getValue)
+                .findFirst().orElseThrow(() -> new JwtException(ErrorCode.AUTHENTICATION_REQUIRED.getDescription()));
     }
 
     private void jwtExceptionHandler(HttpServletResponse response, String error) {
@@ -88,13 +89,8 @@ public class JwtFilter extends OncePerRequestFilter {
         response.setCharacterEncoding("UTF-8");
 
         try {
-            String json = new ObjectMapper()
-                    .writeValueAsString(ErrorResponse.builder()
-                            .data(null)
-                            .error(error)
-                            .statusCode(statusCode)
-                            .build()
-                    );
+            String json = new ObjectMapper().writeValueAsString(
+                    ErrorResponse.builder().data(null).error(error).statusCode(statusCode).build());
             response.getWriter().write(json);
 
         } catch (Exception e) {
