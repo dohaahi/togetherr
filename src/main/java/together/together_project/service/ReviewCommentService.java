@@ -39,7 +39,7 @@ public class ReviewCommentService {
 
     public ReviewComment getByCommentId(Long commentId) {
         return reviewCommentRepository.findByCommentId(commentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
     }
 
     public ReviewComment updatedComment(Long reviewId, Long commentId, ReviewCommentUpdatedRequestDto request) {
@@ -51,5 +51,12 @@ public class ReviewCommentService {
 
         return getByCommentId(commentId)
                 .update(request);
+    }
+
+    public void withdrawComment(Long reviewId, Long commentId) {
+        reviewPostService.getReview(reviewId);
+
+        getByCommentId(commentId)
+                .softDelete();
     }
 }

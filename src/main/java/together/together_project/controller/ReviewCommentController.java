@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -54,6 +55,21 @@ public class ReviewCommentController {
         ReviewComment comment = reviewCommentService.updatedComment(reviewId, commentId, request);
         ReviewCommentUpdateResponseDto response = ReviewCommentUpdateResponseDto.of(comment);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    @DeleteMapping("{review-comment-id}")
+    public ResponseEntity<ResponseBody> withdrawComment(
+            @PathVariable("review-id") Long reviewId,
+            @PathVariable("review-comment-id") Long commentId,
+            @AuthUser User currentUser
+    ) {
+        verifyReviewCommentAuthor(commentId, currentUser);
+
+        reviewCommentService.withdrawComment(reviewId, commentId);
+        ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
