@@ -66,4 +66,29 @@ public class ReviewCommentService {
 
         return reviewCommentRepository.paginateComment(reviewId, cursor);
     }
+
+    public ReviewComment writeChildComment(Long reviewId, Long commentId, ReviewCommentCreateRequestDto request,
+                                           User user
+    ) {
+        ReviewPost review = reviewPostService.getReview(reviewId);
+        checkParentCommentAndCheckCommentDeleted(commentId);
+
+        ReviewComment childComment = ReviewComment.builder()
+                .author(user)
+                .reviewPost(review)
+                .content(request.content())
+                .parentCommentId(commentId)
+                .build();
+
+        return reviewCommentRepository.save(childComment);
+    }
+
+    private void checkParentCommentAndCheckCommentDeleted(Long commentId) {
+        ReviewComment comment = reviewCommentRepository.findByCommentId(commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (comment.getParentCommentId() != null) {
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
+        }
+    }
 }

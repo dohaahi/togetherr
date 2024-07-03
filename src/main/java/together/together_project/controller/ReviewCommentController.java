@@ -102,6 +102,22 @@ public class ReviewCommentController {
                 .body(body);
     }
 
+    @PostMapping("{review-comment-id}")
+    public ResponseEntity<ResponseBody> writeChildComment(
+            @PathVariable("review-id") Long reviewId,
+            @PathVariable("review-comment-id") Long commentId,
+            @Valid @RequestBody ReviewCommentCreateRequestDto request,
+            @AuthUser User currentUser
+    ) {
+        ReviewComment comment = reviewCommentService.writeChildComment(reviewId, commentId, request, currentUser);
+
+        ReviewCommentCreateResponseDto response = ReviewCommentCreateResponseDto.of(comment);
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.CREATED.value());
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(body);
+    }
+
     private void verifyReviewCommentAuthor(Long commentId, User currentUser) {
         ReviewComment comment = reviewCommentService.getByCommentId(commentId);
 
