@@ -118,6 +118,26 @@ public class ReviewCommentController {
                 .body(body);
     }
 
+    @PutMapping("{parent-comment-id}/{child-comment-id}")
+    public ResponseEntity<ResponseBody> updateChildComment(
+            @PathVariable("review-id") Long reviewId,
+            @PathVariable("parent-comment-id") Long parentCommentId,
+            @PathVariable("child-comment-id") Long childCommentId,
+            @RequestBody ReviewCommentUpdatedRequestDto request,
+            @AuthUser User currentUser
+
+    ) {
+        verifyReviewCommentAuthor(childCommentId, currentUser);
+
+        ReviewComment comment = reviewCommentService.updateChildComment(reviewId, parentCommentId, childCommentId,
+                request);
+        ReviewCommentUpdateResponseDto response = ReviewCommentUpdateResponseDto.of(comment);
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
     private void verifyReviewCommentAuthor(Long commentId, User currentUser) {
         ReviewComment comment = reviewCommentService.getByCommentId(commentId);
 
