@@ -87,10 +87,16 @@ public class ReviewCommentService {
         reviewPostService.getReview(reviewId);
         checkParentCommentAndCheckCommentDeleted(parentCommentId);
 
-        ReviewComment comment = reviewCommentRepository.findByCommentId(childCommentId)
-                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+        return checkChildCommentAndGet(parentCommentId, childCommentId)
+                .update(request);
+    }
 
-        return comment.update(request);
+    public void withdrawChildComment(Long reviewId, Long parentCommentId, Long childCommentId) {
+        reviewPostService.getReview(reviewId);
+        checkParentCommentAndCheckCommentDeleted(parentCommentId);
+
+        checkChildCommentAndGet(parentCommentId, childCommentId)
+                .softDelete();
     }
 
     private void checkParentCommentAndCheckCommentDeleted(Long commentId) {
@@ -98,6 +104,23 @@ public class ReviewCommentService {
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
         if (comment.getParentCommentId() != null) {
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
+        }
+    }
+
+    private ReviewComment checkChildCommentAndGet(Long parentCommentId, Long childCommentId) {
+        ReviewComment comment = reviewCommentRepository.findByCommentId(childCommentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        if (comment.getParentCommentId() == null || !comment.getParentCommentId().equals(parentCommentId)) {
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
+        }
+
+        return comment;
+    }
+
+    private void isParentComment(Long parentCommentId, ReviewComment childComment) {
+        if (!childComment.getParentCommentId().equals(parentCommentId)) {
             throw new CustomException(ErrorCode.INVALID_REQUEST);
         }
     }

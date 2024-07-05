@@ -70,7 +70,7 @@ public class ReviewCommentController {
                 .body(body);
     }
 
-    @PutMapping("{review-comment-id}")
+    @PutMapping("/{review-comment-id}")
     public ResponseEntity<ResponseBody> updateComment(
             @PathVariable("review-id") Long reviewId,
             @PathVariable("review-comment-id") Long commentId,
@@ -87,7 +87,7 @@ public class ReviewCommentController {
                 .body(body);
     }
 
-    @DeleteMapping("{review-comment-id}")
+    @DeleteMapping("/{review-comment-id}")
     public ResponseEntity<ResponseBody> withdrawComment(
             @PathVariable("review-id") Long reviewId,
             @PathVariable("review-comment-id") Long commentId,
@@ -102,7 +102,7 @@ public class ReviewCommentController {
                 .body(body);
     }
 
-    @PostMapping("{review-comment-id}")
+    @PostMapping("/{review-comment-id}")
     public ResponseEntity<ResponseBody> writeChildComment(
             @PathVariable("review-id") Long reviewId,
             @PathVariable("review-comment-id") Long commentId,
@@ -118,7 +118,7 @@ public class ReviewCommentController {
                 .body(body);
     }
 
-    @PutMapping("{parent-comment-id}/{child-comment-id}")
+    @PutMapping("/{parent-comment-id}/{child-comment-id}")
     public ResponseEntity<ResponseBody> updateChildComment(
             @PathVariable("review-id") Long reviewId,
             @PathVariable("parent-comment-id") Long parentCommentId,
@@ -133,6 +133,22 @@ public class ReviewCommentController {
                 request);
         ReviewCommentUpdateResponseDto response = ReviewCommentUpdateResponseDto.of(comment);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    @DeleteMapping("/{parent-comment-id}/{child-comment-id}")
+    public ResponseEntity<ResponseBody> withdrawChildComment(
+            @PathVariable("review-id") Long reviewId,
+            @PathVariable("parent-comment-id") Long parentCommentId,
+            @PathVariable("child-comment-id") Long childCommentId,
+            @AuthUser User CurrentUser
+    ) {
+        verifyReviewCommentAuthor(childCommentId, CurrentUser);
+
+        reviewCommentService.withdrawChildComment(reviewId, parentCommentId, childCommentId);
+        ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
