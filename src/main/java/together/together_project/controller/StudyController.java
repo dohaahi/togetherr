@@ -52,9 +52,9 @@ public class StudyController {
     @PostMapping()
     public ResponseEntity<ResponseBody> write(
             @Valid @RequestBody StudyPostCreateRequestDto request,
-            @AuthUser User user
+            @AuthUser User currentUser
     ) {
-        Study study = studyService.createStudyPost(request, user);
+        Study study = studyService.createStudyPost(request, currentUser);
         StudyPostCreateResponseDto response = StudyPostCreateResponseDto.from(study);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.CREATED.value());
 
