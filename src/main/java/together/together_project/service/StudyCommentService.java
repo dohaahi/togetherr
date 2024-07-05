@@ -72,7 +72,7 @@ public class StudyCommentService {
         studyService.getById(studyId);
         checkParentCommentAndCheckCommentDeleted(parentCommentId);
 
-        StudyPostComment comment = checkChildCommentAndGet(childCommentId);
+        StudyPostComment comment = checkChildCommentAndGet(parentCommentId, childCommentId);
         comment.update(request);
 
         return comment;
@@ -82,7 +82,7 @@ public class StudyCommentService {
         studyService.getById(studyId);
         checkParentCommentAndCheckCommentDeleted(parentCommentId);
 
-        checkChildCommentAndGet(childCommentId)
+        checkChildCommentAndGet(parentCommentId, childCommentId)
                 .softDelete();
     }
 
@@ -106,11 +106,11 @@ public class StudyCommentService {
         }
     }
 
-    private StudyPostComment checkChildCommentAndGet(Long childCommentId) {
+    private StudyPostComment checkChildCommentAndGet(Long parentCommentId, Long childCommentId) {
         StudyPostComment comment = studyPostCommentRepository.findCommentById(childCommentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
 
-        if (comment.getParentCommentId() == null) {
+        if (comment.getParentCommentId() == null || !comment.getParentCommentId().equals(parentCommentId)) {
             throw new CustomException(ErrorCode.INVALID_REQUEST);
         }
 
