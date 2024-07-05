@@ -223,7 +223,7 @@ public class StudyController {
             throw new CustomException(ErrorCode.INVALID_REQUEST);
         }
 
-        userStudyLinkService.withdrawParticipation(studyId, currentUser);
+        userStudyLinkService.withdrawParticipation(studyId, currentUser.getId());
 
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 

@@ -36,8 +36,7 @@ public class ReviewPostService {
             userStudyLinkService.checkUserParticipant(request.studyId(), user.getId());
         }
 
-        ReviewPost review = ReviewPost.builder().author(user).study(study).content(request.content())
-                .reviewPicUrl(request.reviewPicUrl()).build();
+        ReviewPost review = request.toReviewPost(study, user);
 
         return reviewPostRepository.save(review);
     }

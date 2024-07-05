@@ -29,11 +29,7 @@ public class ReviewCommentService {
             throw new CustomException(ErrorCode.EMPTY_CONTENT_ERROR);
         }
 
-        ReviewComment comment = ReviewComment.builder()
-                .author(user)
-                .reviewPost(review)
-                .content(request.content())
-                .build();
+        ReviewComment comment = request.toReviewComment(review, user);
 
         return reviewCommentRepository.save(comment);
     }
