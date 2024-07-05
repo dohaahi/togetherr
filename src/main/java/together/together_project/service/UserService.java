@@ -2,9 +2,12 @@ package together.together_project.service;
 
 
 import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import together.together_project.domain.ReviewPost;
 import together.together_project.domain.User;
+import together.together_project.domain.UserStudyLink;
 import together.together_project.exception.CustomException;
 import together.together_project.exception.ErrorCode;
 import together.together_project.repository.UserRepositoryImpl;
@@ -13,6 +16,8 @@ import together.together_project.service.dto.request.MyPageRequestDto;
 import together.together_project.service.dto.request.SignupRequestDto;
 import together.together_project.service.dto.request.WithdrawRequestDto;
 import together.together_project.service.dto.response.SignupResponseDto;
+import together.together_project.service.dto.response.UserReviewsResponseDto;
+import together.together_project.service.dto.response.UserStudiesResponseDto;
 
 @Service
 @Transactional
@@ -22,6 +27,7 @@ public class UserService {
     private final UserRepositoryImpl userRepository;
     private final BcryptService bcryptService;
     private final UserStudyLinkService userStudyLinkService;
+    private final ReviewPostService reviewPostService;
 
     public SignupResponseDto signup(SignupRequestDto request) {
         userRepository.findByEmail(request.email())
@@ -98,5 +104,23 @@ public class UserService {
         if (!matchedBcrypt) {
             throw new CustomException(errorCode);
         }
+    }
+
+    public UserStudiesResponseDto getUserStudies(Long userId, Long cursor) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        List<UserStudyLink> studyLinks = userStudyLinkService.getAllParticipatingStudy(userId, cursor);
+
+        return UserStudiesResponseDto.of(user, studyLinks);
+    }
+
+    public UserReviewsResponseDto getUserReviews(Long userId, Long cursor) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        List<ReviewPost> reviews = reviewPostService.getAllReviews(userId, cursor);
+
+        return UserReviewsResponseDto.of(user, reviews);
     }
 }

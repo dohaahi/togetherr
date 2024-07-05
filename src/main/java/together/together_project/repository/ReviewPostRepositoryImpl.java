@@ -62,6 +62,38 @@ public class ReviewPostRepositoryImpl {
         return reviews;
     }
 
+    public List<ReviewPost> paginateReviews(Long userId, Long cursor) {
+        if (null == cursor) {
+            ReviewPost review = q.select(reviewPost)
+                    .from(reviewPost)
+                    .orderBy(reviewPost.id.desc())
+                    .where(reviewPost.deletedAt.isNull()
+                            .and(reviewPost.author.id.eq(userId)))
+                    .fetchFirst();
+
+            if (review == null) {
+                throw new CustomException(ErrorCode.DATA_NOT_FOUND);
+            }
+
+            cursor = review.getId() + 1L;
+        }
+
+        List<ReviewPost> reviews = q.select(reviewPost)
+                .from(reviewPost)
+                .orderBy(reviewPost.id.desc())
+                .where(reviewPost.deletedAt.isNull()
+                        .and(reviewPost.author.id.eq(userId))
+                        .and(reviewPost.id.lt(cursor)))
+                .limit(PAGINATION_COUNT_AND_ONE_MORE)
+                .fetch();
+
+        if (reviews.isEmpty()) {
+            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
+        }
+
+        return reviews;
+    }
+
     public Optional<ReviewPost> findReviewByStudyAndUser(Long studyId, Long userId) {
         return q.select(reviewPost)
                 .from(reviewPost)

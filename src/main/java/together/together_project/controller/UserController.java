@@ -11,13 +11,17 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import together.together_project.domain.User;
 import together.together_project.security.JwtProvider;
 import together.together_project.service.UserService;
+import together.together_project.service.dto.PaginationResponseDtoOfUserReviews;
+import together.together_project.service.dto.PaginationResponseDtoOfUserStudies;
 import together.together_project.service.dto.TokenDto;
 import together.together_project.service.dto.request.LoginRequestDto;
 import together.together_project.service.dto.request.MyPageRequestDto;
@@ -26,6 +30,10 @@ import together.together_project.service.dto.request.WithdrawRequestDto;
 import together.together_project.service.dto.response.MyPageResponseDto;
 import together.together_project.service.dto.response.ResponseBody;
 import together.together_project.service.dto.response.SignupResponseDto;
+import together.together_project.service.dto.response.UserReviewsResponseDto;
+import together.together_project.service.dto.response.UserReviewsResponseDto.MetaReview;
+import together.together_project.service.dto.response.UserStudiesResponseDto;
+import together.together_project.service.dto.response.UserStudiesResponseDto.MetaStudy;
 
 @RestController
 @RequiredArgsConstructor
@@ -87,6 +95,36 @@ public class UserController {
     ) {
         User user = userService.updateMyPage(request, currentUser.getId());
         MyPageResponseDto response = MyPageResponseDto.from(user);
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    @GetMapping("/users/{user-id}/studies")
+    public ResponseEntity<ResponseBody> getUserStudies(
+            @PathVariable("user-id") Long userId,
+            @RequestParam(value = "cursor", required = false) Long cursor,
+            @AuthUser User currentUser
+    ) {
+        UserStudiesResponseDto studies = userService.getUserStudies(userId, cursor);
+        PaginationResponseDtoOfUserStudies response = PaginationResponseDtoOfUserStudies.of(studies,
+                MetaStudy::studyId);
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    @GetMapping("/users/{user-id}/reviews")
+    public ResponseEntity<ResponseBody> getUserReviews(
+            @PathVariable("user-id") Long userId,
+            @RequestParam(value = "cursor", required = false) Long cursor,
+            @AuthUser User CurrentUser
+    ) {
+        UserReviewsResponseDto reviews = userService.getUserReviews(userId, cursor);
+        PaginationResponseDtoOfUserReviews response = PaginationResponseDtoOfUserReviews.of(reviews,
+                MetaReview::reviewId);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK)

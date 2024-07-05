@@ -71,4 +71,8 @@ public class ReviewPostService {
     public List<ReviewPost> getAllReview(Long cursor) {
         return reviewPostRepository.paginateReviews(cursor);
     }
+
+    public List<ReviewPost> getAllReviews(Long userId, Long cursor) {
+        return reviewPostRepository.paginateReviews(userId, cursor);
+    }
 }

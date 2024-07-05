@@ -2,6 +2,8 @@ package together.together_project.repository;
 
 import static together.together_project.constant.StudyConstant.PAGINATION_COUNT_AND_ONE_MORE;
 import static together.together_project.domain.QUserStudyLink.userStudyLink;
+import static together.together_project.domain.UserStudyJoinStatus.APPROVED;
+import static together.together_project.domain.UserStudyJoinStatus.LEADER;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
@@ -91,5 +93,41 @@ public class UserStudyLinkRepositoryImpl {
                 .where(userStudyLink.participant.id.eq(userId)
                         .and(userStudyLink.deletedAt.isNull()))
                 .fetch();
+    }
+
+    public List<UserStudyLink> findPaginateAllParticipatingStudy(Long userId, Long cursor) {
+        if (cursor == null) {
+            UserStudyLink studyLink = q.select(userStudyLink)
+                    .from(userStudyLink)
+                    .orderBy(userStudyLink.id.desc())
+                    .where(userStudyLink.participant.id.eq(userId)
+                            .and(userStudyLink.deletedAt.isNull())
+                            .and(userStudyLink.status.eq(APPROVED)
+                                    .or(userStudyLink.status.eq(LEADER))))
+                    .fetchFirst();
+
+            if (studyLink == null) {
+                throw new CustomException(ErrorCode.DATA_NOT_FOUND);
+            }
+
+            cursor = studyLink.getId() + 1;
+        }
+
+        List<UserStudyLink> studyLinks = q.select(userStudyLink)
+                .from(userStudyLink)
+                .orderBy(userStudyLink.id.desc())
+                .where(userStudyLink.participant.id.eq(userId)
+                        .and(userStudyLink.deletedAt.isNull())
+                        .and(userStudyLink.id.lt(cursor))
+                        .and(userStudyLink.status.eq(APPROVED)
+                                .or(userStudyLink.status.eq(LEADER))))
+                .limit(PAGINATION_COUNT_AND_ONE_MORE)
+                .fetch();
+
+        if (studyLinks == null) {
+            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
+        }
+
+        return studyLinks;
     }
 }
