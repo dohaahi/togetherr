@@ -53,7 +53,7 @@ public class StudyCommentController {
                                                       @AuthUser User currentUser) {
         verifyUserIsCommentAuthor(commentId, currentUser);
 
-        StudyPostComment studyComment = studyCommentService.updateComment(studyId, commentId, request, currentUser);
+        StudyPostComment studyComment = studyCommentService.updateComment(studyId, commentId, request);
         CommentUpdateResponseDto response = CommentUpdateResponseDto.from(studyComment);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 
@@ -66,7 +66,7 @@ public class StudyCommentController {
                                                         @AuthUser User currentUser) {
         verifyUserIsCommentAuthor(commentId, currentUser);
 
-        studyCommentService.withdrawComment(commentId);
+        studyCommentService.withdrawComment(studyId, commentId);
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK).body(body);

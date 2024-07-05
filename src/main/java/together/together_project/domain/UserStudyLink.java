@@ -47,6 +47,14 @@ public class UserStudyLink extends BaseTimeEntity {
                 .build();
     }
 
+    public static UserStudyLink toUserStudyLinkLeader(Study study, User user, UserStudyJoinStatus status) {
+        return UserStudyLink.builder()
+                .study(study)
+                .participant(user)
+                .status(status)
+                .build();
+    }
+
     public void pending() {
         status = UserStudyJoinStatus.PENDING;
     }

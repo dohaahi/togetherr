@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import together.together_project.domain.ReviewPost;
+import together.together_project.domain.Study;
+import together.together_project.domain.User;
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record ReviewCreateRequestDto(
@@ -17,4 +20,12 @@ public record ReviewCreateRequestDto(
         @NotBlank(message = "사진을 삽입하지 않았습니다.")
         String reviewPicUrl
 ) {
+    public ReviewPost toReviewPost(Study study, User user) {
+        return ReviewPost.builder()
+                .author(user)
+                .study(study)
+                .content(this.content())
+                .reviewPicUrl(this.reviewPicUrl())
+                .build();
+    }
 }

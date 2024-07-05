@@ -21,14 +21,10 @@ public class StudyCommentService {
     private final StudyService studyService;
     private final StudyPostCommentRepositoryImpl studyPostCommentRepository;
 
-    public StudyPostComment write(CommentWriteRequestDto request, Long studyId, User currentUser) {
+    public StudyPostComment write(CommentWriteRequestDto request, Long studyId, User user) {
         Study study = studyService.getById(studyId);
 
-        StudyPostComment comment = StudyPostComment.builder()
-                .studyPost(study.getStudyPost())
-                .author(currentUser)
-                .content(request.content())
-                .build();
+        StudyPostComment comment = request.toStudyPostComment(study, user);
 
         return studyPostCommentRepository.save(comment);
     }
@@ -40,16 +36,18 @@ public class StudyCommentService {
 
     public StudyPostComment updateComment(Long studyId,
                                           Long commentId,
-                                          CommentUpdateRequestDto request,
-                                          User currentUser) {
-        Study study = studyService.getById(studyId);
+                                          CommentUpdateRequestDto request
+    ) {
+        studyService.getById(studyId);
         StudyPostComment comment = getCommentById(commentId);
         comment.update(request);
 
         return comment;
     }
 
-    public void withdrawComment(Long commentId) {
+    public void withdrawComment(Long studyId, Long commentId) {
+        studyService.getById(studyId);
+
         studyPostCommentRepository.findCommentById(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND))
                 .softDelete();
@@ -58,16 +56,11 @@ public class StudyCommentService {
     public StudyPostComment writeChildComment(Long studyId,
                                               Long commentId,
                                               CommentWriteRequestDto request,
-                                              User currentUser) {
+                                              User user) {
         Study study = studyService.getById(studyId);
         checkParentCommentAndCheckCommentDeleted(commentId);
 
-        StudyPostComment comment = StudyPostComment.builder()
-                .studyPost(study.getStudyPost())
-                .author(currentUser)
-                .content(request.content())
-                .parentCommentId(commentId)
-                .build();
+        StudyPostComment comment = request.toStudyPostComment(study, user);
 
         return studyPostCommentRepository.save(comment);
     }
@@ -76,7 +69,7 @@ public class StudyCommentService {
                                                Long parentCommentId,
                                                Long childCommentId,
                                                CommentUpdateRequestDto request) {
-        Study study = studyService.getById(studyId);
+        studyService.getById(studyId);
         checkParentCommentAndCheckCommentDeleted(parentCommentId);
 
         StudyPostComment comment = checkChildCommentAndGet(childCommentId);

@@ -29,11 +29,7 @@ public class ReviewCommentService {
             throw new CustomException(ErrorCode.EMPTY_CONTENT_ERROR);
         }
 
-        ReviewComment comment = ReviewComment.builder()
-                .author(user)
-                .reviewPost(review)
-                .content(request.content())
-                .build();
+        ReviewComment comment = request.toReviewComment(review, user);
 
         return reviewCommentRepository.save(comment);
     }
@@ -81,6 +77,20 @@ public class ReviewCommentService {
                 .build();
 
         return reviewCommentRepository.save(childComment);
+    }
+
+    public ReviewComment updateChildComment(Long reviewId,
+                                            Long parentCommentId,
+                                            Long childCommentId,
+                                            ReviewCommentUpdatedRequestDto request
+    ) {
+        reviewPostService.getReview(reviewId);
+        checkParentCommentAndCheckCommentDeleted(parentCommentId);
+
+        ReviewComment comment = reviewCommentRepository.findByCommentId(childCommentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        return comment.update(request);
     }
 
     private void checkParentCommentAndCheckCommentDeleted(Long commentId) {

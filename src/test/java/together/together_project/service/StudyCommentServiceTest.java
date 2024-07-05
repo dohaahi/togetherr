@@ -74,7 +74,7 @@ class StudyCommentServiceTest {
         StudyPostComment comment = studyCommentService.write(commentWriteRequest, study.getStudyId(), user);
 
         CommentUpdateRequestDto commentUpdateRequest = new CommentUpdateRequestDto("update content");
-        studyCommentService.updateComment(study.getStudyId(), comment.getId(), commentUpdateRequest, user);
+        studyCommentService.updateComment(study.getStudyId(), comment.getId(), commentUpdateRequest);
 
         assertThat(comment.getParentCommentId()).isNull();
         assertThat(comment.getAuthor()).isEqualTo(user);
@@ -92,7 +92,7 @@ class StudyCommentServiceTest {
         CommentWriteRequestDto commentWriteRequest = new CommentWriteRequestDto("new content");
         StudyPostComment comment = studyCommentService.write(commentWriteRequest, study.getStudyId(), user);
 
-        studyCommentService.withdrawComment(comment.getId());
+        studyCommentService.withdrawComment(study.getStudyId(), comment.getId());
 
         assertThat(comment.getDeletedAt()).isNotNull();
     }
@@ -141,7 +141,7 @@ class StudyCommentServiceTest {
 
     @DisplayName("대댓글 삭제 가능")
     @Test
-    public void deleteChildComment() {
+    public void withdrawChildComment() {
         User user = new User(2L, "ccc@abc.com", "ccc", "a123", null, null);
         userRepository.save(user);
 
@@ -151,7 +151,7 @@ class StudyCommentServiceTest {
         StudyPostComment childComment = studyCommentService.writeChildComment(study.getStudyId(), comment.getId(),
                 childCommentWriteRequest, user);
 
-        studyCommentService.deleteChildComment(study.getStudyId(), comment.getId(), childComment.getId());
+        studyCommentService.withdrawChildComment(study.getStudyId(), comment.getId(), childComment.getId());
 
         assertThat(childComment.getDeletedAt()).isNotNull();
     }

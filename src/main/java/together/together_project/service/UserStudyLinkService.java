@@ -1,6 +1,7 @@
 package together.together_project.service;
 
 import static together.together_project.domain.UserStudyJoinStatus.APPROVED;
+import static together.together_project.domain.UserStudyJoinStatus.LEADER;
 import static together.together_project.domain.UserStudyJoinStatus.PENDING;
 import static together.together_project.domain.UserStudyJoinStatus.REJECTED;
 
@@ -29,15 +30,13 @@ public class UserStudyLinkService {
     public void join(Long studyId, User user) {
         Study study = studyService.getById(studyId);
 
-        // 리더가 참여 신청한 경우
-        if (user.equals(study.getLeader())) {
-            throw new CustomException(ErrorCode.INVALID_REQUEST);
-        }
-
-        // 이미 참여 신청한 유저인지 확인
+        // 리더인지 or 이미 참여 신청한 유저인지 확인
         Optional<UserStudyLink> studyLink = userStudyLinkRepository.findByStudyIdAndUserId(study.getStudyId(),
                 user.getId());
-        if (studyLink.isPresent() && studyLink.get().getParticipant() == user) {
+
+        if (studyLink.isPresent() && studyLink.get().getStatus() == LEADER) {
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
+        } else if (studyLink.isPresent() && studyLink.get().getParticipant() == user) {
             throw new CustomException(ErrorCode.STUDY_ALREADY_JOINED);
         }
 
@@ -66,26 +65,36 @@ public class UserStudyLinkService {
         return userStudyLinkRepository.paginateUserStudyLink(studyId, cursor, PENDING);
     }
 
-    public void deleteByStudyId(Long studyId) {
-        userStudyLinkRepository.findByStudyId(studyId);
-    }
-
     public List<UserStudyLink> getAllParticipants(Long studyId, Long cursor) {
         return userStudyLinkRepository.paginateUserStudyLink(studyId, cursor, APPROVED);
     }
 
     // 참여 신청 철회
     public void withdrawJoinStudyRequest(Long studyId, Long userId) {
-        userStudyLinkRepository.findByStudyId(studyId, userId, PENDING)
-                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_ALREADY_WITHDRAW))
-                .softDelete();
+        UserStudyLink studyLink = userStudyLinkRepository.findByStudyIdAndUserId(studyId, userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_REQUEST));
+
+        if (studyLink.getStatus().equals(LEADER)) {
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
+        } else if (studyLink.getStatus().equals(PENDING) && studyLink.isDeleted()) {
+            throw new CustomException(ErrorCode.STUDY_ALREADY_WITHDRAW);
+        }
+
+        studyLink.softDelete();
     }
 
     // 참여 철회
-    public void withdrawParticipation(Long studyId, User currentUser) {
-        userStudyLinkRepository.findByStudyId(studyId, currentUser.getId(), APPROVED)
-                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_ALREADY_WITHDRAW))
-                .softDelete();
+    public void withdrawParticipation(Long studyId, Long userId) {
+        UserStudyLink studyLink = userStudyLinkRepository.findByStudyIdAndUserId(studyId, userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_REQUEST));
+
+        if (studyLink.getStatus().equals(LEADER)) {
+            throw new CustomException(ErrorCode.INVALID_REQUEST);
+        } else if (studyLink.getStatus().equals(APPROVED) && studyLink.isDeleted()) {
+            throw new CustomException(ErrorCode.STUDY_ALREADY_WITHDRAW);
+        }
+
+        studyLink.softDelete();
 
         studyService.getById(studyId)
                 .decreaseParticipantCount();
@@ -103,9 +112,13 @@ public class UserStudyLinkService {
     public void checkUserParticipant(Long studyId, Long userId) {
         UserStudyLink userStudyLink = userStudyLinkRepository.findByStudyIdAndUserId(studyId, userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED_ACCESS));
-        
+
         if (!userStudyLink.getStatus().equals(APPROVED)) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
         }
+    }
+
+    public List<UserStudyLink> getAllParticipatingStudy(Long userId, Long cursor) {
+        return userStudyLinkRepository.findPaginateAllParticipatingStudy(userId, cursor);
     }
 }

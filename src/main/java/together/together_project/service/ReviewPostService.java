@@ -36,8 +36,7 @@ public class ReviewPostService {
             userStudyLinkService.checkUserParticipant(request.studyId(), user.getId());
         }
 
-        ReviewPost review = ReviewPost.builder().author(user).study(study).content(request.content())
-                .reviewPicUrl(request.reviewPicUrl()).build();
+        ReviewPost review = request.toReviewPost(study, user);
 
         return reviewPostRepository.save(review);
     }
@@ -70,5 +69,9 @@ public class ReviewPostService {
 
     public List<ReviewPost> getAllReview(Long cursor) {
         return reviewPostRepository.paginateReviews(cursor);
+    }
+
+    public List<ReviewPost> getAllReviews(Long userId, Long cursor) {
+        return reviewPostRepository.paginateReviews(userId, cursor);
     }
 }

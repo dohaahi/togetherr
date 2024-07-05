@@ -1,5 +1,6 @@
 package together.together_project.service;
 
+import static together.together_project.domain.UserStudyJoinStatus.LEADER;
 import static together.together_project.validator.StudyValidator.checkMaxPeopleMoreThanMinimum;
 
 import java.util.List;
@@ -9,10 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 import together.together_project.domain.Study;
 import together.together_project.domain.StudyPost;
 import together.together_project.domain.User;
+import together.together_project.domain.UserStudyLink;
 import together.together_project.exception.CustomException;
 import together.together_project.exception.ErrorCode;
 import together.together_project.repository.StudyPostRepositoryImpl;
 import together.together_project.repository.StudyRepositoryImpl;
+import together.together_project.repository.UserStudyLinkRepositoryImpl;
 import together.together_project.service.dto.request.StudyPostBumpRequestDto;
 import together.together_project.service.dto.request.StudyPostCreateRequestDto;
 import together.together_project.service.dto.request.StudyPostUpdateRequestDto;
@@ -24,6 +27,7 @@ public class StudyService {
 
     private final StudyRepositoryImpl studyRepository;
     private final StudyPostRepositoryImpl studyPostRepository;
+    private final UserStudyLinkRepositoryImpl userStudyLinkRepository;
 
     public Study createStudyPost(StudyPostCreateRequestDto request, User user) {
         checkMaxPeopleMoreThanMinimum(request.maxPeople());
@@ -32,6 +36,8 @@ public class StudyService {
         study.increaseParticipantCount();
 
         studyPostRepository.save(studyPost);
+        userStudyLinkRepository.save(UserStudyLink.toUserStudyLinkLeader(study, user, LEADER));
+
         return studyRepository.save(study);
     }
 
