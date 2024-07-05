@@ -63,6 +63,14 @@ public class ReviewCommentService {
         return reviewCommentRepository.paginateComment(reviewId, cursor);
     }
 
+    public List<ReviewComment> getAllChildComment(Long reviewId, Long commentId, Long cursor) {
+        reviewPostService.getReview(reviewId);
+        reviewCommentRepository.findByCommentId(commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
+        return reviewCommentRepository.paginateChildComment(reviewId, commentId, cursor);
+    }
+
     public ReviewComment writeChildComment(Long reviewId, Long commentId, ReviewCommentCreateRequestDto request,
                                            User user
     ) {

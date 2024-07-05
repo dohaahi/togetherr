@@ -66,4 +66,38 @@ public class ReviewCommentRepositoryImpl {
 
         return comments;
     }
+
+    public List<ReviewComment> paginateChildComment(Long reviewId, Long reviewCommentId, Long cursor) {
+        if (cursor == null) {
+            ReviewComment comment = q.select(reviewComment)
+                    .from(reviewComment)
+                    .orderBy(reviewComment.id.desc())
+                    .where(reviewComment.reviewPost.id.eq(reviewId)
+                            .and(reviewComment.parentCommentId.eq(reviewCommentId))
+                            .and(reviewComment.deletedAt.isNull()))
+                    .fetchFirst();
+
+            if (comment == null) {
+                throw new CustomException(ErrorCode.DATA_NOT_FOUND);
+            }
+
+            cursor = comment.getId() + 1;
+        }
+
+        List<ReviewComment> comments = q.select(reviewComment)
+                .from(reviewComment)
+                .orderBy(reviewComment.id.desc())
+                .where(reviewComment.reviewPost.id.eq(reviewId)
+                        .and(reviewComment.parentCommentId.eq(reviewCommentId))
+                        .and(reviewComment.deletedAt.isNull())
+                        .and(reviewComment.id.lt(cursor)))
+                .limit(PAGINATION_COUNT_AND_ONE_MORE)
+                .fetch();
+
+        if (comments.isEmpty()) {
+            throw new CustomException(ErrorCode.DATA_NOT_FOUND);
+        }
+
+        return comments;
+    }
 }

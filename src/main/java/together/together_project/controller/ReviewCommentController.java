@@ -70,6 +70,29 @@ public class ReviewCommentController {
                 .body(body);
     }
 
+    @GetMapping("/{parent-comment-id}")
+    public ResponseEntity<ResponseBody> getAllChildComment(
+            @PathVariable("review-id") Long reviewId,
+            @PathVariable("parent-comment-id") Long reviewCommentId,
+            @RequestParam(value = "cursor", required = false) Long cursor,
+            @AuthUser User currentUser
+    ) {
+        List<ReviewCommentsResponseDto> comments = reviewCommentService.getAllChildComment(reviewId, reviewCommentId,
+                        cursor)
+                .stream()
+                .map(ReviewCommentsResponseDto::of)
+                .toList();
+
+        PaginationCollection<ReviewCommentsResponseDto> collection = PaginationCollection.of(comments,
+                ReviewCommentsResponseDto::id);
+        PaginationResponseDto<ReviewCommentsResponseDto> response = PaginationResponseDto.of(
+                collection);
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
     @PutMapping("/{review-comment-id}")
     public ResponseEntity<ResponseBody> updateComment(
             @PathVariable("review-id") Long reviewId,
