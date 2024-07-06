@@ -56,4 +56,10 @@ public class StudyPost extends BaseTimeEntity {
 
         refreshedAt = request.refreshedAt();
     }
+
+    public StudyPost like() {
+        totalLikeCount++;
+
+        return this;
+    }
 }

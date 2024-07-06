@@ -31,6 +31,8 @@ public enum ErrorCode {
     REVIEW_NOT_FOUND("존재하지 않는 리뷰입니다.", 404),
     REVIEW_DUPLICATE("리뷰를 이미 작성하였습니다.", 400),
 
+    LIKE_LINK_NOT_FOUND("존재하지 않는 좋아요입니다.", 404),
+
     EMPTY_CONTENT_ERROR("내용을 입력하지 않았습니다.", 400),
     DATA_NOT_FOUND("더 이상 가져올 데이터가 없습니다.", 404),
     UNAUTHORIZED_ACCESS("접근 권한이 없는 사용자입니다.", 403),

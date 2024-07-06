@@ -16,11 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import together.together_project.domain.Study;
+import together.together_project.domain.StudyPostLikeLink;
 import together.together_project.domain.User;
 import together.together_project.domain.UserStudyJoinStatus;
 import together.together_project.exception.CustomException;
 import together.together_project.exception.ErrorCode;
-import together.together_project.service.StudyCommentService;
+import together.together_project.service.StudyPostLikeService;
 import together.together_project.service.StudyService;
 import together.together_project.service.UserStudyLinkService;
 import together.together_project.service.dto.PaginationCollection;
@@ -36,6 +37,8 @@ import together.together_project.service.dto.response.StudyJoinResponseDto;
 import together.together_project.service.dto.response.StudyParticipantsResponseDto;
 import together.together_project.service.dto.response.StudyPostBumpResponseDto;
 import together.together_project.service.dto.response.StudyPostCreateResponseDto;
+import together.together_project.service.dto.response.StudyPostLikeResponseDto;
+import together.together_project.service.dto.response.StudyPostLikesResponseDto;
 import together.together_project.service.dto.response.StudyPostResponseDto;
 import together.together_project.service.dto.response.StudyPostUpdateResponseDto;
 import together.together_project.service.dto.response.StudyPostsResponseDto;
@@ -47,7 +50,7 @@ public class StudyController {
 
     private final StudyService studyService;
     private final UserStudyLinkService userStudyLinkService;
-    private final StudyCommentService studyCommentService;
+    private final StudyPostLikeService studyPostLikeService;
 
     @PostMapping()
     public ResponseEntity<ResponseBody> write(
@@ -246,6 +249,53 @@ public class StudyController {
                 null,
                 HttpStatus.OK.value()
         );
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    @PostMapping("/{study-id}/likes")
+    public ResponseEntity<ResponseBody> likeStudy(
+            @PathVariable("study-id") Long studyId,
+            @AuthUser User currentUser
+    ) {
+        StudyPostLikeLink studyPostLikeLink = studyPostLikeService.like(studyId, currentUser);
+        StudyPostLikeResponseDto response = StudyPostLikeResponseDto.of(studyPostLikeLink);
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.CREATED.value());
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(body);
+    }
+
+    @GetMapping("/{study-id}/likes")
+    public ResponseEntity<ResponseBody> getLikeStudy(
+            @PathVariable("study-id") Long studyId,
+            @RequestParam(value = "cursor", required = false) Long cursor
+    ) {
+        List<StudyPostLikesResponseDto> likeLinks = studyPostLikeService.getStudyLike(studyId, cursor)
+                .stream()
+                .map(StudyPostLikesResponseDto::of)
+                .toList();
+
+        PaginationCollection<StudyPostLikesResponseDto> collection = (PaginationCollection<StudyPostLikesResponseDto>) PaginationCollection
+                .of(likeLinks, StudyPostLikesResponseDto::id);
+        PaginationResponseDto<StudyPostLikesResponseDto> response = PaginationResponseDto.of(
+                collection);
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    @DeleteMapping("/{study-id}/likes/{study-like-link-id}")
+    public ResponseEntity<ResponseBody> withdrawStudyLike(
+            @PathVariable("study-id") Long studyId,
+            @PathVariable("study-like-link-id") Long studyLikeLinkId,
+            @AuthUser User currentUser
+    ) {
+        studyPostLikeService.withdrawStudyLike(studyId, studyLikeLinkId, currentUser.getId());
+
+        ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
