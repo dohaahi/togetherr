@@ -73,4 +73,10 @@ public class StudyPostLikeLinkRepositoryImpl {
 
         return likeLinks;
     }
+
+    public void delete(Long studyLikeLinkId) {
+        q.delete(studyPostLikeLink)
+                .where(studyPostLikeLink.id.eq(studyLikeLinkId))
+                .execute();
+    }
 }

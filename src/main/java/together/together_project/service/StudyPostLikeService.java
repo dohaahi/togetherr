@@ -54,6 +54,6 @@ public class StudyPostLikeService {
             throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
         }
 
-        likeLink.softDelete();
+        studyPostLikeLinkRepository.delete(studyLikeLinkId);
     }
 }
