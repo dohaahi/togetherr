@@ -287,6 +287,20 @@ public class StudyController {
                 .body(body);
     }
 
+    @DeleteMapping("/{study-id}/likes/{study-like-link-id}")
+    public ResponseEntity<ResponseBody> withdrawStudyLike(
+            @PathVariable("study-id") Long studyId,
+            @PathVariable("study-like-link-id") Long studyLikeLinkId,
+            @AuthUser User currentUser
+    ) {
+        studyPostLikeService.withdrawStudyLike(studyId, studyLikeLinkId, currentUser.getId());
+
+        ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
     private void verifyUserIsStudyLeader(User currentUser, Long studyId) {
         if (!currentUser.getId().equals(studyService.getById(studyId).getLeader().getId())) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);

@@ -43,4 +43,17 @@ public class StudyPostLikeService {
 
         return studyPostLikeLinkRepository.paginateStudyLike(studyId, cursor);
     }
+
+    public void withdrawStudyLike(Long studyId, Long studyLikeLinkId, Long userId) {
+        studyService.getById(studyId);
+
+        StudyPostLikeLink likeLink = studyPostLikeLinkRepository.findStudyPostLikeLink(studyLikeLinkId)
+                .orElseThrow(() -> new CustomException(ErrorCode.LIKE_LINK_NOT_FOUND));
+
+        if (!likeLink.getUser().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
+        likeLink.softDelete();
+    }
 }

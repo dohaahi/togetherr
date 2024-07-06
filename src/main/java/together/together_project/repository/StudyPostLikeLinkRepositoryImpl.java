@@ -23,6 +23,15 @@ public class StudyPostLikeLinkRepositoryImpl {
         return studyPostLikeLinkRepository.save(studyPostLikeLink);
     }
 
+    public Optional<StudyPostLikeLink> findStudyPostLikeLink(Long studyLikeLinkId) {
+        return q.select(studyPostLikeLink)
+                .from(studyPostLikeLink)
+                .where(studyPostLikeLink.id.eq(studyLikeLinkId)
+                        .and(studyPostLikeLink.deletedAt.isNull()))
+                .stream()
+                .findFirst();
+    }
+
     public Optional<StudyPostLikeLink> findStudyPostLikeLink(Long studyId, Long userId) {
         return q.select(studyPostLikeLink)
                 .from(studyPostLikeLink)
