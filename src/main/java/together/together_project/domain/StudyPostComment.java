@@ -44,4 +44,10 @@ public class StudyPostComment extends BaseTimeEntity {
         updateTime();
         this.content = request.content();
     }
+
+    public StudyPostComment like() {
+        totalLikeCount++;
+
+        return this;
+    }
 }

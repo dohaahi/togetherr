@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import together.together_project.domain.StudyPostComment;
+import together.together_project.domain.StudyPostCommentLikeLink;
 import together.together_project.domain.User;
 import together.together_project.exception.CustomException;
 import together.together_project.exception.ErrorCode;
+import together.together_project.service.StudyCommentLikeService;
 import together.together_project.service.StudyCommentService;
 import together.together_project.service.dto.PaginationCollection;
 import together.together_project.service.dto.PaginationResponseDto;
@@ -27,6 +29,7 @@ import together.together_project.service.dto.response.CommentUpdateResponseDto;
 import together.together_project.service.dto.response.CommentWriteResponseDto;
 import together.together_project.service.dto.response.CommentsResponseDto;
 import together.together_project.service.dto.response.ResponseBody;
+import together.together_project.service.dto.response.StudyCommentLikeLinkResponse;
 
 @RestController
 @RequestMapping("studies/{study-id}/comments")
@@ -34,6 +37,8 @@ import together.together_project.service.dto.response.ResponseBody;
 public class StudyCommentController {
 
     private final StudyCommentService studyCommentService;
+    private final StudyCommentLikeService studyCommentLikeService;
+
 
     @PostMapping()
     public ResponseEntity<ResponseBody> writeComment(@PathVariable("study-id") Long studyId,
@@ -149,6 +154,20 @@ public class StudyCommentController {
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    @PostMapping("/{study-comment-id}/likes")
+    public ResponseEntity<ResponseBody> commentLike(
+            @PathVariable("study-id") Long studyId,
+            @PathVariable("study-comment-id") Long studyCommentId,
+            @AuthUser User currentUser
+    ) {
+        StudyPostCommentLikeLink like = studyCommentLikeService.like(studyId, studyCommentId, currentUser);
+        StudyCommentLikeLinkResponse response = StudyCommentLikeLinkResponse.of(like);
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.CREATED.value());
+
+        return ResponseEntity.status(HttpStatus.CREATED)
                 .body(body);
     }
 
