@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import together.together_project.domain.ReviewComment;
+import together.together_project.domain.ReviewCommentLikeLink;
 import together.together_project.domain.User;
 import together.together_project.exception.CustomException;
 import together.together_project.exception.ErrorCode;
+import together.together_project.service.ReviewCommentLikeService;
 import together.together_project.service.ReviewCommentService;
 import together.together_project.service.dto.PaginationCollection;
 import together.together_project.service.dto.PaginationResponseDto;
@@ -25,6 +27,8 @@ import together.together_project.service.dto.request.ReviewCommentCreateRequestD
 import together.together_project.service.dto.request.ReviewCommentUpdatedRequestDto;
 import together.together_project.service.dto.response.ResponseBody;
 import together.together_project.service.dto.response.ReviewCommentCreateResponseDto;
+import together.together_project.service.dto.response.ReviewCommentLikeResponseDto;
+import together.together_project.service.dto.response.ReviewCommentLikesResponseDto;
 import together.together_project.service.dto.response.ReviewCommentUpdateResponseDto;
 import together.together_project.service.dto.response.ReviewCommentsResponseDto;
 
@@ -34,6 +38,7 @@ import together.together_project.service.dto.response.ReviewCommentsResponseDto;
 public class ReviewCommentController {
 
     private final ReviewCommentService reviewCommentService;
+    private final ReviewCommentLikeService reviewCommentLikeService;
 
     @PostMapping()
     public ResponseEntity<ResponseBody> writeComment(
@@ -171,6 +176,55 @@ public class ReviewCommentController {
         verifyReviewCommentAuthor(childCommentId, CurrentUser);
 
         reviewCommentService.withdrawChildComment(reviewId, parentCommentId, childCommentId);
+        ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    @PostMapping("{review-comment-id}/likes")
+    public ResponseEntity<ResponseBody> commentLike(
+            @PathVariable("review-comment-id") Long commentId,
+            @AuthUser User currentUser
+    ) {
+        ReviewCommentLikeLink commentLike = reviewCommentLikeService.like(commentId, currentUser);
+        ReviewCommentLikeResponseDto response = ReviewCommentLikeResponseDto.of(commentLike);
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.CREATED.value());
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(body);
+    }
+
+    @GetMapping("{review-comment-id}/likes")
+    public ResponseEntity<ResponseBody> getAllCommentLike(
+            @PathVariable("review-id") Long reviewId,
+            @PathVariable("review-comment-id") Long commentId,
+            @RequestParam(value = "cursor", required = false) Long cursor
+    ) {
+        List<ReviewCommentLikesResponseDto> likes = reviewCommentLikeService.getAllCommentLike(reviewId, commentId,
+                        cursor)
+                .stream()
+                .map(ReviewCommentLikesResponseDto::of)
+                .toList();
+
+        PaginationCollection<ReviewCommentLikesResponseDto> collection = PaginationCollection.of(
+                likes, ReviewCommentLikesResponseDto::id);
+        PaginationResponseDto<ReviewCommentLikesResponseDto> response = PaginationResponseDto.of(
+                collection);
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    @DeleteMapping("{review-comment-id}/likes/{review-comment-like-link-id}")
+    public ResponseEntity<ResponseBody> withdrawCommentLike(
+            @PathVariable("review-comment-id") Long commentId,
+            @PathVariable("review-comment-like-link-id") Long commentLikeId,
+            @AuthUser User currentUser
+    ) {
+        reviewCommentLikeService.withdrawCommentLike(commentId, commentLikeId, currentUser);
+
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK)
