@@ -27,6 +27,7 @@ import together.together_project.service.dto.request.ReviewCreateRequestDto;
 import together.together_project.service.dto.request.ReviewUpdateRequestDto;
 import together.together_project.service.dto.response.ResponseBody;
 import together.together_project.service.dto.response.ReviewLikeResponseDto;
+import together.together_project.service.dto.response.ReviewLikesResponseDto;
 import together.together_project.service.dto.response.ReviewPostResponseDto;
 import together.together_project.service.dto.response.ReviewResponseDto;
 import together.together_project.service.dto.response.ReviewsResponseDto;
@@ -126,6 +127,26 @@ public class ReviewPostController {
         ResponseBody body = new ResponseBody(response, null, HttpStatus.CREATED.value());
 
         return ResponseEntity.status(HttpStatus.CREATED)
+                .body(body);
+    }
+
+    @GetMapping("{review-id}/likes")
+    public ResponseEntity<ResponseBody> getAllReviewLike(
+            @PathVariable("review-id") Long reviewId,
+            @RequestParam(value = "cursor", required = false) Long cursor
+    ) {
+        List<ReviewLikesResponseDto> likes = reviewLikeService.getAllReviewLike(reviewId, cursor)
+                .stream()
+                .map(ReviewLikesResponseDto::of)
+                .toList();
+
+        PaginationCollection<ReviewLikesResponseDto> collection = PaginationCollection.of(
+                likes, ReviewLikesResponseDto::id);
+        PaginationResponseDto<ReviewLikesResponseDto> response = PaginationResponseDto.of(
+                collection);
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
     }
 

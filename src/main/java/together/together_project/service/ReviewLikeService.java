@@ -1,5 +1,6 @@
 package together.together_project.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,5 +34,9 @@ public class ReviewLikeService {
                 .build();
 
         return reviewLikeLinkRepository.save(reviewLike);
+    }
+
+    public List<ReviewLikeLink> getAllReviewLike(Long reviewId, Long cursor) {
+        return reviewLikeLinkRepository.paginateReviewLike(reviewId, cursor);
     }
 }
