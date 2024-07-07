@@ -22,7 +22,7 @@ import together.together_project.service.dto.request.RespondToJoinRequestDto;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class UserStudyLinkService {
+public class UserStudyLikeService {
 
     private final StudyService studyService;
     private final UserStudyLinkRepositoryImpl userStudyLinkRepository;

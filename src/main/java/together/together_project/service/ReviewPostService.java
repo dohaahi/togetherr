@@ -19,7 +19,7 @@ import together.together_project.service.dto.request.ReviewUpdateRequestDto;
 public class ReviewPostService {
 
     private final StudyService studyService;
-    private final UserStudyLinkService userStudyLinkService;
+    private final UserStudyLikeService userStudyLikeService;
 
     private final ReviewPostRepositoryImpl reviewPostRepository;
 
@@ -33,7 +33,7 @@ public class ReviewPostService {
                 });
 
         if (!study.getLeader().equals(user)) {
-            userStudyLinkService.checkUserParticipant(request.studyId(), user.getId());
+            userStudyLikeService.checkUserParticipant(request.studyId(), user.getId());
         }
 
         ReviewPost review = request.toReviewPost(study, user);
@@ -44,7 +44,7 @@ public class ReviewPostService {
     public ReviewPost updateReview(Long reviewId, ReviewUpdateRequestDto request, User user) {
         Study study = null;
         if (request.studyId() != null) {
-            userStudyLinkService.checkUserParticipant(request.studyId(), user.getId());
+            userStudyLikeService.checkUserParticipant(request.studyId(), user.getId());
             study = studyService.getById(request.studyId());
         }
 
