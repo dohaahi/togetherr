@@ -195,6 +195,21 @@ public class StudyCommentController {
                 .body(body);
     }
 
+    @DeleteMapping("/{study-comment-id}/likes/{study-comment-like-link-id}")
+    public ResponseEntity<ResponseBody> withdrawCommentLike(
+            @PathVariable("study-id") Long studyId,
+            @PathVariable("study-comment-id") Long commentId,
+            @PathVariable("study-comment-like-link-id") Long commentLikeId,
+            @AuthUser User currentUser
+    ) {
+        studyCommentLikeService.withdrawCommentLike(studyId, commentId, commentLikeId, currentUser);
+
+        ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
     private void verifyUserIsCommentAuthor(Long commentId, User currentUser) {
         StudyPostComment comment = studyCommentService.getCommentById(commentId);
 

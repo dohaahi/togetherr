@@ -44,4 +44,18 @@ public class StudyCommentLikeService {
 
         return studyPostCommentLikeLinkRepository.paginateCommentLike(studyCommentId, cursor);
     }
+
+    public void withdrawCommentLike(Long studyId, Long commentId, Long commentLikeId, User currentUser) {
+        studyService.getById(studyId);
+        StudyPostComment comment = studyCommentService.getCommentById(commentId);
+
+        if (!comment.getAuthor().equals(currentUser)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
+        studyPostCommentLikeLinkRepository.findCommentLike(commentLikeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.LIKE_LINK_NOT_FOUND));
+
+        studyPostCommentLikeLinkRepository.deleteComment(commentLikeId);
+    }
 }

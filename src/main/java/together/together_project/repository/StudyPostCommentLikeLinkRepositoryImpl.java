@@ -33,6 +33,15 @@ public class StudyPostCommentLikeLinkRepositoryImpl {
                 .findFirst();
     }
 
+    public Optional<StudyPostCommentLikeLink> findCommentLike(Long commentLikeId) {
+        return q.select(studyPostCommentLikeLink)
+                .from(studyPostCommentLikeLink)
+                .where(studyPostCommentLikeLink.id.eq(commentLikeId)
+                        .and(studyPostCommentLikeLink.deletedAt.isNull()))
+                .stream()
+                .findFirst();
+    }
+
     public List<StudyPostCommentLikeLink> paginateCommentLike(Long studyCommentId, Long cursor) {
         if (cursor == null) {
             StudyPostCommentLikeLink commentLike = q.select(studyPostCommentLikeLink)
@@ -61,5 +70,11 @@ public class StudyPostCommentLikeLinkRepositoryImpl {
         }
 
         return commentLikes;
+    }
+
+    public void deleteComment(Long commentLikeId) {
+        q.delete(studyPostCommentLikeLink)
+                .where(studyPostCommentLikeLink.id.eq(commentLikeId))
+                .execute();
     }
 }
