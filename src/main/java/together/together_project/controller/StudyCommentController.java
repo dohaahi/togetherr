@@ -30,6 +30,7 @@ import together.together_project.service.dto.response.CommentWriteResponseDto;
 import together.together_project.service.dto.response.CommentsResponseDto;
 import together.together_project.service.dto.response.ResponseBody;
 import together.together_project.service.dto.response.StudyCommentLikeLinkResponse;
+import together.together_project.service.dto.response.StudyCommentLikesResponseDto;
 
 @RestController
 @RequestMapping("studies/{study-id}/comments")
@@ -168,6 +169,29 @@ public class StudyCommentController {
         ResponseBody body = new ResponseBody(response, null, HttpStatus.CREATED.value());
 
         return ResponseEntity.status(HttpStatus.CREATED)
+                .body(body);
+    }
+
+    @GetMapping("/{study-comment-id}/likes")
+    public ResponseEntity<ResponseBody> getAllCommentLike(
+            @PathVariable("study-id") Long studyId,
+            @PathVariable("study-comment-id") Long studyCommentId,
+            @RequestParam(value = "cursor", required = false) Long cursor,
+            @AuthUser User currentUser
+    ) {
+        List<StudyCommentLikesResponseDto> commentLikes = studyCommentLikeService.getAllCommentLike(studyId,
+                        studyCommentId, cursor)
+                .stream()
+                .map(StudyCommentLikesResponseDto::of)
+                .toList();
+
+        PaginationCollection<StudyCommentLikesResponseDto> collection = PaginationCollection.of(
+                commentLikes, StudyCommentLikesResponseDto::id);
+        PaginationResponseDto<StudyCommentLikesResponseDto> response = PaginationResponseDto.of(
+                collection);
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
     }
 
