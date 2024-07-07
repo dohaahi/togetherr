@@ -14,16 +14,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import together.together_project.domain.ReviewLikeLink;
 import together.together_project.domain.ReviewPost;
 import together.together_project.domain.User;
 import together.together_project.exception.CustomException;
 import together.together_project.exception.ErrorCode;
+import together.together_project.service.ReviewLikeService;
 import together.together_project.service.ReviewPostService;
 import together.together_project.service.dto.PaginationCollection;
 import together.together_project.service.dto.PaginationResponseDto;
 import together.together_project.service.dto.request.ReviewCreateRequestDto;
 import together.together_project.service.dto.request.ReviewUpdateRequestDto;
 import together.together_project.service.dto.response.ResponseBody;
+import together.together_project.service.dto.response.ReviewLikeResponseDto;
 import together.together_project.service.dto.response.ReviewPostResponseDto;
 import together.together_project.service.dto.response.ReviewResponseDto;
 import together.together_project.service.dto.response.ReviewsResponseDto;
@@ -34,6 +37,7 @@ import together.together_project.service.dto.response.ReviewsResponseDto;
 public class ReviewPostController {
 
     private final ReviewPostService reviewPostService;
+    private final ReviewLikeService reviewLikeService;
 
     @PostMapping()
     public ResponseEntity<ResponseBody> write(
@@ -108,6 +112,20 @@ public class ReviewPostController {
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
+    @PostMapping("{review-id}/likes")
+    public ResponseEntity<ResponseBody> likeReview(
+            @PathVariable("review-id") Long reviewId,
+            @AuthUser User currentUser
+    ) {
+        ReviewLikeLink reviewLikeLink = reviewLikeService.like(reviewId, currentUser);
+
+        ReviewLikeResponseDto response = ReviewLikeResponseDto.of(reviewLikeLink);
+        ResponseBody body = new ResponseBody(response, null, HttpStatus.CREATED.value());
+
+        return ResponseEntity.status(HttpStatus.CREATED)
                 .body(body);
     }
 
