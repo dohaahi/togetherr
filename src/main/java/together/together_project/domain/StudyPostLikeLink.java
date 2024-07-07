@@ -26,10 +26,10 @@ public class StudyPostLikeLink extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne(fetch = LAZY)
-    @JoinColumn(name = "study_post_id")
-    private StudyPost studyPost;
-
-    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "study_post_id")
+    private StudyPost studyPost;
 }
