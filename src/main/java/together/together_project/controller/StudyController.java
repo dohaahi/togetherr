@@ -23,7 +23,7 @@ import together.together_project.exception.CustomException;
 import together.together_project.exception.ErrorCode;
 import together.together_project.service.StudyPostLikeService;
 import together.together_project.service.StudyService;
-import together.together_project.service.UserStudyLinkService;
+import together.together_project.service.UserStudyLikeService;
 import together.together_project.service.dto.PaginationCollection;
 import together.together_project.service.dto.PaginationResponseDto;
 import together.together_project.service.dto.request.RespondToJoinRequestDto;
@@ -49,7 +49,7 @@ import together.together_project.service.dto.response.StudyPostsResponseDto;
 public class StudyController {
 
     private final StudyService studyService;
-    private final UserStudyLinkService userStudyLinkService;
+    private final UserStudyLikeService userStudyLikeService;
     private final StudyPostLikeService studyPostLikeService;
 
     @PostMapping()
@@ -149,7 +149,7 @@ public class StudyController {
     ) {
         verifyUserIsStudyLeader(currentUser, studyId);
 
-        List<JoinRequestsResponseDto> joinRequests = userStudyLinkService.getAllJoinRequest(studyId, cursor)
+        List<JoinRequestsResponseDto> joinRequests = userStudyLikeService.getAllJoinRequest(studyId, cursor)
                 .stream()
                 .map(JoinRequestsResponseDto::from)
                 .toList();
@@ -170,7 +170,7 @@ public class StudyController {
             @RequestParam(value = "cursor", required = false) Long cursor,
             @AuthUser User currentUser
     ) {
-        List<StudyParticipantsResponseDto> participants = userStudyLinkService.getAllParticipants(studyId, cursor)
+        List<StudyParticipantsResponseDto> participants = userStudyLikeService.getAllParticipants(studyId, cursor)
                 .stream()
                 .map(StudyParticipantsResponseDto::from)
                 .toList();
@@ -191,7 +191,7 @@ public class StudyController {
             @PathVariable("study-id") Long studyId,
             @AuthUser User currentUser
     ) {
-        userStudyLinkService.join(studyId, currentUser);
+        userStudyLikeService.join(studyId, currentUser);
         StudyJoinResponseDto response = StudyJoinResponseDto.from(UserStudyJoinStatus.PENDING);
         ResponseBody body = new ResponseBody(
                 response,
@@ -208,7 +208,7 @@ public class StudyController {
             @AuthUser User currentUser
     ) {
         studyService.getById(studyId);
-        userStudyLinkService.withdrawJoinStudyRequest(studyId, currentUser.getId());
+        userStudyLikeService.withdrawJoinStudyRequest(studyId, currentUser.getId());
 
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
@@ -226,7 +226,7 @@ public class StudyController {
             throw new CustomException(ErrorCode.INVALID_REQUEST);
         }
 
-        userStudyLinkService.withdrawParticipation(studyId, currentUser.getId());
+        userStudyLikeService.withdrawParticipation(studyId, currentUser.getId());
 
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
@@ -242,7 +242,7 @@ public class StudyController {
     ) {
         verifyUserIsStudyLeader(currentUser, studyId);
 
-        UserStudyJoinStatus respondToJoinRequest = userStudyLinkService.respondToJoinRequest(request, studyId);
+        UserStudyJoinStatus respondToJoinRequest = userStudyLikeService.respondToJoinRequest(request, studyId);
         RespondToJoinResponseDto response = RespondToJoinResponseDto.from(respondToJoinRequest);
         ResponseBody body = new ResponseBody(
                 response,

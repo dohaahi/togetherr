@@ -29,7 +29,7 @@ class ReviewCommentServiceTest {
     private StudyPostRepositoryImpl studyPostRepository;
 
     @Autowired
-    private UserStudyLinkService userStudyLinkService;
+    private UserStudyLikeService userStudyLikeService;
 
     @DisplayName("스터디 참여자는 다른 참여자가 작성한 Review에 대한 comment 작성 가능")
     @Test
@@ -61,7 +61,7 @@ class ReviewCommentServiceTest {
         );
         userService.signup(signupRequestB);
         User userB = userRepository.findByEmail(signupRequestB.email()).get();
-        userStudyLinkService.join(study.getStudyId(), userB);
+        userStudyLikeService.join(study.getStudyId(), userB);
 
         // 리뷰 작성
         // ReviewCommentService.createComment(userId, StudyId, reviewId)

@@ -26,7 +26,7 @@ public class UserService {
 
     private final UserRepositoryImpl userRepository;
     private final BcryptService bcryptService;
-    private final UserStudyLinkService userStudyLinkService;
+    private final UserStudyLikeService userStudyLikeService;
     private final ReviewPostService reviewPostService;
 
     public SignupResponseDto signup(SignupRequestDto request) {
@@ -69,7 +69,7 @@ public class UserService {
         verifyUserPassword(request.password(), user.getPassword(), ErrorCode.PASSWORD_NOT_MATCH);
 
         user.softDelete();
-        userStudyLinkService.withdrawByUserId(userId);
+        userStudyLikeService.withdrawByUserId(userId);
     }
 
     public User getUserById(Long userId) {
@@ -110,7 +110,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        List<UserStudyLink> studyLinks = userStudyLinkService.getAllParticipatingStudy(userId, cursor);
+        List<UserStudyLink> studyLinks = userStudyLikeService.getAllParticipatingStudy(userId, cursor);
 
         return UserStudiesResponseDto.of(user, studyLinks);
     }

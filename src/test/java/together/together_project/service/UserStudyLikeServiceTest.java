@@ -24,10 +24,10 @@ import together.together_project.service.dto.request.StudyPostCreateRequestDto;
 
 @SpringBootTest
 @Transactional
-class UserStudyLinkServiceTest {
+class UserStudyLikeServiceTest {
 
     @Autowired
-    private UserStudyLinkService userStudyLinkService;
+    private UserStudyLikeService userStudyLikeService;
 
     @Autowired
     private UserService userService;
@@ -72,7 +72,7 @@ class UserStudyLinkServiceTest {
         userStudyLinkRepository.save(userStudyLink2);
         userStudyLinkRepository.save(userStudyLink3);
 
-        List<UserStudyLink> joinRequests = userStudyLinkService.getAllJoinRequest(study.getStudyId(), null);
+        List<UserStudyLink> joinRequests = userStudyLikeService.getAllJoinRequest(study.getStudyId(), null);
 
         assertThat(joinRequests.size()).isEqualTo(3);
     }
@@ -94,7 +94,7 @@ class UserStudyLinkServiceTest {
         userStudyLinkRepository.save(userStudyLink2);
         userStudyLinkRepository.save(userStudyLink3);
 
-        List<UserStudyLink> participants = userStudyLinkService.getAllParticipants(study.getStudyId(), null);
+        List<UserStudyLink> participants = userStudyLikeService.getAllParticipants(study.getStudyId(), null);
 
         assertThat(participants.size()).isEqualTo(3);
     }
@@ -113,11 +113,11 @@ class UserStudyLinkServiceTest {
         userStudyLinkRepository.save(userStudyLink2);
 
         RespondToJoinRequestDto respondToJoinRequest1 = new RespondToJoinRequestDto(user1.getId(), true);
-        UserStudyJoinStatus joinStatus1 = userStudyLinkService.respondToJoinRequest(respondToJoinRequest1,
+        UserStudyJoinStatus joinStatus1 = userStudyLikeService.respondToJoinRequest(respondToJoinRequest1,
                 study.getStudyId());
 
         RespondToJoinRequestDto respondToJoinRequest2 = new RespondToJoinRequestDto(user2.getId(), false);
-        UserStudyJoinStatus joinStatus2 = userStudyLinkService.respondToJoinRequest(respondToJoinRequest2,
+        UserStudyJoinStatus joinStatus2 = userStudyLikeService.respondToJoinRequest(respondToJoinRequest2,
                 study.getStudyId());
 
         assertThat(joinStatus1).isEqualTo(APPROVED);
@@ -132,7 +132,7 @@ class UserStudyLinkServiceTest {
         User user = new User(2L, "ccc@abc.com", "ccc", "a123", null, null);
         userRepository.save(user);
 
-        userStudyLinkService.join(study.getStudyId(), user);
+        userStudyLikeService.join(study.getStudyId(), user);
         UserStudyLink userStudyLink = userStudyLinkRepository.findByStudyIdAndUserId(study.getStudyId(), user.getId())
                 .get();
 
@@ -147,11 +147,11 @@ class UserStudyLinkServiceTest {
         User user = new User(2L, "ccc@abc.com", "ccc", "a123", null, null);
         userRepository.save(user);
 
-        userStudyLinkService.join(study.getStudyId(), user);
+        userStudyLikeService.join(study.getStudyId(), user);
         UserStudyLink userStudyLink = userStudyLinkRepository.findByStudyIdAndUserId(study.getStudyId(), user.getId())
                 .get();
 
-        userStudyLinkService.withdrawJoinStudyRequest(study.getStudyId(), user.getId());
+        userStudyLikeService.withdrawJoinStudyRequest(study.getStudyId(), user.getId());
 
         assertThat(userStudyLink.getDeletedAt()).isNotNull();
     }
@@ -162,13 +162,13 @@ class UserStudyLinkServiceTest {
         User user = new User(2L, "ccc@abc.com", "ccc", "a123", null, null);
         userRepository.save(user);
 
-        userStudyLinkService.join(study.getStudyId(), user);
+        userStudyLikeService.join(study.getStudyId(), user);
         UserStudyLink userStudyLink = userStudyLinkRepository.findByStudyIdAndUserId(study.getStudyId(), user.getId())
                 .get();
         RespondToJoinRequestDto respondToJoinRequest = new RespondToJoinRequestDto(user.getId(), true);
-        userStudyLinkService.respondToJoinRequest(respondToJoinRequest, study.getStudyId());
+        userStudyLikeService.respondToJoinRequest(respondToJoinRequest, study.getStudyId());
 
-        userStudyLinkService.withdrawParticipation(study.getStudyId(), user);
+        userStudyLikeService.withdrawParticipation(study.getStudyId(), user);
 
         assertThat(userStudyLink.getDeletedAt()).isNotNull();
         assertThat(study.getParticipantCount()).isEqualTo(1);
