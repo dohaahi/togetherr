@@ -33,6 +33,15 @@ public class ReviewLikeLinkRepositoryImpl {
                 .findFirst();
     }
 
+    public Optional<ReviewLikeLink> findReviewLike(Long reviewLikeId) {
+        return q.select(reviewLikeLink)
+                .from(reviewLikeLink)
+                .where(reviewLikeLink.id.eq(reviewLikeId)
+                        .and(reviewLikeLink.deletedAt.isNull()))
+                .stream()
+                .findFirst();
+    }
+
     public List<ReviewLikeLink> paginateReviewLike(Long reviewId, Long cursor) {
         if (cursor == null) {
             ReviewLikeLink reviewLike = q.select(reviewLikeLink)
@@ -61,5 +70,11 @@ public class ReviewLikeLinkRepositoryImpl {
         }
 
         return reviewLikes;
+    }
+
+    public void deleteReviewLike(Long reviewLikeId) {
+        q.delete(reviewLikeLink)
+                .where(reviewLikeLink.id.eq(reviewLikeId))
+                .execute();
     }
 }

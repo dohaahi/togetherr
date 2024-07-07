@@ -150,6 +150,20 @@ public class ReviewPostController {
                 .body(body);
     }
 
+    @DeleteMapping("{review-id}/likes/{review-like-link-id}")
+    public ResponseEntity<ResponseBody> withdrawReviewLike(
+            @PathVariable("review-id") Long reviewId,
+            @PathVariable("review-like-link-id") Long reviewLikeId,
+            @AuthUser User currentUser
+    ) {
+        reviewLikeService.withdrawReviewLike(reviewId, reviewLikeId, currentUser);
+
+        ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(body);
+    }
+
     private void verifyReviewAuthor(Long reviewId, User currentUser) {
         ReviewPost review = reviewPostService.getReview(reviewId);
 

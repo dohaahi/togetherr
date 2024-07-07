@@ -39,4 +39,16 @@ public class ReviewLikeService {
     public List<ReviewLikeLink> getAllReviewLike(Long reviewId, Long cursor) {
         return reviewLikeLinkRepository.paginateReviewLike(reviewId, cursor);
     }
+
+    public void withdrawReviewLike(Long reviewId, Long reviewLikeId, User user) {
+        reviewPostService.getReview(reviewId);
+        ReviewLikeLink reviewLike = reviewLikeLinkRepository.findReviewLike(reviewLikeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.LIKE_LINK_NOT_FOUND));
+
+        if (!reviewLike.getUser().equals(user)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
+        reviewLikeLinkRepository.deleteReviewLike(reviewLikeId);
+    }
 }
