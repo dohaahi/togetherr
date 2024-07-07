@@ -21,7 +21,8 @@ public class ReviewLikeService {
     private final ReviewLikeLinkRepositoryImpl reviewLikeLinkRepository;
 
     public ReviewLikeLink like(Long reviewId, User user) {
-        ReviewPost review = reviewPostService.getReview(reviewId);
+        ReviewPost review = reviewPostService.getReview(reviewId)
+                .like();
 
         reviewLikeLinkRepository.findReviewLike(reviewId, user.getId())
                 .ifPresent(reviewLikeLink -> {

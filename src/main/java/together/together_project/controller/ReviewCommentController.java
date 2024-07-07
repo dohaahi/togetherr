@@ -183,7 +183,7 @@ public class ReviewCommentController {
     }
 
     @PostMapping("{review-comment-id}/likes")
-    public ResponseEntity<ResponseBody> likeComment(
+    public ResponseEntity<ResponseBody> commentLike(
             @PathVariable("review-comment-id") Long commentId,
             @AuthUser User currentUser
     ) {
@@ -196,7 +196,7 @@ public class ReviewCommentController {
     }
 
     @GetMapping("{review-comment-id}/likes")
-    public ResponseEntity<ResponseBody> getAllReviewLike(
+    public ResponseEntity<ResponseBody> getAllCommentLike(
             @PathVariable("review-id") Long reviewId,
             @PathVariable("review-comment-id") Long commentId,
             @RequestParam(value = "cursor", required = false) Long cursor
@@ -218,12 +218,12 @@ public class ReviewCommentController {
     }
 
     @DeleteMapping("{review-comment-id}/likes/{review-comment-like-link-id}")
-    public ResponseEntity<ResponseBody> withdrawReviewLike(
+    public ResponseEntity<ResponseBody> withdrawCommentLike(
             @PathVariable("review-comment-id") Long commentId,
             @PathVariable("review-comment-like-link-id") Long commentLikeId,
             @AuthUser User currentUser
     ) {
-        reviewCommentLikeService.withdrawCommentLike(commentLikeId, commentLikeId, currentUser);
+        reviewCommentLikeService.withdrawCommentLike(commentId, commentLikeId, currentUser);
 
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 

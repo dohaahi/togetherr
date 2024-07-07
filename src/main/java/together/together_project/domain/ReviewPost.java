@@ -68,4 +68,10 @@ public class ReviewPost extends BaseTimeEntity {
 
         return this;
     }
+
+    public ReviewPost like() {
+        totalLikeCount++;
+
+        return this;
+    }
 }

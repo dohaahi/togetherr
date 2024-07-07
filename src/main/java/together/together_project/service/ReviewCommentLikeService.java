@@ -22,7 +22,8 @@ public class ReviewCommentLikeService {
     private final ReviewPostService reviewPostService;
 
     public ReviewCommentLikeLink like(Long commentId, User user) {
-        ReviewComment comment = reviewCommentService.getByCommentId(commentId);
+        ReviewComment comment = reviewCommentService.getByCommentId(commentId)
+                .like();
 
         reviewCommentLikeLinkRepository.findCommentLike(commentId, user.getId())
                 .ifPresent(reviewCommentLikeLink -> {
