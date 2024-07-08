@@ -71,20 +71,17 @@ public class ReviewCommentService {
         return reviewCommentRepository.paginateChildComment(reviewId, commentId, cursor);
     }
 
-    public ReviewComment writeChildComment(Long reviewId, Long commentId, ReviewCommentCreateRequestDto request,
+    public ReviewComment writeChildComment(Long reviewId,
+                                           Long commentId,
+                                           ReviewCommentCreateRequestDto request,
                                            User user
     ) {
         ReviewPost review = reviewPostService.getReview(reviewId);
         checkParentCommentAndCheckCommentDeleted(commentId);
 
-        ReviewComment childComment = ReviewComment.builder()
-                .author(user)
-                .reviewPost(review)
-                .content(request.content())
-                .parentCommentId(commentId)
-                .build();
+        ReviewComment comment = request.toReviewComment(review, user, commentId);
 
-        return reviewCommentRepository.save(childComment);
+        return reviewCommentRepository.save(comment);
     }
 
     public ReviewComment updateChildComment(Long reviewId,
@@ -125,11 +122,5 @@ public class ReviewCommentService {
         }
 
         return comment;
-    }
-
-    private void isParentComment(Long parentCommentId, ReviewComment childComment) {
-        if (!childComment.getParentCommentId().equals(parentCommentId)) {
-            throw new CustomException(ErrorCode.INVALID_REQUEST);
-        }
     }
 }

@@ -17,4 +17,13 @@ public record CommentWriteRequestDto(
                 .content(this.content())
                 .build();
     }
+
+    public StudyPostComment toStudyPostComment(Study study, User user, Long commentId) {
+        return StudyPostComment.builder()
+                .studyPost(study.getStudyPost())
+                .author(user)
+                .content(this.content())
+                .parentCommentId(commentId)
+                .build();
+    }
 }

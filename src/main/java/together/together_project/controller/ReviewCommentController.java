@@ -133,7 +133,7 @@ public class ReviewCommentController {
     @PostMapping("/{parent-comment-id}")
     public ResponseEntity<ResponseBody> writeChildComment(
             @PathVariable("review-id") Long reviewId,
-            @PathVariable("review-comment-id") Long commentId,
+            @PathVariable("parent-comment-id") Long commentId,
             @Valid @RequestBody ReviewCommentCreateRequestDto request,
             @AuthUser User currentUser
     ) {

@@ -17,4 +17,13 @@ public record ReviewCommentCreateRequestDto(
                 .content(this.content())
                 .build();
     }
+
+    public ReviewComment toReviewComment(ReviewPost review, User user, Long commentId) {
+        return ReviewComment.builder()
+                .author(user)
+                .reviewPost(review)
+                .content(content)
+                .parentCommentId(commentId)
+                .build();
+    }
 }
