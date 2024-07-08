@@ -130,7 +130,7 @@ public class ReviewCommentController {
                 .body(body);
     }
 
-    @PostMapping("/{review-comment-id}")
+    @PostMapping("/{parent-comment-id}")
     public ResponseEntity<ResponseBody> writeChildComment(
             @PathVariable("review-id") Long reviewId,
             @PathVariable("review-comment-id") Long commentId,
