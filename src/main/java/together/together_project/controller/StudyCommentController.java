@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import together.together_project.domain.StudyPostComment;
-import together.together_project.domain.StudyPostCommentLikeLink;
 import together.together_project.domain.User;
 import together.together_project.exception.CustomException;
 import together.together_project.exception.ErrorCode;
@@ -164,11 +163,18 @@ public class StudyCommentController {
             @PathVariable("study-comment-id") Long studyCommentId,
             @AuthUser User currentUser
     ) {
-        StudyPostCommentLikeLink like = studyCommentLikeService.like(studyId, studyCommentId, currentUser);
-        StudyCommentLikeLinkResponse response = StudyCommentLikeLinkResponse.of(like);
-        ResponseBody body = new ResponseBody(response, null, HttpStatus.CREATED.value());
+        StudyCommentLikeLinkResponse response = studyCommentLikeService.like(studyId, studyCommentId, currentUser);
 
-        return ResponseEntity.status(HttpStatus.CREATED)
+        if (response.hasLike()) {
+            ResponseBody body = new ResponseBody(response, null, HttpStatus.CREATED.value());
+
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(body);
+        }
+
+        ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
     }
 
@@ -190,21 +196,6 @@ public class StudyCommentController {
         PaginationResponseDto<StudyCommentLikesResponseDto> response = PaginationResponseDto.of(
                 collection);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(body);
-    }
-
-    @DeleteMapping("/{study-comment-id}/likes/{study-comment-like-link-id}")
-    public ResponseEntity<ResponseBody> withdrawCommentLike(
-            @PathVariable("study-id") Long studyId,
-            @PathVariable("study-comment-id") Long commentId,
-            @PathVariable("study-comment-like-link-id") Long commentLikeId,
-            @AuthUser User currentUser
-    ) {
-        studyCommentLikeService.withdrawCommentLike(studyId, commentId, commentLikeId, currentUser);
-
-        ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);

@@ -19,8 +19,8 @@ public class StudyPostLikeLinkRepositoryImpl {
     private final JPAQueryFactory q;
     private final StudyPostLikeLinkJpaRepository studyPostLikeLinkRepository;
 
-    public StudyPostLikeLink save(StudyPostLikeLink studyPostLikeLink) {
-        return studyPostLikeLinkRepository.save(studyPostLikeLink);
+    public void save(StudyPostLikeLink studyPostLikeLink) {
+        studyPostLikeLinkRepository.save(studyPostLikeLink);
     }
 
     public Optional<StudyPostLikeLink> findStudyPostLikeLink(Long studyLikeLinkId) {

@@ -13,6 +13,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import together.together_project.exception.CustomException;
+import together.together_project.exception.ErrorCode;
 import together.together_project.service.dto.request.CommentUpdateRequestDto;
 
 @Entity
@@ -49,5 +51,13 @@ public class StudyPostComment extends BaseTimeEntity {
         totalLikeCount++;
 
         return this;
+    }
+
+    public void unlike() {
+        if (totalLikeCount == 0) {
+            throw new CustomException(ErrorCode.UNKNOWN_ERROR);
+        }
+
+        totalLikeCount--;
     }
 }

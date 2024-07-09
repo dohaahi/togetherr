@@ -1,41 +1,47 @@
 package together.together_project.service;
 
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import together.together_project.domain.ReviewComment;
 import together.together_project.domain.ReviewCommentLikeLink;
 import together.together_project.domain.User;
-import together.together_project.exception.CustomException;
-import together.together_project.exception.ErrorCode;
 import together.together_project.repository.ReviewCommentLikeLinkRepositoryImpl;
+import together.together_project.service.dto.response.ReviewCommentLikeResponseDto;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class ReviewCommentLikeService {
 
+    private final ReviewPostService reviewPostService;
     private final ReviewCommentService reviewCommentService;
 
     private final ReviewCommentLikeLinkRepositoryImpl reviewCommentLikeLinkRepository;
-    private final ReviewPostService reviewPostService;
 
-    public ReviewCommentLikeLink like(Long commentId, User user) {
-        ReviewComment comment = reviewCommentService.getByCommentId(commentId)
-                .like();
+    public ReviewCommentLikeResponseDto like(Long reviewId, Long commentId, User user) {
+        reviewPostService.getReview(reviewId);
 
-        reviewCommentLikeLinkRepository.findCommentLike(commentId, user.getId())
-                .ifPresent(reviewCommentLikeLink -> {
-                    throw new CustomException(ErrorCode.INVALID_REQUEST);
-                });
+        ReviewComment comment = reviewCommentService.getByCommentId(commentId);
 
-        ReviewCommentLikeLink commentLike = ReviewCommentLikeLink.builder()
-                .user(user)
-                .reviewComment(comment)
-                .build();
+        Optional<ReviewCommentLikeLink> commentLikeLink = reviewCommentLikeLinkRepository.findCommentLike(
+                commentId,
+                user.getId());
 
-        return reviewCommentLikeLinkRepository.save(commentLike);
+        if (commentLikeLink.isEmpty()) {
+            ReviewCommentLikeLink commentLike = ReviewCommentLikeLink.builder()
+                    .user(user)
+                    .reviewComment(comment)
+                    .build();
+
+            comment.like();
+            reviewCommentLikeLinkRepository.save(commentLike);
+            return ReviewCommentLikeResponseDto.of(commentLike, true);
+        }
+
+        return withdrawCommentLike(commentId, commentLikeLink.get());
     }
 
     public List<ReviewCommentLikeLink> getAllCommentLike(Long reviewId, Long commentId, Long cursor) {
@@ -45,16 +51,11 @@ public class ReviewCommentLikeService {
         return reviewCommentLikeLinkRepository.paginateCommentLike(commentId, cursor);
     }
 
-    public void withdrawCommentLike(Long commentId, Long commentLikeId, User user) {
-        ReviewComment comment = reviewCommentService.getByCommentId(commentId);
+    public ReviewCommentLikeResponseDto withdrawCommentLike(Long commentId, ReviewCommentLikeLink commentLike) {
+        reviewCommentService.getByCommentId(commentId)
+                .unlike();
+        reviewCommentLikeLinkRepository.deletedCommentLike(commentLike.getId());
 
-        if (!comment.getAuthor().equals(user)) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
-        }
-
-        reviewCommentLikeLinkRepository.findCommentLike(commentLikeId)
-                .orElseThrow(() -> new CustomException(ErrorCode.LIKE_LINK_NOT_FOUND));
-
-        reviewCommentLikeLinkRepository.deletedCommentLike(commentLikeId);
+        return ReviewCommentLikeResponseDto.of(commentLike, false);
     }
 }

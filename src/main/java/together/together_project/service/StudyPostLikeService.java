@@ -1,41 +1,47 @@
 package together.together_project.service;
 
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import together.together_project.domain.StudyPost;
 import together.together_project.domain.StudyPostLikeLink;
 import together.together_project.domain.User;
-import together.together_project.exception.CustomException;
-import together.together_project.exception.ErrorCode;
 import together.together_project.repository.StudyPostLikeLinkRepositoryImpl;
+import together.together_project.service.dto.response.StudyPostLikeResponseDto;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class StudyPostLikeService {
 
+    private static final boolean LIKE = true;
+    private static final boolean UNLIKE = false;
+
     private final StudyService studyService;
 
     private final StudyPostLikeLinkRepositoryImpl studyPostLikeLinkRepository;
 
-    public StudyPostLikeLink like(Long studyId, User user) {
+    public StudyPostLikeResponseDto like(Long studyId, User user) {
         StudyPost studyPost = studyService.getById(studyId)
-                .getStudyPost()
-                .like();
+                .getStudyPost();
 
-        studyPostLikeLinkRepository.findStudyPostLikeLink(studyId, user.getId())
-                .ifPresent(studyPostLikeLink -> {
-                    throw new CustomException(ErrorCode.INVALID_REQUEST);
-                });
+        Optional<StudyPostLikeLink> studyPostLikeLink = studyPostLikeLinkRepository.findStudyPostLikeLink(studyId,
+                user.getId());
 
-        StudyPostLikeLink studyPostLikeLink = StudyPostLikeLink.builder()
-                .studyPost(studyPost)
-                .user(user)
-                .build();
+        if (studyPostLikeLink.isEmpty()) {
+            StudyPostLikeLink studyLike = StudyPostLikeLink.builder()
+                    .studyPost(studyPost)
+                    .user(user)
+                    .build();
 
-        return studyPostLikeLinkRepository.save(studyPostLikeLink);
+            studyPost.like();
+            studyPostLikeLinkRepository.save(studyLike);
+            return StudyPostLikeResponseDto.of(studyLike, LIKE);
+        }
+
+        return withdrawStudyLike(studyId, studyPostLikeLink.get());
     }
 
     public List<StudyPostLikeLink> getStudyLike(Long studyId, Long cursor) {
@@ -44,16 +50,12 @@ public class StudyPostLikeService {
         return studyPostLikeLinkRepository.paginateStudyLike(studyId, cursor);
     }
 
-    public void withdrawStudyLike(Long studyId, Long studyLikeLinkId, Long userId) {
-        studyService.getById(studyId);
+    public StudyPostLikeResponseDto withdrawStudyLike(Long studyId, StudyPostLikeLink studyPostLikeLink) {
+        studyService.getById(studyId)
+                .getStudyPost()
+                .unlike();
+        studyPostLikeLinkRepository.delete(studyPostLikeLink.getId());
 
-        StudyPostLikeLink likeLink = studyPostLikeLinkRepository.findStudyPostLikeLink(studyLikeLinkId)
-                .orElseThrow(() -> new CustomException(ErrorCode.LIKE_LINK_NOT_FOUND));
-
-        if (!likeLink.getUser().getId().equals(userId)) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
-        }
-
-        studyPostLikeLinkRepository.delete(studyLikeLinkId);
+        return StudyPostLikeResponseDto.of(studyPostLikeLink, UNLIKE);
     }
 }
