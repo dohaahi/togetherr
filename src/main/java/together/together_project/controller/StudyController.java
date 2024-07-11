@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import together.together_project.domain.Study;
-import together.together_project.domain.StudyPostLikeLink;
 import together.together_project.domain.User;
 import together.together_project.domain.UserStudyJoinStatus;
 import together.together_project.exception.CustomException;
@@ -259,11 +258,18 @@ public class StudyController {
             @PathVariable("study-id") Long studyId,
             @AuthUser User currentUser
     ) {
-        StudyPostLikeLink studyPostLikeLink = studyPostLikeService.like(studyId, currentUser);
-        StudyPostLikeResponseDto response = StudyPostLikeResponseDto.of(studyPostLikeLink);
-        ResponseBody body = new ResponseBody(response, null, HttpStatus.CREATED.value());
+        StudyPostLikeResponseDto response = studyPostLikeService.like(studyId, currentUser);
 
-        return ResponseEntity.status(HttpStatus.CREATED)
+        if (response.hasLike()) {
+            ResponseBody body = new ResponseBody(response, null, HttpStatus.CREATED.value());
+
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(body);
+        }
+
+        ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
     }
 
@@ -277,25 +283,11 @@ public class StudyController {
                 .map(StudyPostLikesResponseDto::of)
                 .toList();
 
-        PaginationCollection<StudyPostLikesResponseDto> collection = (PaginationCollection<StudyPostLikesResponseDto>) PaginationCollection
+        PaginationCollection<StudyPostLikesResponseDto> collection = PaginationCollection
                 .of(likeLinks, StudyPostLikesResponseDto::id);
-        PaginationResponseDto<StudyPostLikesResponseDto> response = PaginationResponseDto.of(
-                collection);
+        PaginationResponseDto<StudyPostLikesResponseDto> response = PaginationResponseDto
+                .of(collection);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(body);
-    }
-
-    @DeleteMapping("/{study-id}/likes/{study-like-link-id}")
-    public ResponseEntity<ResponseBody> withdrawStudyLike(
-            @PathVariable("study-id") Long studyId,
-            @PathVariable("study-like-link-id") Long studyLikeLinkId,
-            @AuthUser User currentUser
-    ) {
-        studyPostLikeService.withdrawStudyLike(studyId, studyLikeLinkId, currentUser.getId());
-
-        ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);

@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import together.together_project.domain.ReviewLikeLink;
 import together.together_project.domain.ReviewPost;
 import together.together_project.domain.User;
 import together.together_project.exception.CustomException;
@@ -121,12 +120,18 @@ public class ReviewPostController {
             @PathVariable("review-id") Long reviewId,
             @AuthUser User currentUser
     ) {
-        ReviewLikeLink reviewLikeLink = reviewLikeService.like(reviewId, currentUser);
+        ReviewLikeResponseDto response = reviewLikeService.like(reviewId, currentUser);
 
-        ReviewLikeResponseDto response = ReviewLikeResponseDto.of(reviewLikeLink);
-        ResponseBody body = new ResponseBody(response, null, HttpStatus.CREATED.value());
+        if (response.hasLike()) {
+            ResponseBody body = new ResponseBody(response, null, HttpStatus.CREATED.value());
 
-        return ResponseEntity.status(HttpStatus.CREATED)
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(body);
+        }
+
+        ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
     }
 
@@ -145,20 +150,6 @@ public class ReviewPostController {
         PaginationResponseDto<ReviewLikesResponseDto> response = PaginationResponseDto.of(
                 collection);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(body);
-    }
-
-    @DeleteMapping("{review-id}/likes/{review-like-link-id}")
-    public ResponseEntity<ResponseBody> withdrawReviewLike(
-            @PathVariable("review-id") Long reviewId,
-            @PathVariable("review-like-link-id") Long reviewLikeId,
-            @AuthUser User currentUser
-    ) {
-        reviewLikeService.withdrawReviewLike(reviewId, reviewLikeId, currentUser);
-
-        ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);

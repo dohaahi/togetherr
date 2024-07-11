@@ -74,4 +74,12 @@ public class ReviewPost extends BaseTimeEntity {
 
         return this;
     }
+
+    public void unlike() {
+        if (totalLikeCount == 0) {
+            throw new CustomException(ErrorCode.UNKNOWN_ERROR);
+        }
+
+        totalLikeCount--;
+    }
 }

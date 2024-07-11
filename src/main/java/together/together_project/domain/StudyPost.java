@@ -57,9 +57,15 @@ public class StudyPost extends BaseTimeEntity {
         refreshedAt = request.refreshedAt();
     }
 
-    public StudyPost like() {
+    public void like() {
         totalLikeCount++;
+    }
 
-        return this;
+    public void unlike() {
+        if (totalLikeCount == 0) {
+            throw new CustomException(ErrorCode.UNKNOWN_ERROR);
+        }
+
+        totalLikeCount--;
     }
 }

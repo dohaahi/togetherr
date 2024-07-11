@@ -1,22 +1,20 @@
 package together.together_project.service.dto.response;
 
-import java.time.LocalDateTime;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import together.together_project.domain.StudyPostCommentLikeLink;
 
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public record StudyCommentLikeLinkResponse(
         Long id,
         Long userId,
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt,
-        LocalDateTime deletedAt
+        boolean hasLike
 ) {
-    public static StudyCommentLikeLinkResponse of(StudyPostCommentLikeLink like) {
+    public static StudyCommentLikeLinkResponse of(StudyPostCommentLikeLink like, boolean hasLike) {
         return new StudyCommentLikeLinkResponse(
                 like.getId(),
                 like.getUser().getId(),
-                like.getCreatedAt(),
-                like.getUpdatedAt(),
-                like.getDeletedAt()
+                hasLike
         );
     }
 }

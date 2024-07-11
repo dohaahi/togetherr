@@ -60,7 +60,7 @@ public class StudyCommentService {
         Study study = studyService.getById(studyId);
         checkParentCommentAndCheckCommentDeleted(commentId);
 
-        StudyPostComment comment = request.toStudyPostComment(study, user);
+        StudyPostComment comment = request.toStudyPostComment(study, user, commentId);
 
         return studyPostCommentRepository.save(comment);
     }

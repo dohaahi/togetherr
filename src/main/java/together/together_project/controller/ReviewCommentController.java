@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import together.together_project.domain.ReviewComment;
-import together.together_project.domain.ReviewCommentLikeLink;
 import together.together_project.domain.User;
 import together.together_project.exception.CustomException;
 import together.together_project.exception.ErrorCode;
@@ -130,10 +129,10 @@ public class ReviewCommentController {
                 .body(body);
     }
 
-    @PostMapping("/{review-comment-id}")
+    @PostMapping("/{parent-comment-id}")
     public ResponseEntity<ResponseBody> writeChildComment(
             @PathVariable("review-id") Long reviewId,
-            @PathVariable("review-comment-id") Long commentId,
+            @PathVariable("parent-comment-id") Long commentId,
             @Valid @RequestBody ReviewCommentCreateRequestDto request,
             @AuthUser User currentUser
     ) {
@@ -182,24 +181,33 @@ public class ReviewCommentController {
                 .body(body);
     }
 
-    @PostMapping("{review-comment-id}/likes")
+    @PostMapping("/{review-comment-id}/likes")
     public ResponseEntity<ResponseBody> commentLike(
+            @PathVariable("review-id") Long reviewId,
             @PathVariable("review-comment-id") Long commentId,
             @AuthUser User currentUser
     ) {
-        ReviewCommentLikeLink commentLike = reviewCommentLikeService.like(commentId, currentUser);
-        ReviewCommentLikeResponseDto response = ReviewCommentLikeResponseDto.of(commentLike);
-        ResponseBody body = new ResponseBody(response, null, HttpStatus.CREATED.value());
+        ReviewCommentLikeResponseDto response = reviewCommentLikeService.like(reviewId, commentId, currentUser);
 
-        return ResponseEntity.status(HttpStatus.CREATED)
+        if (response.hasLike()) {
+            ResponseBody body = new ResponseBody(response, null, HttpStatus.CREATED.value());
+
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(body);
+        }
+
+        ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
+
+        return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
     }
 
-    @GetMapping("{review-comment-id}/likes")
+    @GetMapping("/{review-comment-id}/likes")
     public ResponseEntity<ResponseBody> getAllCommentLike(
             @PathVariable("review-id") Long reviewId,
             @PathVariable("review-comment-id") Long commentId,
-            @RequestParam(value = "cursor", required = false) Long cursor
+            @RequestParam(value = "cursor", required = false) Long cursor,
+            @AuthUser User currentUser
     ) {
         List<ReviewCommentLikesResponseDto> likes = reviewCommentLikeService.getAllCommentLike(reviewId, commentId,
                         cursor)
@@ -212,20 +220,6 @@ public class ReviewCommentController {
         PaginationResponseDto<ReviewCommentLikesResponseDto> response = PaginationResponseDto.of(
                 collection);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(body);
-    }
-
-    @DeleteMapping("{review-comment-id}/likes/{review-comment-like-link-id}")
-    public ResponseEntity<ResponseBody> withdrawCommentLike(
-            @PathVariable("review-comment-id") Long commentId,
-            @PathVariable("review-comment-like-link-id") Long commentLikeId,
-            @AuthUser User currentUser
-    ) {
-        reviewCommentLikeService.withdrawCommentLike(commentId, commentLikeId, currentUser);
-
-        ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
