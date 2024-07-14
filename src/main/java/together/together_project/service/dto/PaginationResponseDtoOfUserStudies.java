@@ -17,14 +17,14 @@ public record PaginationResponseDtoOfUserStudies(
             UserStudiesResponseDto elements,
             Function<UserStudiesResponseDto.MetaStudy, Long> listToId
     ) {
-        boolean hasMore = elements.reviews().size() >= PAGINATION_COUNT_AND_ONE_MORE;
+        boolean hasMore = elements.studies().size() >= PAGINATION_COUNT_AND_ONE_MORE;
 
         Long lastId = -1L;
 
         if (hasMore) {
-            elements.reviews()
-                    .subList(0, elements.reviews().size());
-            lastId = listToId.apply(elements.reviews().get(elements.reviews().size() - 1));
+            elements.studies()
+                    .subList(0, elements.studies().size());
+            lastId = listToId.apply(elements.studies().get(elements.studies().size() - 1));
         }
 
         return new PaginationResponseDtoOfUserStudies(

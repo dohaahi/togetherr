@@ -15,7 +15,7 @@ public record UserStudiesResponseDto(
         String nickname,
         String bio,
         String profileUrl,
-        List<MetaStudy> reviews
+        List<MetaStudy> studies
 ) {
     public static UserStudiesResponseDto of(User user, List<UserStudyLink> studies) {
         List<MetaStudy> metaStudies = studies.stream()

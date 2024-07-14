@@ -3,6 +3,7 @@ package together.together_project.repository;
 import static together.together_project.domain.QUser.user;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -20,7 +21,14 @@ public class UserRepositoryImpl {
     }
 
     public Optional<User> findById(Long id) {
-        return userRepository.findById(id);
+        return q.select(user)
+                .from(user)
+                .where(user.id.eq(id)
+                        .and(user.deletedAt.isNull()))
+                .stream()
+                .findFirst();
+
+        // return userRepository.findById(id);
     }
 
     public Optional<User> findByEmail(String email) {
@@ -37,5 +45,12 @@ public class UserRepositoryImpl {
                 .where(user.nickname.eq(nickname))
                 .stream()
                 .findFirst();
+    }
+
+    public List<Long> getAllId() {
+        return q.select(user.id)
+                .from(user)
+                .where(user.deletedAt.isNull())
+                .fetch();
     }
 }

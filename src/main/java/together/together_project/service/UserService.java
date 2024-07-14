@@ -64,7 +64,7 @@ public class UserService {
 
     public void withdraw(WithdrawRequestDto request, Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.TOKEN_VALIDATE));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         verifyUserPassword(request.password(), user.getPassword(), ErrorCode.PASSWORD_NOT_MATCH);
 
@@ -122,5 +122,9 @@ public class UserService {
         List<ReviewPost> reviews = reviewPostService.getAllReviews(userId, cursor);
 
         return UserReviewsResponseDto.of(user, reviews);
+    }
+
+    public List<Long> getAllId() {
+        return userRepository.getAllId();
     }
 }
