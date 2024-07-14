@@ -100,9 +100,7 @@ public class StudyController {
             @RequestBody StudyPostUpdateRequestDto request,
             @AuthUser User currentUser
     ) {
-        verifyUserIsStudyLeader(currentUser, studyId);
-
-        Study study = studyService.updateStudyPost(studyId, request);
+        Study study = studyService.updateStudyPost(studyId, request, currentUser);
         StudyPostUpdateResponseDto response = StudyPostUpdateResponseDto.from(study);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 
@@ -116,9 +114,7 @@ public class StudyController {
             @Valid @RequestBody StudyPostBumpRequestDto request,
             @AuthUser User currentUser
     ) {
-        verifyUserIsStudyLeader(currentUser, studyId);
-
-        Study study = studyService.bumpStudyPost(studyId, request);
+        Study study = studyService.bumpStudyPost(studyId, request, currentUser);
         StudyPostBumpResponseDto response = StudyPostBumpResponseDto.from(study);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 
@@ -131,9 +127,7 @@ public class StudyController {
             @PathVariable("study-id") Long studyId,
             @AuthUser User currentUser
     ) {
-        verifyUserIsStudyLeader(currentUser, studyId);
-
-        studyService.deleteStudy(studyId);
+        studyService.deleteStudy(studyId, currentUser);
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK)

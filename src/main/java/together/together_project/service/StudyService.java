@@ -46,31 +46,39 @@ public class StudyService {
     }
 
     public Study getById(Long id) {
-        return studyRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_NOT_FOUND));
+        return studyRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.STUDY_NOT_FOUND));
     }
 
-    public Study updateStudyPost(Long id, StudyPostUpdateRequestDto request) {
-        Study study = studyRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_NOT_FOUND));
+    public Study updateStudyPost(Long id, StudyPostUpdateRequestDto request, User user) {
+        verifyUserIsStudyLeader(user, id);
+
+        Study study = studyRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.STUDY_NOT_FOUND));
 
         return study.update(request);
     }
 
-    public Study bumpStudyPost(Long id, StudyPostBumpRequestDto request) {
-        Study study = studyRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_NOT_FOUND));
+    public Study bumpStudyPost(Long id, StudyPostBumpRequestDto request, User user) {
+        verifyUserIsStudyLeader(user, id);
+
+        Study study = studyRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.STUDY_NOT_FOUND));
 
         study.getStudyPost().bumpStudyPost(request);
 
         return study;
     }
 
-    public void deleteStudy(Long id) {
-        Study study = studyRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.STUDY_NOT_FOUND));
+    public void deleteStudy(Long id, User user) {
+        verifyUserIsStudyLeader(user, id);
+
+        Study study = studyRepository.findById(id).orElseThrow(() -> new CustomException(ErrorCode.STUDY_NOT_FOUND));
 
         study.softDelete();
         study.getStudyPost().softDelete();
+    }
+
+    private void verifyUserIsStudyLeader(User user, Long studyId) {
+        if (!user.getId().equals(getById(studyId).getLeader().getId())) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
     }
 }

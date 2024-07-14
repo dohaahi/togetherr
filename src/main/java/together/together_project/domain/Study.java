@@ -70,6 +70,7 @@ public class Study extends BaseTimeEntity {
         }
 
         this.updateTime();
+        studyPost.updateTime();
 
         return this;
     }
