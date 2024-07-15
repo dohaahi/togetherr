@@ -30,9 +30,13 @@ public class UserStudyLikeService {
     public void join(Long studyId, User user) {
         Study study = studyService.getById(studyId);
 
+        if (study.isFulled()) {
+            throw new CustomException(ErrorCode.STUDY_IS_FULLED);
+        }
+
         // 리더인지 or 이미 참여 신청한 유저인지 확인
-        Optional<UserStudyLink> studyLink = userStudyLinkRepository.findByStudyIdAndUserId(study.getStudyId(),
-                user.getId());
+        Optional<UserStudyLink> studyLink = userStudyLinkRepository
+                .findByStudyIdAndUserId(study.getStudyId(), user.getId());
 
         if (studyLink.isPresent() && studyLink.get().getStatus() == LEADER) {
             throw new CustomException(ErrorCode.INVALID_REQUEST);
@@ -47,10 +51,12 @@ public class UserStudyLikeService {
     }
 
 
-    public UserStudyJoinStatus respondToJoinRequest(RespondToJoinRequestDto request, Long studyId) {
+    public UserStudyJoinStatus respondToJoinRequest(RespondToJoinRequestDto request, Long studyId, User user) {
+        verifyUserIsStudyLeader(user, studyId);
+
         studyService.getById(studyId);
         UserStudyLink userStudyLink = userStudyLinkRepository.findByStudyIdAndUserId(studyId, request.userId())
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_REQUEST));
 
         if (request.isAccept()) {
             userStudyLink.approve();
@@ -61,7 +67,9 @@ public class UserStudyLikeService {
         return REJECTED;
     }
 
-    public List<UserStudyLink> getAllJoinRequest(Long studyId, Long cursor) {
+    public List<UserStudyLink> getAllJoinRequest(Long studyId, Long cursor, User user) {
+        verifyUserIsStudyLeader(user, studyId);
+
         return userStudyLinkRepository.paginateUserStudyLink(studyId, cursor, PENDING);
     }
 
@@ -71,6 +79,8 @@ public class UserStudyLikeService {
 
     // 참여 신청 철회
     public void withdrawJoinStudyRequest(Long studyId, Long userId) {
+        studyService.getById(studyId);
+
         UserStudyLink studyLink = userStudyLinkRepository.findByStudyIdAndUserId(studyId, userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_REQUEST));
 
@@ -120,5 +130,15 @@ public class UserStudyLikeService {
 
     public List<UserStudyLink> getAllParticipatingStudy(Long userId, Long cursor) {
         return userStudyLinkRepository.findPaginateAllParticipatingStudy(userId, cursor);
+    }
+
+    public List<UserStudyLink> getAll() {
+        return userStudyLinkRepository.getAll();
+    }
+
+    private void verifyUserIsStudyLeader(User currentUser, Long studyId) {
+        if (!currentUser.getId().equals(studyService.getById(studyId).getLeader().getId())) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
     }
 }

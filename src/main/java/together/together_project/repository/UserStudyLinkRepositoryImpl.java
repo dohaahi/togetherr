@@ -130,4 +130,12 @@ public class UserStudyLinkRepositoryImpl {
 
         return studyLinks;
     }
+
+    public List<UserStudyLink> getAll() {
+        return q.select(userStudyLink)
+                .from(userStudyLink)
+                .where(userStudyLink.deletedAt.isNull()
+                        .and(userStudyLink.status.ne(LEADER)))
+                .fetch();
+    }
 }

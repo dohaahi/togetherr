@@ -140,9 +140,8 @@ public class StudyController {
             @RequestParam(value = "cursor", required = false) Long cursor,
             @AuthUser User currentUser
     ) {
-        verifyUserIsStudyLeader(currentUser, studyId);
-
-        List<JoinRequestsResponseDto> joinRequests = userStudyLikeService.getAllJoinRequest(studyId, cursor)
+        List<JoinRequestsResponseDto> joinRequests = userStudyLikeService.getAllJoinRequest(studyId, cursor,
+                        currentUser)
                 .stream()
                 .map(JoinRequestsResponseDto::from)
                 .toList();
@@ -233,9 +232,8 @@ public class StudyController {
             @Valid @RequestBody RespondToJoinRequestDto request,
             @AuthUser User currentUser
     ) {
-        verifyUserIsStudyLeader(currentUser, studyId);
-
-        UserStudyJoinStatus respondToJoinRequest = userStudyLikeService.respondToJoinRequest(request, studyId);
+        UserStudyJoinStatus respondToJoinRequest = userStudyLikeService.respondToJoinRequest(request, studyId,
+                currentUser);
         RespondToJoinResponseDto response = RespondToJoinResponseDto.from(respondToJoinRequest);
         ResponseBody body = new ResponseBody(
                 response,
@@ -285,11 +283,5 @@ public class StudyController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
-    }
-
-    private void verifyUserIsStudyLeader(User currentUser, Long studyId) {
-        if (!currentUser.getId().equals(studyService.getById(studyId).getLeader().getId())) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
-        }
     }
 }
