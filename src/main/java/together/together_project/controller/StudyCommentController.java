@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import together.together_project.domain.StudyPostComment;
 import together.together_project.domain.User;
-import together.together_project.exception.CustomException;
-import together.together_project.exception.ErrorCode;
 import together.together_project.service.StudyCommentLikeService;
 import together.together_project.service.StudyCommentService;
 import together.together_project.service.dto.PaginationCollection;
@@ -56,9 +54,7 @@ public class StudyCommentController {
                                                       @PathVariable("study-comment-id") Long commentId,
                                                       @Valid @RequestBody CommentUpdateRequestDto request,
                                                       @AuthUser User currentUser) {
-        verifyUserIsCommentAuthor(commentId, currentUser);
-
-        StudyPostComment studyComment = studyCommentService.updateComment(studyId, commentId, request);
+        StudyPostComment studyComment = studyCommentService.updateComment(studyId, commentId, request, currentUser);
         CommentUpdateResponseDto response = CommentUpdateResponseDto.from(studyComment);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 
@@ -69,9 +65,7 @@ public class StudyCommentController {
     public ResponseEntity<ResponseBody> withdrawComment(@PathVariable("study-id") Long studyId,
                                                         @PathVariable("study-comment-id") Long commentId,
                                                         @AuthUser User currentUser) {
-        verifyUserIsCommentAuthor(commentId, currentUser);
-
-        studyCommentService.withdrawComment(studyId, commentId);
+        studyCommentService.withdrawComment(studyId, commentId, currentUser);
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK).body(body);
@@ -96,9 +90,8 @@ public class StudyCommentController {
                                                            @PathVariable("child-comment-id") Long childCommentId,
                                                            @Valid @RequestBody CommentUpdateRequestDto request,
                                                            @AuthUser User currentUser) {
-        verifyUserIsCommentAuthor(childCommentId, currentUser);
         StudyPostComment studyComment = studyCommentService.updateChildComment(studyId, parentCommentId, childCommentId,
-                request);
+                request, currentUser);
 
         CommentUpdateResponseDto response = CommentUpdateResponseDto.from(studyComment);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
@@ -111,8 +104,7 @@ public class StudyCommentController {
                                                              @PathVariable("parent-comment-id") Long parentCommentId,
                                                              @PathVariable("child-comment-id") Long childCommentId,
                                                              @AuthUser User currentUser) {
-        verifyUserIsCommentAuthor(childCommentId, currentUser);
-        studyCommentService.withdrawChildComment(studyId, parentCommentId, childCommentId);
+        studyCommentService.withdrawChildComment(studyId, parentCommentId, childCommentId, currentUser);
 
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
@@ -199,13 +191,5 @@ public class StudyCommentController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
-    }
-
-    private void verifyUserIsCommentAuthor(Long commentId, User currentUser) {
-        StudyPostComment comment = studyCommentService.getCommentById(commentId);
-
-        if (!currentUser.getId().equals(comment.getAuthor().getId())) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
-        }
     }
 }

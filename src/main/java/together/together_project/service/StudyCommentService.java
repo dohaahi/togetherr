@@ -36,8 +36,11 @@ public class StudyCommentService {
 
     public StudyPostComment updateComment(Long studyId,
                                           Long commentId,
-                                          CommentUpdateRequestDto request
+                                          CommentUpdateRequestDto request,
+                                          User author
     ) {
+        verifyUserIsCommentAuthor(commentId, author);
+
         studyService.getById(studyId);
         StudyPostComment comment = getCommentById(commentId);
         comment.update(request);
@@ -45,7 +48,9 @@ public class StudyCommentService {
         return comment;
     }
 
-    public void withdrawComment(Long studyId, Long commentId) {
+    public void withdrawComment(Long studyId, Long commentId, User author) {
+        verifyUserIsCommentAuthor(commentId, author);
+
         studyService.getById(studyId);
 
         studyPostCommentRepository.findCommentById(commentId)
@@ -68,7 +73,11 @@ public class StudyCommentService {
     public StudyPostComment updateChildComment(Long studyId,
                                                Long parentCommentId,
                                                Long childCommentId,
-                                               CommentUpdateRequestDto request) {
+                                               CommentUpdateRequestDto request,
+                                               User author
+    ) {
+        verifyUserIsCommentAuthor(childCommentId, author);
+
         studyService.getById(studyId);
         checkParentCommentAndCheckCommentDeleted(parentCommentId);
 
@@ -78,7 +87,9 @@ public class StudyCommentService {
         return comment;
     }
 
-    public void withdrawChildComment(Long studyId, Long parentCommentId, Long childCommentId) {
+    public void withdrawChildComment(Long studyId, Long parentCommentId, Long childCommentId, User author) {
+        verifyUserIsCommentAuthor(childCommentId, author);
+
         studyService.getById(studyId);
         checkParentCommentAndCheckCommentDeleted(parentCommentId);
 
@@ -92,6 +103,7 @@ public class StudyCommentService {
     }
 
     public List<StudyPostComment> getChildComment(Long studyId, Long parentCommentId, Long cursor) {
+        checkParentCommentAndCheckCommentDeleted(parentCommentId);
         studyService.getById(studyId);
         getCommentById(parentCommentId);
         return studyPostCommentRepository.paginateChildComment(studyId, parentCommentId, cursor);
@@ -115,5 +127,13 @@ public class StudyCommentService {
         }
 
         return comment;
+    }
+
+    private void verifyUserIsCommentAuthor(Long commentId, User currentUser) {
+        StudyPostComment comment = getCommentById(commentId);
+
+        if (!currentUser.getId().equals(comment.getAuthor().getId())) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
     }
 }
