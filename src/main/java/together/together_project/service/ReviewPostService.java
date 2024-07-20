@@ -42,6 +42,8 @@ public class ReviewPostService {
     }
 
     public ReviewPost updateReview(Long reviewId, ReviewUpdateRequestDto request, User user) {
+        verifyReviewAuthor(reviewId, user);
+
         Study study = null;
         if (request.studyId() != null) {
             userStudyLikeService.checkUserParticipant(request.studyId(), user.getId());
@@ -52,7 +54,9 @@ public class ReviewPostService {
                 .update(request, study);
     }
 
-    public void withdrawReview(Long reviewId) {
+    public void withdrawReview(Long reviewId, User user) {
+        verifyReviewAuthor(reviewId, user);
+
         ReviewPost reviewPost = reviewPostRepository.findReviewByReviewId(reviewId)
                 .orElseThrow(() -> new CustomException(ErrorCode.REVIEW_NOT_FOUND));
 
@@ -73,5 +77,13 @@ public class ReviewPostService {
 
     public List<ReviewPost> getAllReviews(Long userId, Long cursor) {
         return reviewPostRepository.paginateReviews(userId, cursor);
+    }
+
+    private void verifyReviewAuthor(Long reviewId, User currentUser) {
+        ReviewPost review = getReview(reviewId);
+
+        if (!review.getAuthor().getId().equals(currentUser.getId())) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
     }
 }
