@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import together.together_project.domain.ReviewComment;
 import together.together_project.domain.User;
-import together.together_project.exception.CustomException;
-import together.together_project.exception.ErrorCode;
 import together.together_project.service.ReviewCommentLikeService;
 import together.together_project.service.ReviewCommentService;
 import together.together_project.service.dto.PaginationCollection;
@@ -104,9 +102,7 @@ public class ReviewCommentController {
             @Valid @RequestBody ReviewCommentUpdatedRequestDto request,
             @AuthUser User currentUser
     ) {
-        verifyReviewCommentAuthor(commentId, currentUser);
-
-        ReviewComment comment = reviewCommentService.updatedComment(reviewId, commentId, request);
+        ReviewComment comment = reviewCommentService.updateComment(reviewId, commentId, request, currentUser);
         ReviewCommentUpdateResponseDto response = ReviewCommentUpdateResponseDto.of(comment);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 
@@ -120,9 +116,7 @@ public class ReviewCommentController {
             @PathVariable("review-comment-id") Long commentId,
             @AuthUser User currentUser
     ) {
-        verifyReviewCommentAuthor(commentId, currentUser);
-
-        reviewCommentService.withdrawComment(reviewId, commentId);
+        reviewCommentService.withdrawComment(reviewId, commentId, currentUser);
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -154,10 +148,8 @@ public class ReviewCommentController {
             @AuthUser User currentUser
 
     ) {
-        verifyReviewCommentAuthor(childCommentId, currentUser);
-
         ReviewComment comment = reviewCommentService.updateChildComment(reviewId, parentCommentId, childCommentId,
-                request);
+                request, currentUser);
         ReviewCommentUpdateResponseDto response = ReviewCommentUpdateResponseDto.of(comment);
         ResponseBody body = new ResponseBody(response, null, HttpStatus.OK.value());
 
@@ -172,9 +164,7 @@ public class ReviewCommentController {
             @PathVariable("child-comment-id") Long childCommentId,
             @AuthUser User CurrentUser
     ) {
-        verifyReviewCommentAuthor(childCommentId, CurrentUser);
-
-        reviewCommentService.withdrawChildComment(reviewId, parentCommentId, childCommentId);
+        reviewCommentService.withdrawChildComment(reviewId, parentCommentId, childCommentId, CurrentUser);
         ResponseBody body = new ResponseBody(null, null, HttpStatus.OK.value());
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -223,13 +213,5 @@ public class ReviewCommentController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(body);
-    }
-
-    private void verifyReviewCommentAuthor(Long commentId, User currentUser) {
-        ReviewComment comment = reviewCommentService.getByCommentId(commentId);
-
-        if (!comment.getAuthor().equals(currentUser)) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
-        }
     }
 }

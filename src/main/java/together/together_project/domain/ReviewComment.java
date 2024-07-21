@@ -43,11 +43,12 @@ public class ReviewComment extends BaseTimeEntity {
     private int totalLikeCount;
 
     public ReviewComment update(ReviewCommentUpdatedRequestDto request) {
-        if (request.content() != null) {
-            updateTime();
-            content = request.content();
+        if (request.content().trim().isEmpty()) {
+            throw new CustomException(ErrorCode.EMPTY_CONTENT_ERROR);
         }
 
+        updateTime();
+        content = request.content();
         return this;
     }
 

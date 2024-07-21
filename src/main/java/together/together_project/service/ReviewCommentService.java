@@ -39,7 +39,10 @@ public class ReviewCommentService {
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
     }
 
-    public ReviewComment updatedComment(Long reviewId, Long commentId, ReviewCommentUpdatedRequestDto request) {
+    public ReviewComment updateComment(Long reviewId, Long commentId, ReviewCommentUpdatedRequestDto request,
+                                       User user) {
+        verifyReviewCommentAuthor(commentId, user);
+
         reviewPostService.getReview(reviewId);
 
         if (request.content().trim().isEmpty()) {
@@ -50,7 +53,9 @@ public class ReviewCommentService {
                 .update(request);
     }
 
-    public void withdrawComment(Long reviewId, Long commentId) {
+    public void withdrawComment(Long reviewId, Long commentId, User user) {
+        verifyReviewCommentAuthor(commentId, user);
+
         reviewPostService.getReview(reviewId);
 
         getByCommentId(commentId)
@@ -64,6 +69,8 @@ public class ReviewCommentService {
     }
 
     public List<ReviewComment> getAllChildComment(Long reviewId, Long commentId, Long cursor) {
+        checkParentCommentAndCheckCommentDeleted(commentId);
+
         reviewPostService.getReview(reviewId);
         reviewCommentRepository.findByCommentId(commentId)
                 .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
@@ -87,8 +94,11 @@ public class ReviewCommentService {
     public ReviewComment updateChildComment(Long reviewId,
                                             Long parentCommentId,
                                             Long childCommentId,
-                                            ReviewCommentUpdatedRequestDto request
+                                            ReviewCommentUpdatedRequestDto request,
+                                            User user
     ) {
+        verifyReviewCommentAuthor(childCommentId, user);
+
         reviewPostService.getReview(reviewId);
         checkParentCommentAndCheckCommentDeleted(parentCommentId);
 
@@ -96,7 +106,9 @@ public class ReviewCommentService {
                 .update(request);
     }
 
-    public void withdrawChildComment(Long reviewId, Long parentCommentId, Long childCommentId) {
+    public void withdrawChildComment(Long reviewId, Long parentCommentId, Long childCommentId, User user) {
+        verifyReviewCommentAuthor(childCommentId, user);
+
         reviewPostService.getReview(reviewId);
         checkParentCommentAndCheckCommentDeleted(parentCommentId);
 
@@ -122,5 +134,13 @@ public class ReviewCommentService {
         }
 
         return comment;
+    }
+
+    private void verifyReviewCommentAuthor(Long commentId, User user) {
+        ReviewComment comment = getByCommentId(commentId);
+
+        if (!comment.getAuthor().equals(user)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
     }
 }
